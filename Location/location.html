@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Locations</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #e9edf7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 80%;
+            text-align: center;
+            margin-bottom: 320px;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .locations {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            background-color: #d0d8e4;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            text-align: center;
+            padding: 10px 0;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .card img {
+            width: 95%;
+            height: 125px;
+            object-fit: cover;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .card p {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #333;
+            transition: color 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .card:hover p {
+            color: #007BFF; /* Changes text color on hover */
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Available Locations</h1>
+        <div class="locations">
+            <a href="dhaka.html">
+                <div class="card">
+                    <img src="dhaka.jpg" alt="Dhaka">
+                    <p>Dhaka</p>
+                </div>
+            </a>
+            <a href="khulna.html">
+                <div class="card">
+                    <img src="khulna.jpg" alt="Khulna">
+                    <p>Khulna</p>
+                </div>
+            </a>
+            <a href="cumilla.html">
+                <div class="card">
+                    <img src="cumilla.jpg" alt="Cumilla">
+                    <p>Cumilla</p>
+                </div>
+            </a>
+            <a href="rajshahi.html">
+                <div class="card">
+                    <img src="rajshahi.jpg" alt="Rajshahi">
+                    <p>Rajshahi</p>
+                </div>
+            </a>
+            <a href="sylhet.html">
+                <div class="card">
+                    <img src="sylhet.jpg" alt="Sylhet">
+                    <p>Sylhet</p>
+                </div>
+            </a>
+            <a href="mymensingh.html">
+                <div class="card">
+                    <img src="mymensingh.jpg" alt="Mymensingh">
+                    <p>Mymensingh</p>
+                </div>
+            </a>
+            <a href="rangpur.html">
+                <div class="card">
+                    <img src="rangpur.jpg" alt="Rangpur">
+                    <p>Rangpur</p>
+                </div>
+            </a>
+            <a href="chattogram.html">
+                <div class="card">
+                    <img src="chattogram.jpg" alt="Chattogram">
+                    <p>Chattogram</p>
+                </div>
+            </a>
+        </div>
+    </div>
+</body>
+</html>
