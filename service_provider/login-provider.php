@@ -1,5 +1,10 @@
-<?php require_once "controllerProviderData.php";
- ?><!DOCTYPE html>
+<?php
+
+header('location: ../login.php');
+exit();
+?>
+
+<!DOCTYPE html>
 <html lang="en">
 
 <head>

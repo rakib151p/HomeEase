@@ -122,11 +122,11 @@ if (isset($_POST['login'])) {
             $status = $fetch['user_status'];
             if ($status == 'verified') {
                 $_SESSION['email'] = $email;
-                header('location: user_signup_login/home.php');
+                header('location: home.php');
             } else {
                 $info = "It looks like you haven't verified your email - $email";
                 $_SESSION['info'] = $info;
-                header('location: user_signup_login/provider-otp.php');
+                header('location: user_signup_login/user-otp.php');
             }
         } else {
             $errors['login-error'] = "Incorrect email or password!";
@@ -134,6 +134,7 @@ if (isset($_POST['login'])) {
     } else {
         $errors['login-error'] = "You are not yet a member! Click the signup link below.";
     }
+    // include 'typeUser.php';
 }
 
 // If user click continue button in forgot password form

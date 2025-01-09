@@ -1,8 +1,8 @@
 <?php require_once "controllerProviderData.php";
- ?><?php
+
 $email = $_SESSION['email'];
 if ($email == false) {
-    header('Location: login-user.php');
+    header('Location: ../login.php');
 }
 ?>
 <!DOCTYPE html>
@@ -18,8 +18,36 @@ if ($email == false) {
     <div class="flex items-center justify-center h-full">
         <div class="bg-white p-8 rounded-md shadow-md w-full max-w-sm bg-gradient-to-bl from-blue-100 via-slate-100 via-slate-100 to-blue-100 border-2 border-blue-200">
             <form action="provider-otp.php" method="POST" autocomplete="off">
-                <h2 class="text-2xl font-bold text-center text-gray-700 mb-6">Code Verification</h2>
+                <div class="flex gap-2">
 
+                    <div>
+                        <a href="../login.php">
+                            <button
+                                class="bg-white text-center h-10 w-10 rounded-2xl  relative right-4 bottom-1 text-black text-xl font-semibold group"
+                                type="button">
+                                <div
+                                    class="bg-blue-400 rounded-xl h-10 w-10 flex items-center justify-center absolute  top-[4px] ">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 1024 1024"
+                                        height="25px"
+                                        width="25px">
+                                        <path
+                                            d="M224 480h640a32 32 0 1 1 0 64H224a32 32 0 0 1 0-64z"
+                                            fill="#000000"></path>
+                                        <path
+                                            d="m237.248 512 265.408 265.344a32 32 0 0 1-45.312 45.312l-288-288a32 32 0 0 1 0-45.312l288-288a32 32 0 1 1 45.312 45.312L237.248 512z"
+                                            fill="#000000"></path>
+                                    </svg>
+                                </div>
+                            </button>
+                    </div>
+                    </a>
+                    <div>
+                        <h2 class="text-2xl font-bold text-center text-gray-700 mb-6">Code Verification</h2>
+                    </div>
+
+                </div>
                 <?php if (isset($_SESSION['info'])): ?>
                     <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mb-4 text-center">
                         <?php echo $_SESSION['info']; ?>

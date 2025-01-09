@@ -1,15 +1,27 @@
 <?php
+include 'config.php';
+$email = "";
+$name = "";
+$errors = array();
 $temp = 0;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $temp++;
-    if (isset($_POST['user_type'])) {
-        $userType = $_POST['user_type'];
-        if ($userType === 'User') {
-            require_once "user_signup_login/controllerUserData.php";
-        } elseif ($userType === 'Service Provider') {
-            require_once "service_provider/controllerProviderData.php";
-            // require_once "user_signup_login/controllerUserData.php";
+    $email = mysqli_real_escape_string($con, $_POST['email']);
+    $check_email = "SELECT provider_email FROM service_provider WHERE provider_email='$email' union SELECT user_email FROM user WHERE user_email='$email'";
+    // $check_email1 = "SELECT * FROM user WHERE user_email='$email'";
+    $run_sql = mysqli_query($con, $check_email);
+    if (mysqli_num_rows($run_sql) === 0) {
+        if (isset($_POST['user_type'])) {
+            $userType = $_POST['user_type'];
+            if ($userType === 'User') {
+                require_once "user_signup_login/controllerUserData.php";
+            } elseif ($userType === 'Service Provider') {
+                require_once "service_provider/controllerProviderData.php";
+                // require_once "user_signup_login/controllerUserData.php";
+            }
         }
+    }else{
+        $errors['signup-error']="The email already exist";
     }
 }
 if ($temp === 0)

@@ -19,9 +19,9 @@ if ($email == false) {
         <div class="bg-white p-8 rounded-md shadow-md w-full max-w-sm bg-gradient-to-bl from-blue-100 via-slate-100 via-slate-100 to-blue-100 border-2 border-blue-200">
             <form action="user-otp.php" method="POST" autocomplete="off">
                 <div class="flex gap-2">
-                    
-                        <div>
-                    <a href="Lendingpage.php">
+
+                    <div>
+                        <a href="../login.php">
                             <button
                                 class="bg-white text-center h-10 w-10 rounded-2xl  relative right-4 bottom-1 text-black text-xl font-semibold group"
                                 type="button">
@@ -41,7 +41,7 @@ if ($email == false) {
                                     </svg>
                                 </div>
                             </button>
-                        </div>
+                    </div>
                     </a>
                     <div>
                         <h2 class="text-2xl font-bold text-center text-gray-700 mb-6">Code Verification</h2>
