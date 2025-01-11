@@ -98,7 +98,7 @@ if (isset($_POST['check'])) {
         if ($update_res) {
             $_SESSION['name'] = $name;
             $_SESSION['email'] = $email;
-            header('location: home.php');
+            header('location: ../login.php');
             exit();
         } else {
             $errors['otp-error'] = "Failed while updating code!";
