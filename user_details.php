@@ -8,6 +8,7 @@ if (isset($_SESSION['email'])) {
     $res2 = mysqli_query($con, $check_email_user);
     $_SESSION['type'] = '';
     if (mysqli_num_rows($res1) > 0) {
+        echo 'provider';
         $_SESSION['type'] = 'provider';
         $fetch = mysqli_fetch_assoc($res1);
         $_SESSION['provider_id']=$fetch['provider_id'];
@@ -26,17 +27,30 @@ if (isset($_SESSION['email'])) {
         $_SESSION['provider_profile_picture'] = $fetch['provider_profile_picture'];
         $_SESSION['provider_verified'] = $fetch['provider_verified'];
     } else if (mysqli_num_rows($res2) > 0) {
+        echo 'user';
         $_SESSION['type'] = 'user';
         $fetch = mysqli_fetch_assoc($res2);
         $_SESSION['user_id']=$fetch['user_id'];
         $_SESSION['user_name'] = $fetch['user_name'];
         $_SESSION['user_phone'] = $fetch['user_phone'];
+        $_SESSION['user_email']=$fetch['user_email'];
         $_SESSION['user_address'] = $fetch['user_address'];
         $_SESSION['user_gender'] = $fetch['user_gender'];
         $_SESSION['user_registration_date'] = $fetch['user_registration_date'];
         $_SESSION['user_district'] = $fetch['user_district'];
         $_SESSION['user_upazila'] = $fetch['user_upazila'];
         $_SESSION['user_area'] = $fetch['user_area'];
+        echo "<h2>User Session Details:</h2>";
+        echo "<p>User ID: " . $_SESSION['user_id'] . "</p>";
+        echo "<p>User Name: " . $_SESSION['user_name'] . "</p>";
+        echo "<p>User Phone: " . $_SESSION['user_phone'] . "</p>";
+        echo "<p>User Email: " . $_SESSION['user_email'] . "</p>";
+        echo "<p>User Address: " . $_SESSION['user_address'] . "</p>";
+        echo "<p>User Gender: " . $_SESSION['user_gender'] . "</p>";
+        echo "<p>Registration Date: " . $_SESSION['user_registration_date'] . "</p>";
+        echo "<p>User District: " . $_SESSION['user_district'] . "</p>";
+        echo "<p>User Upazila: " . $_SESSION['user_upazila'] . "</p>";
+        echo "<p>User Area: " . $_SESSION['user_area'] . "</p>";
     } else {
         $errors['login-error'] = "You are not yet a member! Click the signup link below.";
     }

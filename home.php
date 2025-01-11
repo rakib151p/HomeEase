@@ -248,7 +248,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'image' => $service['service_picture'],
             'text' => $service['service_details'],
             'cardTitle' => $service['service_name'],
-            'link' => "service.php?service_id={$service['item_id']}",
             'cardContent' => [
               '✔ ' . $service['service_details'], // Example card content
               '✔ Customize this based on additional data if needed',
