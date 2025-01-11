@@ -40,17 +40,17 @@ if (isset($_SESSION['email'])) {
         $_SESSION['user_district'] = $fetch['user_district'];
         $_SESSION['user_upazila'] = $fetch['user_upazila'];
         $_SESSION['user_area'] = $fetch['user_area'];
-        echo "<h2>User Session Details:</h2>";
-        echo "<p>User ID: " . $_SESSION['user_id'] . "</p>";
-        echo "<p>User Name: " . $_SESSION['user_name'] . "</p>";
-        echo "<p>User Phone: " . $_SESSION['user_phone'] . "</p>";
-        echo "<p>User Email: " . $_SESSION['user_email'] . "</p>";
-        echo "<p>User Address: " . $_SESSION['user_address'] . "</p>";
-        echo "<p>User Gender: " . $_SESSION['user_gender'] . "</p>";
-        echo "<p>Registration Date: " . $_SESSION['user_registration_date'] . "</p>";
-        echo "<p>User District: " . $_SESSION['user_district'] . "</p>";
-        echo "<p>User Upazila: " . $_SESSION['user_upazila'] . "</p>";
-        echo "<p>User Area: " . $_SESSION['user_area'] . "</p>";
+        // echo "<h2>User Session Details:</h2>";
+        // echo "<p>User ID: " . $_SESSION['user_id'] . "</p>";
+        // echo "<p>User Name: " . $_SESSION['user_name'] . "</p>";
+        // echo "<p>User Phone: " . $_SESSION['user_phone'] . "</p>";
+        // echo "<p>User Email: " . $_SESSION['user_email'] . "</p>";
+        // echo "<p>User Address: " . $_SESSION['user_address'] . "</p>";
+        // echo "<p>User Gender: " . $_SESSION['user_gender'] . "</p>";
+        // echo "<p>Registration Date: " . $_SESSION['user_registration_date'] . "</p>";
+        // echo "<p>User District: " . $_SESSION['user_district'] . "</p>";
+        // echo "<p>User Upazila: " . $_SESSION['user_upazila'] . "</p>";
+        // echo "<p>User Area: " . $_SESSION['user_area'] . "</p>";
     } else {
         $errors['login-error'] = "You are not yet a member! Click the signup link below.";
     }

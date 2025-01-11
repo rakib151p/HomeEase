@@ -6,7 +6,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $upazila = $_POST['user_upazila'];
     $area = $_POST['user_area'];
     $address = $_POST['user_address'];
-    $user_id=$_SESSION['user_id'];
+    $user_id = $_SESSION['user_id'];
     // echo $district.$upazila.$area;
     // Prepare the SQL query
     $sql = "UPDATE `user` 
@@ -21,12 +21,12 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     // Execute the query
     if ($stmt->execute()) {
         echo "User details updated successfully.";
-        $_SESSION['user_district']=$district;
-        $_SESSION['user_upazila']=$upazila;
-        $_SESSION['user_area']=$area;
-        $_SESSION['user_address']=$address;
+        $_SESSION['user_district'] = $district;
+        $_SESSION['user_upazila'] = $upazila;
+        $_SESSION['user_area'] = $area;
+        $_SESSION['user_address'] = $address;
         header("Location: " . $_SERVER['PHP_SELF']);
-  exit;
+        exit;
     } else {
         echo "Error updating user details: " . $stmt->error;
     }

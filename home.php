@@ -274,7 +274,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Handle service selection
         function selectService(serviceId) {
-          alert(serviceId);
+          // alert(serviceId);
           // Highlight selected service
           const allServices = document.querySelectorAll('.service-item');
           allServices.forEach(service => service.classList.remove('border-blue-500', 'bg-blue-50'));
@@ -333,7 +333,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Add click event for styling (optional, if highlighting is needed)
             subserviceItem.addEventListener('click', () => handleSubserviceClick(subserviceItem));
-
             // Append the subservice card to the container
             subserviceContainer.appendChild(subserviceItem);
           });
@@ -344,21 +343,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           allSubservices.forEach(sub => sub.classList.remove('border-blue-500', 'bg-blue-100'));
           subserviceItem.classList.add('border-blue-500', 'bg-blue-100');
         }
-
         // Default selection
         if (Object.keys(services).length > 0) {
           const firstServiceId = Object.keys(services)[0];
           selectService(firstServiceId);
-          alert(firstServiceId);
-
+          // alert(firstServiceId);
         }
         console.log(services);
       </script>
-      </script>
-
-
       <section class="bg-gradient-to-bl via-white to-blue-50">
-
         <section class="max-w-6xl mx-auto py-16 text-center">
           <h2 class="text-black font-bold text-2xl md:text-3xl mb-12">HOW IT WORKS</h2>
 
@@ -372,7 +365,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <h3 class="text-blue-500 font-semibold text-xl mt-4">Book Online</h3>
               <p class="text-gray-600 mt-4 text-sm">Pick a date and 2-hour appointment time when you want your service provider to arrive.</p>
             </div>
-
             <!-- Card 2 -->
             <div class="bg-gradient-to-br from-blue-100 via-white to-blue-50 shadow-lg rounded-lg p-8 hover:-translate-y-2 transition-transform duration-300 border border-gray-200">
               <div class="flex items-center justify-center w-16 h-16 border-2 border-blue-500 rounded-full text-xl font-bold text-blue-500 mx-auto">
@@ -382,7 +374,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <h3 class="text-blue-500 font-semibold text-xl mt-4">Review On-Site Estimate</h3>
               <p class="text-gray-600 mt-4 text-sm">Your service provider will prepare an estimate to complete the repair.</p>
             </div>
-
             <!-- Card 3 -->
             <div class="bg-gradient-to-br from-blue-100 via-white to-blue-50 shadow-lg rounded-lg p-8 hover:-translate-y-2 transition-transform duration-300 border border-gray-200">
               <div class="flex items-center justify-center w-16 h-16 border-2 border-blue-500 rounded-full text-xl font-bold text-blue-500 mx-auto">
@@ -394,20 +385,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
           </div>
         </section>
-
-
-
-
-
-
-
-
         <section class="mt-12  w-[1200px] ml-[450px]">
 
           <span class="font-bold text-3xl mt-12 pr-[200px]">Popular Services</span>
           <div class="grid grid-cols-3 gap-6 mt-12">
-
-
             <div class="w-60 h-80 bg-white-800 rounded-3xl  p-4 flex flex-col items-start justify-center gap-3 border border-blue-500 shadow-xl ">
               <div class="w-52 h-40 bg-sky-300 rounded-2xl"><img src="photo\Home\pexels-njeromin-29376558.jpg" class="rounded-2xl  h-40 w-52"></div>
               <div class="">
@@ -503,10 +484,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
           </div>
         </section>
-
-
-
-
 
         <section class="w-[1200px] ml-[350px] h-auto mt-12">
           <span class="text-3xl font-bold">See what happy customers are saying about HomeEase</span><br>

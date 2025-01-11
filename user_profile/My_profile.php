@@ -9,12 +9,13 @@ if (isset($_POST['submit'])) {
     $user_email = empty($_POST['user_email']) ? $_SESSION['user_email'] : $_POST['user_email'];
     $user_phone = empty($_POST['user_phone']) ? $_SESSION['user_phone'] : $_POST['user_phone'];
     $user_gender = empty($_POST['user_gender']) ? $_SESSION['user_gender'] : $_POST['user_gender'];
-    if(!empty($_POST['user_password'])){$user_password= $_POST['user_password'];
+    if (!empty($_POST['user_password'])) {
+        $user_password = $_POST['user_password'];
         $user_password = password_hash($user_password, PASSWORD_DEFAULT); // Use hashing if password is provided
     }
 
     // Optional: Password encryption
-    
+
     // Check if a file is uploaded
     if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
         // Define the allowed file extensions
@@ -47,7 +48,7 @@ if (isset($_POST['submit'])) {
     $user_district = $_SESSION['user_district']; // Add other fields as necessary
     $user_upazila = $_SESSION['user_upazila'];
     $user_area = $_SESSION['user_area'];
-    if(!empty($_POST['user_password'])){
+    if (!empty($_POST['user_password'])) {
         $sql = "UPDATE `user` SET 
             `user_name` = '$user_name', 
             `user_email` = '$user_email', 
@@ -59,10 +60,8 @@ if (isset($_POST['submit'])) {
             `user_upazila` = '$user_upazila', 
             `user_area` = '$user_area'
             WHERE `user_id` = '$user_id'";
-
-    }
-    else{// Prepare SQL to update user data
-    $sql = "UPDATE `user` SET 
+    } else { // Prepare SQL to update user data
+        $sql = "UPDATE `user` SET 
             `user_name` = '$user_name', 
             `user_email` = '$user_email', 
             `user_phone` = '$user_phone',
@@ -72,7 +71,7 @@ if (isset($_POST['submit'])) {
             `user_upazila` = '$user_upazila', 
             `user_area` = '$user_area'
             WHERE `user_id` = '$user_id'";
-}
+    }
     // Execute the query
     if ($con->query($sql) === TRUE) {
         echo "Profile updated successfully!";
@@ -80,6 +79,8 @@ if (isset($_POST['submit'])) {
         $_SESSION['user_email'] = $user_email;
         $_SESSION['user_phone'] = $user_phone;
         $_SESSION['user_gender'] = $user_gender;
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit;
     } else {
         echo "Error: " . $con->error;
     }
