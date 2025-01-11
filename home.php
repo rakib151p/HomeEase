@@ -1,3 +1,32 @@
+<?php
+include 'config.php';
+session_start();
+include 'user_details.php';
+// submit comment
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $comment = $_POST['comment'];
+  $rating = $_POST['rating'];
+  if ($_SESSION['type'] === 'user') {
+    $type = 0; //for mentioning user
+    $user_id = $_SESSION['user_id'];
+  } else {
+    $type = 1; //for mentioning provider
+    $user_id = $_SESSION['provider_id'];
+  }
+  $query = "INSERT INTO `review_platform` (`user_id`, `user/provider`, `review_text`, `review_rating`) 
+              VALUES ('$user_id', '$type', '$comment', '$rating')";
+  // Execute the query
+  if (mysqli_query($con, $query)) {
+    echo "Review submitted successfully!";
+  } else {
+    echo "Error: " . mysqli_error($conn);
+  }
+  header("Location: " . $_SERVER['PHP_SELF']);
+  exit;
+  // echo $_POST['rating'] . " " . $_POST['comment'];
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -56,9 +85,6 @@
   <!-- Navbar -->
   <section class="bg-gradient-to-bl from-blue-100 via-white via-blue-100 to-slate-300 ">
     <?php include 'header.php'; ?>
-    
-
-
     <section id="bg" class="text-center pt-12 md:pt-24 w-screen h-auto relative overflow-hidden">
       <p class="text-3xl md:text-6xl font-bold">All In One Solution</p>
       <p class="text-lg md:text-2xl pt-4">One Platform, Every Service, Welcome to HomeEase</p>
@@ -97,41 +123,49 @@
           <!-- Left Arrow -->
           <button id="prev-btn" class="absolute top-1/2 left-0 transform -translate-y-1/2 bg-gray-200 hover:bg-gray-300 rounded-full p-2 shadow-lg z-10">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 010-1.414L10.586 10 7.707 7.707a1 1 0 111.414-1.414l3.999 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+              <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 010 1.414L9.414 10l2.879 2.879a1 1 0 01-1.415 1.415l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.415 0z" clip-rule="evenodd" />
+
             </svg>
           </button>
 
           <!-- Services Slider -->
           <div id="slider" class="gap-4 flex transition-transform duration-500">
             <!-- Service 1: Assembly -->
-            <div id="assembly" onclick="selectService('assembly')" class="service-item flex flex-col items-center justify-center p-4 border border-transparent rounded-lg bg-white shadow-md cursor-pointer hover:bg-gray-100 w-[200px] shrink-0">
+            <?php
+
+            // Query to fetch services
+            $query = "SELECT `service_id`, `service_name`, `service_picture` FROM `service` WHERE 1";
+
+            // Execute the query
+            $result = mysqli_query($con, $query);
+
+            // Check if there are results
+            if (mysqli_num_rows($result) > 0) {
+              while ($row = mysqli_fetch_assoc($result)) {
+                // Generate service item
+                echo "
+        <div id='{$row['service_name']}' onclick=\"selectService('{$row['service_name']}')\" class=\"service-item flex flex-col items-center justify-center p-4 border border-transparent rounded-lg bg-white shadow-md cursor-pointer hover:bg-gray-100 w-[200px] shrink-0\">
+            <img src='" . htmlspecialchars($row['service_picture']) . "' alt='" . htmlspecialchars($row['service_name']) . "' class=\"w-12 h-12\">
+            <span class=\"mt-2 text-base sm:text-lg font-medium\">" . htmlspecialchars($row['service_name']) . "</span>
+        </div>";
+              }
+            } else {
+              echo "<p>No services available.</p>";
+            }
+
+            ?>
+            <!-- <div id="assembly" onclick="selectService('assembly')" class="service-item flex flex-col items-center justify-center p-4 border border-transparent rounded-lg bg-white shadow-md cursor-pointer hover:bg-gray-100 w-[200px] shrink-0">
               <img src="https://img.icons8.com/ios/50/assembly.png" alt="Assembly" class="w-12 h-12">
               <span class="mt-2 text-base sm:text-lg font-medium">Assembly</span>
-            </div>
+            </div> -->
 
-            <!-- Service 2: Mounting -->
-            <div id="mounting" onclick="selectService('mounting')" class="service-item flex flex-col items-center justify-center p-4 border border-transparent rounded-lg bg-white shadow-md cursor-pointer hover:bg-gray-100 w-[200px] shrink-0">
-              <img src="https://img.icons8.com/ios/50/mounting.png" alt="Mounting" class="w-12 h-12">
-              <span class="mt-2 text-base sm:text-lg font-medium">Mounting</span>
-            </div>
-
-            <!-- Service 3: Moving -->
-            <div id="moving" onclick="selectService('moving')" class="service-item flex flex-col items-center justify-center p-4 border border-transparent rounded-lg bg-white shadow-md cursor-pointer hover:bg-gray-100 w-[200px] shrink-0">
-              <img src="https://img.icons8.com/ios/50/moving.png" alt="Moving" class="w-12 h-12">
-              <span class="mt-2 text-base sm:text-lg font-medium">Moving</span>
-            </div>
-
-            <!-- Service 4: Another Moving -->
-            <div id="movin" onclick="selectService('movin')" class="service-item flex flex-col items-center justify-center p-4 border border-transparent rounded-lg bg-white shadow-md cursor-pointer hover:bg-gray-100 w-[200px] shrink-0">
-              <img src="https://img.icons8.com/ios/50/moving.png" alt="Moving" class="w-12 h-12">
-              <span class="mt-2 text-base sm:text-lg font-medium">Moving</span>
-            </div>
           </div>
 
           <!-- Right Arrow -->
           <button id="next-btn" class="absolute top-1/2 right-0 transform -translate-y-1/2 bg-gray-200 hover:bg-gray-300 rounded-full p-2 shadow-lg z-10">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 010 1.414L9.414 10l2.879 2.879a1 1 0 01-1.415 1.415l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.415 0z" clip-rule="evenodd" />
+              <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 010-1.414L10.586 10 7.707 7.707a1 1 0 111.414-1.414l3.999 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+
             </svg>
           </button>
         </div>
@@ -162,11 +196,8 @@
           }
         });
       </script>
-
-
       <!-- Subservice Container -->
       <div id="subservice-container" class="flex flex-wrap gap-4 justify-center mt-8"></div>
-
       <!-- Text and Image Container -->
       <div class="bg-[#D0DFEF] h-[700px] w-[1100px] mt-12 rounded-[120px] ml-[400px] relative flex items-center justify-center">
         <!-- White Card -->
@@ -183,44 +214,68 @@
           alt="Service Image"
           class="z-0 rounded-[70px] shadow-md w-full max-w-[900px]">
       </div>
+      <?php
+      include 'config.php';
+      $services_query = "SELECT service_id, service_name, service_details, service_picture FROM service";
+      $services_result = $con->query($services_query);
 
+      // Initialize the services array
+      $services = [];
+
+      // Fetch services and their items
+      if ($services_result->num_rows > 0) {
+        while ($service = $services_result->fetch_assoc()) {
+          $service_id = $service['service_id'];
+
+          // Query to fetch items for the current service
+          $items_query = "SELECT * FROM item WHERE service_id = '$service_id'";
+          $items_result = $con->query($items_query);
+
+          // Collect subservices (item names)
+          $subservices = [];
+          if ($items_result->num_rows > 0) {
+            while ($item = $items_result->fetch_assoc()) {
+              $subservices[] = [
+                'name' => $item['item_name'],
+                'link' => "service.php?item_id={$item['item_id']}", 
+            ];
+            }
+          }
+
+          // Add service data to the array
+          $services[$service['service_name']] = [
+            'subservices' => $subservices,
+            'image' => $service['service_picture'],
+            'text' => $service['service_details'],
+            'cardTitle' => $service['service_name'],
+            'link' => "service.php?service_id={$service['item_id']}",
+            'cardContent' => [
+              '✔ ' . $service['service_details'], // Example card content
+              '✔ Customize this based on additional data if needed',
+            ]
+          ];
+        }
+      }
+      // echo "<script>const services = " . str_replace('"', "'", json_encode($services, JSON_PRETTY_PRINT)) . ";</script>";
+      echo "<script>const services = " . json_encode($services, JSON_PRETTY_PRINT) . ";</script>";
+      ?>
       <script>
         // Service data
-        const services = {
-          assembly: {
-            subservices: ['General Furniture Assembly', 'IKEA Assembly', 'Crib Assembly', 'PAX Assembly', 'Bookshelf Assembly'],
-            image: 'pexels-njeromin-29376558.jpg',
-            text: 'Assembly: Set up furniture and other items efficiently and with care.',
-            cardTitle: 'Assembly',
-            cardContent: [
-              '✔ Set up furniture and other items efficiently and with care.',
-              '✔ Includes IKEA and custom furniture setups.',
-            ]
-          },
-          mounting: {
-            subservices: ['TV Mounting', 'Wall Shelf Mounting', 'Picture Hanging', 'Curtain Rod Installation'],
-            image: 'pexels-shkrabaanthony-7345465.jpg',
-            text: 'Mounting: Perfectly install items on walls, such as TVs and shelves.',
-            cardTitle: 'Mounting',
-            cardContent: [
-              '✔ Securely mount your TV, shelves, art, mirrors, dressers, and more.',
-              '✔ Now Trending: Gallery walls, art TVs, and wraparound bookcases.',
-            ]
-          },
-          moving: {
-            subservices: ['Small Moves', 'Packing and Unpacking', 'Heavy Lifting', 'Furniture Rearranging'],
-            image: 'photo\Home\pexels-trimlack-2867761.jpg',
-            text: 'Moving: Smoothly move and rearrange your belongings.',
-            cardTitle: 'Moving',
-            cardContent: [
-              '✔ Small moves and heavy lifting made easy.',
-              '✔ Includes packing, unpacking, and furniture rearranging.',
-            ]
-          }
-        };
+        // const services = {
+        //   "assembly": {
+        //     subservices: ['General Furniture Assembly', 'IKEA Assembly', 'Crib Assembly', 'PAX Assembly', 'Bookshelf Assembly'],
+        //     image: 'pexels-njeromin-29376558.jpg',
+        //     text: 'Assembly: Set up furniture and other items efficiently and with care.',
+        //     cardTitle: 'Assembly',
+        //     cardContent: [
+        //       '✔ Set up furniture and other items efficiently and with care.',
+        //       '✔ Includes IKEA and custom furniture setups.',
+        //     ]
+        //   }}
 
         // Handle service selection
         function selectService(serviceId) {
+          alert(serviceId);
           // Highlight selected service
           const allServices = document.querySelectorAll('.service-item');
           allServices.forEach(service => service.classList.remove('border-blue-500', 'bg-blue-50'));
@@ -231,6 +286,7 @@
           updateServiceImage(serviceId);
           updateCardContent(serviceId);
           updateSubservices(serviceId);
+
         }
 
         // Update service image
@@ -255,22 +311,34 @@
         }
 
         // Update subservices
+
         function updateSubservices(serviceId) {
           const subserviceContainer = document.getElementById('subservice-container');
           subserviceContainer.innerHTML = ''; // Clear previous subservices
           const subservices = services[serviceId].subservices;
 
           subservices.forEach((subservice, index) => {
+            // Create the container for the subservice card
             const subserviceItem = document.createElement('div');
-            subserviceItem.textContent = subservice;
             subserviceItem.className = 'border-2 border-blue-100 bg-white p-4 rounded-xl shadow-md text-gray-700 text-center w-[200px] cursor-pointer hover:bg-blue-50 hover:shadow-lg';
             subserviceItem.dataset.index = index;
 
+            // Create a link for the subservice
+            const subserviceLink = document.createElement('a');
+            subserviceLink.textContent = subservice.name;
+            subserviceLink.href = subservice.link; // Set the link dynamically
+            subserviceLink.className = 'block text-blue-500 hover:underline';
+
+            // Add the link to the subservice card
+            subserviceItem.appendChild(subserviceLink);
+
+            // Add click event for styling (optional, if highlighting is needed)
             subserviceItem.addEventListener('click', () => handleSubserviceClick(subserviceItem));
+
+            // Append the subservice card to the container
             subserviceContainer.appendChild(subserviceItem);
           });
         }
-
         // Handle subservice click
         function handleSubserviceClick(subserviceItem) {
           const allSubservices = document.querySelectorAll('#subservice-container > div');
@@ -279,7 +347,14 @@
         }
 
         // Default selection
-        selectService('assembly');
+        if (Object.keys(services).length > 0) {
+          const firstServiceId = Object.keys(services)[0];
+          selectService(firstServiceId);
+          alert(firstServiceId);
+
+        }
+        console.log(services);
+      </script>
       </script>
 
 
@@ -437,9 +512,16 @@
         <section class="w-[1200px] ml-[350px] h-auto mt-12">
           <span class="text-3xl font-bold">See what happy customers are saying about HomeEase</span><br>
 
-          <button id="comment-button" class="mt-6 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-green-500 transition">
+          <?php
+          // session_start();
+          if (isset($_SESSION['email'])) {
+            // echo 'Rakib';
+            echo '<button id="comment-button" class="mt-6 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-green-500 transition">
             Leave a Comment
-          </button>
+          </button>';
+          }
+          ?>
+
 
           <div class="mt-12">
             <!-- Slider Container -->
@@ -480,37 +562,61 @@
             <div class="bg-white rounded-lg shadow-lg w-[400px] p-6">
               <h2 class="text-xl font-bold mb-4">Write a Comment</h2>
 
-              <!-- Name Input -->
-              <div class="mb-4">
-                <label for="comment-name" class="block font-semibold mb-2">Your Name:</label>
-                <input id="comment-name" type="text" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your name">
-              </div>
-
-              <!-- Star Rating -->
-              <div class="mb-4">
-                <label class="font-semibold">Rate Us:</label>
-                <div class="flex mt-2">
-                  <span class="text-gray-400 cursor-pointer hover:text-yellow-500">&#9733;</span>
-                  <span class="text-gray-400 cursor-pointer hover:text-yellow-500">&#9733;</span>
-                  <span class="text-gray-400 cursor-pointer hover:text-yellow-500">&#9733;</span>
-                  <span class="text-gray-400 cursor-pointer hover:text-yellow-500">&#9733;</span>
-                  <span class="text-gray-400 cursor-pointer hover:text-yellow-500">&#9733;</span>
+              <!-- Form Start -->
+              <form action="" method="POST">
+                <!-- Name Input -->
+                <div class="mb-4">
+                  <label for="comment-name" class="block font-semibold mb-2">Your Name:</label>
+                  <input id="comment-name" name="name" type="text" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="<?php if (isset($_SESSION['email'])) {
+                                                                                                                                                                            if ($_SESSION['type'] == 'user') echo $_SESSION['user_name'];
+                                                                                                                                                                            else echo $_SESSION['provider_name'];
+                                                                                                                                                                          }
+                                                                                                                                                                          ?> " required readonly>
                 </div>
-              </div>
+                <input type="hidden" name="key" value="value">
+                <!-- Star Rating -->
+                <div class="mb-4">
+                  <label class="font-semibold">Rate Us:</label>
+                  <div class="flex mt-2">
+                    <label class="cursor-pointer">
+                      <input type="radio" name="rating" value="1" class="hidden">
+                      <span class="text-gray-400 hover:text-yellow-500">&#9733;</span>
+                    </label>
+                    <label class="cursor-pointer">
+                      <input type="radio" name="rating" value="2" class="hidden">
+                      <span class="text-gray-400 hover:text-yellow-500">&#9733;</span>
+                    </label>
+                    <label class="cursor-pointer">
+                      <input type="radio" name="rating" value="3" class="hidden">
+                      <span class="text-gray-400 hover:text-yellow-500">&#9733;</span>
+                    </label>
+                    <label class="cursor-pointer">
+                      <input type="radio" name="rating" value="4" class="hidden">
+                      <span class="text-gray-400 hover:text-yellow-500">&#9733;</span>
+                    </label>
+                    <label class="cursor-pointer">
+                      <input type="radio" name="rating" value="5" class="hidden">
+                      <span class="text-gray-400 hover:text-yellow-500">&#9733;</span>
+                    </label>
+                  </div>
+                </div>
 
-              <!-- Comment Input -->
-              <div class="mb-4">
-                <label for="comment-text" class="block font-semibold mb-2">Your Comment:</label>
-                <textarea id="comment-text" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" rows="4" placeholder="Write your feedback about HomeEase..."></textarea>
-              </div>
+                <!-- Comment Input -->
+                <div class="mb-4">
+                  <label for="comment-text" class="block font-semibold mb-2">Your Comment:</label>
+                  <textarea id="comment-text" name="comment" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" rows="4" placeholder="Write your feedback about HomeEase..." required></textarea>
+                </div>
 
-              <!-- Buttons -->
-              <div class="mt-6 flex justify-end gap-4">
-                <button id="close-modal" class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-200">Cancel</button>
-                <button id="submit-comment" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500">Submit</button>
-              </div>
+                <!-- Buttons -->
+                <div class="mt-6 flex justify-end gap-4">
+                  <button type="button" id="close-modal" class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-200">Cancel</button>
+                  <button type="submit" id="submit-comment" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500">Submit</button>
+                </div>
+              </form>
+              <!-- Form End -->
             </div>
           </div>
+
         </section>
 
         <script>
@@ -566,38 +672,31 @@
           });
 
           // Submit comment
-          submitButton.addEventListener('click', () => {
+          // Submit comment
+          submitButton.addEventListener('click', (event) => {
             const name = commentName.value.trim();
             const comment = commentText.value.trim();
 
+            // Prevent default form submission to handle validation
+            event.preventDefault();
+
             // Validation
-            if (!name || !selectedRating || !comment) {
-              alert('Please fill in your name, select a star rating, and write a comment.');
+            if (!selectedRating) {
+              alert('Please select a star rating.');
               return;
             }
 
-            // Add the new comment to the slider
-            const newComment = document.createElement('div');
-            newComment.classList.add('min-w-[300px]', 'max-w-sm', 'p-4', 'bg-white', 'rounded-lg', 'shadow-md', 'snap-start', 'border-2', 'border-blue-200');
-            newComment.innerHTML = `
-      <div class="mt-4 flex items-center">
-        <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
-        <div class="ml-3">
-          <p class="font-semibold text-gray-800">${name}</p>
-          <p class="text-sm text-gray-500">Customer</p>
-        </div>
-      </div>
-      <p class="text-gray-600 mt-2">"${comment}"</p>
-      <div class="mt-4">
-        <span class="text-yellow-500">${'★'.repeat(selectedRating)}</span>
-        <span class="text-gray-400">${'★'.repeat(5 - selectedRating)}</span>
-      </div>
-    `;
+            if (!comment) {
+              alert('Please write a comment.');
+              return;
+            }
 
-            container.appendChild(newComment); // Append to slider
-            resetForm(); // Reset the form
-            commentModal.classList.add('hidden'); // Close modal
+            // If validation passes, you can submit the form
+            alert(`Thank you for your feedback! You rated us ${selectedRating} stars.`);
+            // Uncomment the following line to submit the form if needed
+            document.querySelector('form').submit();
           });
+
 
           // Reset the form
           function resetForm() {
@@ -642,4 +741,5 @@
         <!-- //footer link -->
         <?php include 'footer.php'; ?>
 </body>
+
 </html>
