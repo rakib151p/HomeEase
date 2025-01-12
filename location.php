@@ -1,9 +1,10 @@
-<?php 
+<?php
 include "header.php"; // Include header outside the HTML block
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,25 +14,30 @@ include "header.php"; // Include header outside the HTML block
     .hidden-section {
       display: none;
     }
+
     .visible-section {
       display: block;
     }
+
     .division-row {
       display: flex;
       gap: 16px;
       overflow-x: auto;
       padding: 8px;
     }
+
     .division-card {
       min-width: 150px;
-      min-height:150px ;
+      min-height: 150px;
     }
+
     #district-list {
-      max-height:auto;
+      max-height: auto;
       overflow-y: auto;
     }
   </style>
 </head>
+
 <body>
   <!-- Main Section -->
   <main class="container mx-auto my-10">
@@ -88,17 +94,17 @@ HTML;
       ],
       sylhet: ["Sylhet", "Habiganj", "Moulvibazar", "Sunamganj"],
       chattogram: [
-        "Chattogram", "Bandarban", "Brahmanbaria", "Chandpur", 
-        "Cox's Bazar", "Cumilla", "Feni", "Khagrachari", "Lakshmipur", 
+        "Chattogram", "Bandarban", "Brahmanbaria", "Chandpur",
+        "Cox's Bazar", "Cumilla", "Feni", "Khagrachari", "Lakshmipur",
         "Noakhali", "Rangamati"
       ],
       mymensingh: ["Mymensingh", "Jamalpur", "Netrokona", "Sherpur"],
       rajshahi: [
-        "Rajshahi", "Bogura", "Chapainawabganj", "Joypurhat", 
+        "Rajshahi", "Bogura", "Chapainawabganj", "Joypurhat",
         "Naogaon", "Natore", "Pabna", "Sirajganj"
       ],
       rangpur: [
-        "Rangpur", "Dinajpur", "Gaibandha", "Kurigram", 
+        "Rangpur", "Dinajpur", "Gaibandha", "Kurigram",
         "Lalmonirhat", "Nilphamari", "Panchagarh", "Thakurgaon"
       ],
       barishal: ["Barishal", "Barguna", "Bhola", "Jhalokati", "Patuakhali", "Pirojpur"],
@@ -140,6 +146,7 @@ HTML;
     }
   </script>
 </body>
+
 </html>
 
-<?php include "footer.php"; ?> 
+<?php include "footer.php"; ?>

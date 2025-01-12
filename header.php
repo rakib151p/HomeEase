@@ -8,7 +8,7 @@
   <div class="hidden md:flex items-center space-x-6">
     <div class="flex">
       <img src="photo\Home\locator.png" class="h-6 mt-2">
-      <a href="#" class="text-base md:text-lg font-semibold px-4 py-2 hover:border-b-2 hover:border-blue-600 transition ease-in-out duration-500">
+      <a href="location.php" class="text-base md:text-lg font-semibold px-4 py-2 hover:border-b-2 hover:border-blue-600 transition ease-in-out duration-500">
         Location
       </a>
     </div>
