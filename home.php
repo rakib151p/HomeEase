@@ -237,8 +237,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             while ($item = $items_result->fetch_assoc()) {
               $subservices[] = [
                 'name' => $item['item_name'],
-                'link' => "service.php?item_id={$item['item_id']}", 
-            ];
+                'link' => "service.php?item_id={$item['item_id']}",
+              ];
             }
           }
 
