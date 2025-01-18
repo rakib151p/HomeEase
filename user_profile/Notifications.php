@@ -1,5 +1,5 @@
 <?php
-require '../mysql_connection.php';
+require '../config.php';
 session_start();
 
 ?>
@@ -180,21 +180,9 @@ session_start();
 
 <body class="bg-gradient-to-bl from-blue-50 via-white via-blue-50 to-slate-300 h-screen">
 
-  <nav class="  h-20 w-full py-6 flex justify-between items-center top-0 left-0 z-20 px-6 md:px-16 lg:px-24 border-b-2 border-slate-300">
-      <div class="text-2xl md:text-4xl font-bold flex items-center text-black">
-        <a href="#" class="flex items-center gap-1">
-          <span>HOME</span>
-          <span class="text-blue-600">EASE</span>
-        </a>
-      </div>
-   
-      <div class="flex">
-        <img src="photo\Home\add-user.png" class="h-6 mt-2">
-        <a href="typeUser.php" class="text-base md:text-lg font-semibold px-2 py-2 hover:border-b-2 hover:border-blue-600 transition ease-in-out duration-500">
-          Signup/Login
-        </a>
-      </div>
-    </nav>
+  <?php 
+    include 'header.php';
+  ?>
     <!-- <h2 id="tittlemnm">My Booking</h2> -->
     <section id="undernavbar">
         <div id="sidebar">
@@ -203,9 +191,7 @@ session_start();
             <li><a href="My_profile.php">My Profile</a></li>
                 <li><a href="addressofbooking.php">Address of Booking</a></li>
                 <li><a href="myreviews.php">My Reviews</a></li>
-                <li><a href="message.php" id="mymessage">My Messages<?php if ($_SESSION['unseen'] > 0): ?>
-                            <span class="unseen-count" style="color: red;">(<?php echo $_SESSION['unseen']; ?>)</span>
-                        <?php endif; ?></a></li>
+                <li><a href="message.php" id="mymessage">My Messages</a></li>
                 <li><a href="mybooking.php" id="mma">My booking</a></li>
                 <li><a href="mycancellations.php">My Cancellations</a></li>
                 <li><a href="Notifications.php">My Notifications</a></li>
@@ -222,7 +208,7 @@ session_start();
             // $shop_id = 121;
             $customer_id = $_SESSION['customer_id'];
             $sql_notify = "SELECT * FROM customer_notifications WHERE customer_id='$customer_id' ORDER BY date_and_time desc";
-            $result_notify = mysqli_query($conn, $sql_notify);
+            $result_notify = mysqli_query($con, $sql_notify);
             if ($result_notify->num_rows > 0) {
                 while ($row_notify = $result_notify->fetch_assoc()) {
                     echo '<div class="bg-blue-100 border border-blue-400 text-blue-700 my-5 px-4 py-3 rounded relative w-4000"

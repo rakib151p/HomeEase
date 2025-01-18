@@ -1,3 +1,6 @@
+<?php 
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -9,7 +12,11 @@
 </head>
 
 <body class="bg-gradient-to-bl via-white to-blue-50  bg-gradient-to-bl from-blue-100 via-white to-blue-50 shadow-xl">
-    <div class="container mx-auto py-6 px-4 md:px-0">
+<?php 
+include 'header.php';
+?>
+
+<div class="container mx-auto py-6 px-4 md:px-0">
         <!-- Main Container -->
         <div class="flex flex-col md:flex-row gap-6">
             <!-- Left Sidebar: Filters -->
@@ -535,6 +542,11 @@
             renderCalendar();
         });
     </script>
+
+<?php 
+include '../footer.php';
+
+?>
 </body>
 
 </html>

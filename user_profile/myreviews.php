@@ -1,10 +1,7 @@
-<!-- <?php
-require '../mysql_connection.php';
+<?php
+require '../config.php';
 session_start();
-// if (isset($_POST['change'])) {
-//     echo 'change';
-//     echo $_POST['booking_id'];
-// }
+
 if (isset($_POST['cancel'])) {
     $review_id = $_POST['review_id'];
     // echo $review_id;
@@ -30,16 +27,16 @@ if (isset($_POST['cancel'])) {
     }
 }
 // Fetching customer ID from the session
-$customer_id = $_SESSION['customer_id'];
+$customer_id = $_SESSION['user_id'];
 
 // Fetching the bookings of the logged-in customer
-$query = "SELECT * FROM review_shop WHERE customer_id = ? ORDER BY date_and_time";
-$stmt = $conn->prepare($query);
+$query = "SELECT * FROM service_provider_review WHERE customer_id = ? ORDER BY review_time";
+$stmt = $con->prepare($query);
 $stmt->bind_param("i", $customer_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
-?> -->
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -100,7 +97,7 @@ $result = $stmt->get_result();
         #mma {
             font-size: 27.9px;
             text-decoration: none;
-            color:#00008B;
+            color: #00008B;
             margin-right: 40px;
         }
 
@@ -133,7 +130,7 @@ $result = $stmt->get_result();
 
         #tittlemnm {
             font-size: x-large;
-            color:#00008B;
+            color: #00008B;
             margin: 50px 0 0 340px;
         }
 
@@ -198,7 +195,7 @@ $result = $stmt->get_result();
 
         #box1 h1 {
             font-size: 2rem;
-            color:#00008B;
+            color: #00008B;
             font-weight: 900;
             position: relative;
             bottom: 20px;
@@ -237,7 +234,7 @@ $result = $stmt->get_result();
             font-size: 42px;
             font-weight: 900;
             margin-left: 90px;
-            color:#00008B;
+            color: #00008B;
         }
 
         .login_name {
@@ -263,202 +260,188 @@ $result = $stmt->get_result();
 
 <body class="bg-gradient-to-bl from-blue-50 via-white via-blue-50 to-slate-300 h-screen">
 
-    <nav class="  h-20 w-full py-6 flex justify-between items-center top-0 left-0 z-20 px-6 md:px-16 lg:px-24 border-b-2 border-slate-300">
-      <div class="text-2xl md:text-4xl font-bold flex items-center text-black">
-        <a href="#" class="flex items-center gap-1">
-          <span>HOME</span>
-          <span class="text-blue-600">EASE</span>
-        </a>
-      </div>
-   
-      <div class="flex">
-        <img src="photo\Home\add-user.png" class="h-6 mt-2">
-        <a href="typeUser.php" class="text-base md:text-lg font-semibold px-2 py-2 hover:border-b-2 hover:border-blue-600 transition ease-in-out duration-500">
-          Signup/Login
-        </a>
-      </div>
-    </nav>
+<?php
+include 'header.php';
+?>
 
-    <!-- <h2 id="tittlemnm">My Booking</h2> -->
-    <section id="undernavbar">
-        <div id="sidebar">
-            <a href="" id="mma">Manage My Account</a>
-            <ul>
+<!-- <h2 id="tittlemnm">My Booking</h2> -->
+<section id="undernavbar">
+    <div id="sidebar">
+        <a href="" id="mma">Manage My Account</a>
+        <ul>
             <li><a href="My_profile.php">My Profile</a></li>
-                <li><a href="addressofbooking.php">Address of Booking</a></li>
-                <li><a href="myreviews.php">My Reviews</a></li>
-                <li><a href="message.php" id="mymessage">My Messages<?php if ($_SESSION['unseen'] > 0): ?>
-                            <span class="unseen-count" style="color: red;">(<?php echo $_SESSION['unseen']; ?>)</span>
-                        <?php endif; ?></a></li>
-                <li><a href="mybooking.php" id="mma">My booking</a></li>
-                <li><a href="mycancellations.php">My Cancellations</a></li>
-                <li><a href="Notifications.php">My Notifications</a></li>
-            </ul>
-            <?php
-            if (isset($_SESSION['type'])) {
-                echo '<a href="../logout.php" class="text-gray-700 hover:text-pink-600 " style="font-size:30px;margin:10px 0 0 20px; line-height:50px;">Logout</a>';
-            }
-            ?>
-        </div>
-        <div id="box1">
-            <h2 class="text-3xl font-bold text-pink-700 mb-6" style="color:#00008B;margin:10px 0 0 0;">My Reviews</h2>
-            <?php
-            if ($result->num_rows > 0) {
-                echo '<div class="overflow-x-auto tables">';
-                echo '<table class="min-w-full bg-white border border-gray-200 rounded-lg">';
-                echo '<thead class="bg-blue-500 text-white">';
-                echo '<tr>';
-                echo '<th class="px-4 py-2 text-left">Serial</th>';
-                echo '<th class="px-4 py-2 text-left">Service Provider</th>';
-                echo '<th class="px-4 py-2 text-left">Provider Address</th>';
-                echo '<th class="px-4 py-2 text-left">Review</th>';
-                echo '<th class="px-4 py-2 text-left">Rating</th>';
-                echo '<th class="px-4 py-2 text-left">Date & Time</th>';
-                echo '<th class="px-4 py-2 text-center" colspan="2">Action</th>';
-                echo '</tr>';
-                echo '</thead>';
-                echo '<tbody class="text-gray-700">';
-                $cnt = 1;
-                while ($row = $result->fetch_assoc()) {
-                    echo '<tr class="border-t">';
-                    echo '<td class="px-4 py-2">' . $cnt++ . '</td>';
-                    // Fetching shop details
-                    $shop_id = $row['shop_id'];
-                    $sql_shop = "SELECT shop_name, shop_state, shop_city, shop_area FROM barber_shop WHERE shop_id='$shop_id'";
-                    $result_shop = mysqli_query($conn, $sql_shop);
-                    while ($row_shop = $result_shop->fetch_assoc()) {
-                        echo '<td class="px-4 py-2">' . htmlspecialchars($row_shop['shop_name']) . '</td>';
-                        echo '<td class="px-4 py-2">' . htmlspecialchars($row_shop['shop_state']) . ', ' . htmlspecialchars($row_shop['shop_city']) . ', ' . htmlspecialchars($row_shop['shop_area']) . '</td>';
-                    }
-                    echo '<td class="px-4 py-2">' . htmlspecialchars($row['review']) . '</td>';
-                    echo '<td class="px-4 py-2">' . htmlspecialchars($row['star']) . '</td>';
-                    echo '<td class="px-4 py-2">' . htmlspecialchars($row['date_and_time']) . '</td>';
-                    // Action buttons
-                    // Change button in a separate 
-                    // echo '<td class="px-2 py-1">';
-                    // echo '<button type="submit" name="change" class="text-blue-500">Change</button>';
-                    // echo '</td>';
-                    // Delete button in a separate form
-                    echo '<td class="px-2 py-1">';
-                    echo '<form onsubmit="confirmDelete(this)" action="myreviews.php" method="POST">';
-                    echo '<input type="hidden" name="review_id" value="' . $row['review_id'] . '">';
-                    echo '<button type="submit" name="cancel" class="text-red-500">Delete</button>';
-                    echo '</form>';
-                    echo '</td>';
-
-                    echo '</tr>';
-                }
-                echo '</tbody>';
-                echo '</table>';
-                echo '</div>';
-            } else {
-                echo '<p class="text-gray-500">No reviews found.</p>';
-            }
-            ?>
-        </div>
-
-    </section>
-
-    <script>
-        function confirmDelete(form) {
-            event.preventDefault(); // Prevent the form from submitting immediately
-
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const hiddenInput = document.createElement("input");
-                    hiddenInput.setAttribute("type", "hidden");
-                    hiddenInput.setAttribute("name", "cancel");
-                    hiddenInput.setAttribute("value", "Delete");
-                    form.appendChild(hiddenInput);
-
-                    form.submit(); // Submit the form if confirmed
-                }
-            });
+            <li><a href="addressofbooking.php">Address of Booking</a></li>
+            <li><a href="myreviews.php">My Reviews</a></li>
+            <li><a href="message.php" id="mymessage">My Messages</a></li>
+            <li><a href="mybooking.php" id="mma">My booking</a></li>
+            <li><a href="mycancellations.php">My Cancellations</a></li>
+            <li><a href="Notifications.php">My Notifications</a></li>
+        </ul>
+        <?php
+        if (isset($_SESSION['type'])) {
+            echo '<a href="../logout.php" class="text-gray-700 hover:text-pink-600 " style="font-size:30px;margin:10px 0 0 20px; line-height:50px;">Logout</a>';
         }
-    </script>
-    <footer class="bg-gray-800 text-white py-10 mt-12">
-          <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-6">
-            <!-- Logo and Description -->
-            <div class="space-y-4">
-              <div class="flex items-center space-x-2">
+        ?>
+    </div>
+    <div id="box1">
+        <h2 class="text-3xl font-bold text-pink-700 mb-6" style="color:#00008B;margin:10px 0 0 0;">My Reviews</h2>
+        <?php
+        if ($result->num_rows > 0) {
+            echo '<div class="overflow-x-auto tables">';
+            echo '<table class="min-w-full bg-white border border-gray-200 rounded-lg">';
+            echo '<thead class="bg-blue-500 text-white">';
+            echo '<tr>';
+            echo '<th class="px-4 py-2 text-left">Serial</th>';
+            echo '<th class="px-4 py-2 text-left">Service Provider</th>';
+            echo '<th class="px-4 py-2 text-left">Provider Address</th>';
+            echo '<th class="px-4 py-2 text-left">Review</th>';
+            echo '<th class="px-4 py-2 text-left">Rating</th>';
+            echo '<th class="px-4 py-2 text-left">Date & Time</th>';
+            echo '<th class="px-4 py-2 text-center" colspan="2">Action</th>';
+            echo '</tr>';
+            echo '</thead>';
+            echo '<tbody class="text-gray-700">';
+            $cnt = 1;
+            while ($row = $result->fetch_assoc()) {
+                echo '<tr class="border-t">';
+                echo '<td class="px-4 py-2">' . $cnt++ . '</td>';
+                // Fetching shop details
+                $shop_id = $row['shop_id'];
+                $sql_shop = "SELECT shop_name, shop_state, shop_city, shop_area FROM barber_shop WHERE shop_id='$shop_id'";
+                $result_shop = mysqli_query($conn, $sql_shop);
+                while ($row_shop = $result_shop->fetch_assoc()) {
+                    echo '<td class="px-4 py-2">' . htmlspecialchars($row_shop['shop_name']) . '</td>';
+                    echo '<td class="px-4 py-2">' . htmlspecialchars($row_shop['shop_state']) . ', ' . htmlspecialchars($row_shop['shop_city']) . ', ' . htmlspecialchars($row_shop['shop_area']) . '</td>';
+                }
+                echo '<td class="px-4 py-2">' . htmlspecialchars($row['review']) . '</td>';
+                echo '<td class="px-4 py-2">' . htmlspecialchars($row['star']) . '</td>';
+                echo '<td class="px-4 py-2">' . htmlspecialchars($row['date_and_time']) . '</td>';
+                // Action buttons
+                // Change button in a separate 
+                // echo '<td class="px-2 py-1">';
+                // echo '<button type="submit" name="change" class="text-blue-500">Change</button>';
+                // echo '</td>';
+                // Delete button in a separate form
+                echo '<td class="px-2 py-1">';
+                echo '<form onsubmit="confirmDelete(this)" action="myreviews.php" method="POST">';
+                echo '<input type="hidden" name="review_id" value="' . $row['review_id'] . '">';
+                echo '<button type="submit" name="cancel" class="text-red-500">Delete</button>';
+                echo '</form>';
+                echo '</td>';
+
+                echo '</tr>';
+            }
+            echo '</tbody>';
+            echo '</table>';
+            echo '</div>';
+        } else {
+            echo '<p class="text-gray-500">No reviews found.</p>';
+        }
+        ?>
+    </div>
+
+</section>
+
+<script>
+    function confirmDelete(form) {
+        event.preventDefault(); // Prevent the form from submitting immediately
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const hiddenInput = document.createElement("input");
+                hiddenInput.setAttribute("type", "hidden");
+                hiddenInput.setAttribute("name", "cancel");
+                hiddenInput.setAttribute("value", "Delete");
+                form.appendChild(hiddenInput);
+
+                form.submit(); // Submit the form if confirmed
+            }
+        });
+    }
+</script>
+<footer class="bg-gray-800 text-white py-10 mt-12">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-6">
+        <!-- Logo and Description -->
+        <div class="space-y-4">
+            <div class="flex items-center space-x-2">
                 <img src="https://img.icons8.com/external-flatart-icons-outline-flatarticons/64/external-logo-business-and-team-flatart-icons-outline-flatarticons.png"
-                  alt="Logo" class="w-8 h-8">
+                    alt="Logo" class="w-8 h-8">
                 <span class="text-xl font-semibold">HomeEase</span>
-              </div>
-              <p class="text-gray-400 text-sm">
+            </div>
+            <p class="text-gray-400 text-sm">
                 Demandium is the best on-demand business solution that connects customers and service providers in a single
                 platform. Purchase the Demandium source code and get started.
-              </p>
-              <!-- Social Icons -->
-              <div class="flex space-x-4">
+            </p>
+            <!-- Social Icons -->
+            <div class="flex space-x-4">
                 <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook-f"></i></a>
                 <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin-in"></i></a>
                 <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
                 <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-youtube"></i></a>
-              </div>
-              <!-- Codecanyon Badge -->
-              <div class="mt-4">
-                <a href="#" class="bg-gray-700 text-white text-sm py-2 px-4 rounded-lg inline-flex items-center">
-                  <img src="https://img.icons8.com/ios-filled/24/ffffff/code.png" class="mr-2" />
-                  GET IT ON Codecanyon
-                </a>
-              </div>
             </div>
+            <!-- Codecanyon Badge -->
+            <div class="mt-4">
+                <a href="#" class="bg-gray-700 text-white text-sm py-2 px-4 rounded-lg inline-flex items-center">
+                    <img src="https://img.icons8.com/ios-filled/24/ffffff/code.png" class="mr-2" />
+                    GET IT ON Codecanyon
+                </a>
+            </div>
+        </div>
 
-            <!-- Company Links -->
-            <div>
-              <h3 class="text-white font-semibold mb-4">Company</h3>
-              <ul class="space-y-2 text-gray-400 text-sm">
+        <!-- Company Links -->
+        <div>
+            <h3 class="text-white font-semibold mb-4">Company</h3>
+            <ul class="space-y-2 text-gray-400 text-sm">
                 <li><a href="#" class="hover:text-white">About Us</a></li>
                 <li><a href="#" class="hover:text-white">Contact Us</a></li>
                 <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
                 <li><a href="#" class="hover:text-white">Service & Support Policy</a></li>
                 <li><a href="#" class="hover:text-white">Cookies Policy</a></li>
                 <li><a href="#" class="hover:text-white">Blog</a></li>
-              </ul>
-            </div>
+            </ul>
+        </div>
 
-            <!-- Quick Links -->
-            <div>
-              <h3 class="text-white font-semibold mb-4">Quick Links</h3>
-              <ul class="space-y-2 text-gray-400 text-sm">
+        <!-- Quick Links -->
+        <div>
+            <h3 class="text-white font-semibold mb-4">Quick Links</h3>
+            <ul class="space-y-2 text-gray-400 text-sm">
                 <li><a href="#" class="hover:text-white">Demo</a></li>
                 <li><a href="#" class="hover:text-white">Documentation</a></li>
                 <li><a href="#" class="hover:text-white">Community</a></li>
                 <li><a href="#" class="hover:text-white">Support</a></li>
                 <li><a href="#" class="hover:text-white">FAQs</a></li>
-              </ul>
-            </div>
+            </ul>
+        </div>
 
-            <!-- Contact Information -->
-            <div>
-              <h3 class="text-white font-semibold mb-4">Contact Us</h3>
-              <ul class="space-y-2 text-gray-400 text-sm">
+        <!-- Contact Information -->
+        <div>
+            <h3 class="text-white font-semibold mb-4">Contact Us</h3>
+            <ul class="space-y-2 text-gray-400 text-sm">
                 <li class="flex items-center space-x-2">
-                  <span class="text-green-500"><i class="fas fa-phone"></i></span>
-                  <span>+8801325887797</span>
+                    <span class="text-green-500"><i class="fas fa-phone"></i></span>
+                    <span>+8801325887797</span>
                 </li>
                 <li class="flex items-center space-x-2">
-                  <span class="text-blue-500"><i class="fas fa-envelope"></i></span>
-                  <span>support@6amtech.com</span>
+                    <span class="text-blue-500"><i class="fas fa-envelope"></i></span>
+                    <span>support@6amtech.com</span>
                 </li>
-              </ul>
-              <div class="mt-4">
+            </ul>
+            <div class="mt-4">
                 <a href="#" class="inline-flex items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700">
-                  Support Ticket →
+                    Support Ticket →
                 </a>
-              </div>
             </div>
-          </div>
-        </footer>
+        </div>
+    </div>
+</footer>
 
 
 </body>

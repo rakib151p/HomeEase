@@ -15,7 +15,10 @@
 </head>
 
 <body class="bg-gradient-to-bl from-blue-100 via-white to-blue-50 font-sans h-screen">
-    <!-- Step 2: Task Options -->
+    <?php
+    include 'header.php';
+
+    ?> <!-- Step 2: Task Options -->
     <div id="task-options"
         class="max-w-4xl mx-auto mt-10 p-6 bg-white shadow rounded-lg bg-gradient-to-bl from-blue-100 via-white to-blue-50 shadow-xl">
         <h3 class="text-xl font-semibold text-gray-800 mb-4">Task Options</h3>
@@ -43,6 +46,10 @@
                 class="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Continue</button>
         </form>
     </div>
+    <?php
+    include '../footer.php';
+
+    ?>
 </body>
 
 </html>

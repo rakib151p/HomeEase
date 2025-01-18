@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provider Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-r from-blue-50 to-gray-100 min-h-screen">
+    <div class="container mx-auto py-10">
+        <div class="bg-white shadow-xl rounded-xl p-8 max-w-5xl mx-auto">
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-800">Provider Profile</h2>
+                <button id="editToggle" class="bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-700 transition duration-300">
+                    Edit
+                </button>
+            </div>
+
+            <!-- Profile Form -->
+            <form id="providerForm" action="#" method="POST" enctype="multipart/form-data">
+<!-- Profile Picture Section -->
+<div class="flex items-center mb-6">
+    <div class="relative">
+        <!-- Profile Picture Preview -->
+        <img 
+            id="profilePicturePreview" 
+            src="https://via.placeholder.com/100" 
+            alt="Profile Picture" 
+            class="w-24 h-24 rounded-full object-cover border-4 border-gray-300 shadow-lg"
+        >
+        <!-- Upload Label -->
+        <label 
+            for="provider_profile_picture" 
+            class="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full shadow-lg cursor-pointer hover:bg-blue-700 transition"
+        >
+            <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke-width="2" 
+                stroke="currentColor" 
+                class="w-5 h-5"
+            >
+                <path 
+                    stroke-linecap="round" 
+                    stroke-linejoin="round" 
+                    d="M15.232 5.232l3.536 3.536M9 11l5.268-5.268a2 2 0 112.828 2.828L11.828 15H9v-2.828zM3 3l18 18"
+                />
+            </svg>
+        </label>
+        <!-- File Input -->
+        <input 
+            type="file" 
+            id="provider_profile_picture" 
+            name="provider_profile_picture" 
+            class="hidden" 
+            accept="image/*"
+        >
+    </div>
+</div>
+
+                <!-- Basic Details -->
+                <div class="grid grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2" for="provider_name">Name</label>
+                        <input type="text" id="provider_name" name="provider_name"
+                               class="w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-400"
+                               placeholder="Enter your name" value="" disabled>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2" for="provider_email">Email</label>
+                        <input type="email" id="provider_email" name="provider_email"
+                               class="w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-400"
+                               placeholder="Enter your email" value="" disabled>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2" for="provider_password">Password</label>
+                        <input type="password" id="provider_password" name="provider_password"
+                               class="w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-400"
+                               placeholder="Enter your password" value="" disabled>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2" for="provider_status">Status</label>
+                        <select id="provider_status" name="provider_status"
+                                class="w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-400"
+                                disabled>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Address and Registration Date -->
+                <div class="grid grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2" for="provider_address">Address</label>
+                        <input type="text" id="provider_address" name="provider_address"
+                               class="w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-400"
+                               placeholder="Enter your address" value="" disabled>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2" for="provider_registration_date">Registration Date</label>
+                        <input type="date" id="provider_registration_date" name="provider_registration_date"
+                               class="w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-400"
+                               value="" disabled>
+                    </div>
+                </div>
+
+                <!-- Experience and About -->
+                <div class="grid grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2" for="provider_experience">Experience (Years)</label>
+                        <input type="number" id="provider_experience" name="provider_experience"
+                               class="w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-400"
+                               placeholder="Years of experience" value="" disabled>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2" for="provider_about">About</label>
+                        <textarea id="provider_about" name="provider_about" rows="4"
+                                  class="w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-400"
+                                  placeholder="Tell us about yourself" disabled></textarea>
+                    </div>
+                </div>
+
+                <!-- Phone and Gender -->
+                <div class="grid grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2" for="provider_phone">Phone</label>
+                        <input type="text" id="provider_phone" name="provider_phone"
+                               class="w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-400"
+                               placeholder="Enter your phone number" value="" disabled>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2" for="provider_gender">Gender</label>
+                        <select id="provider_gender" name="provider_gender"
+                                class="w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-400"
+                                disabled>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-green-500 text-white px-6 py-3 rounded-lg shadow hover:bg-green-600 transition duration-300"
+                            disabled id="saveButton">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const editToggle = document.getElementById('editToggle');
+        const formElements = document.querySelectorAll('#providerForm input, #providerForm select, #providerForm textarea');
+        const saveButton = document.getElementById('saveButton');
+
+        editToggle.addEventListener('click', () => {
+            const isDisabled = formElements[0].disabled;
+
+            formElements.forEach(element => {
+                element.disabled = !isDisabled;
+            });
+
+            saveButton.disabled = isDisabled;
+            editToggle.textContent = isDisabled ? 'Cancel' : 'Edit';
+        });
+
+        const profilePictureInput = document.getElementById('provider_profile_picture');
+        const profilePicturePreview = document.getElementById('profilePicturePreview');
+
+        profilePictureInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    profilePicturePreview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+    <script>
+const profilePictureInput = document.getElementById('provider_profile_picture');
+const profilePicturePreview = document.getElementById('profilePicturePreview');
+
+// Event listener to update the profile picture preview
+profilePictureInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            profilePicturePreview.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+    </script>
+   
+</body>
+</html>

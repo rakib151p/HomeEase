@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_SESSION['email'])) {
 
 <body class="bg-gradient-to-bl from-blue-100 via-white to-blue-50 font-sans h-screen">
 
-
+<?php include 'header.php';?>
 
     <div id="location-form" class="max-w-4xl mx-auto mt-10 p-6 bg-white shadow rounded-lg bg-gradient-to-bl from-blue-100 via-white to-blue-50 shadow-xl">
         <h2 class="text-2xl font-semibold text-gray-800 mb-4"><?php echo $item_name; ?></h2>
@@ -53,7 +53,9 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_SESSION['email'])) {
     </div>
 
 
-
+<?php 
+include '../footer.php';
+?>
 
 </body>
 

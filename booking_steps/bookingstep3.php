@@ -15,7 +15,10 @@
 </head>
 
 <body class="bg-gradient-to-bl from-blue-100 via-white to-blue-50 font-sans h-screen">
+    <?php
+    include 'header.php';
 
+    ?>
     <form action="bookingstep4.php">
         <!-- Step 3: Task Details -->
         <div id="third-form" class="max-w-4xl mx-auto mt-10 p-6 bg-white shadow rounded-lg bg-gradient-to-bl from-blue-100 via-white to-blue-50 shadow-xl">
@@ -34,7 +37,10 @@
             <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">Submit</button>
         </div>
     </form>
+    <?php
+    include '../footer.php';
 
+    ?>
 </body>
 
 </html>

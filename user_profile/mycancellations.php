@@ -1,24 +1,6 @@
-<!-- <?php
-require '../mysql_connection.php';
-session_start();
-if (isset($_POST['change'])) {
-    echo 'change';
-    echo $_POST['booking_id'];
-}
-if (isset($_POST['cancel'])) {
-    echo 'cancel';
-}
-// Fetching customer ID from the session
-$customer_id = $_SESSION['customer_id'];
+<?php
 
-// Fetching the bookings of the logged-in customer
-$query = "SELECT * FROM bookings WHERE customer_id = ? AND status='cancelled' ORDER BY date";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("i", $customer_id);
-$stmt->execute();
-$result = $stmt->get_result();
-
-?> -->
+?> 
 <!DOCTYPE html>
 <html lang="en">
 
