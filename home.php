@@ -145,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Generate service item
                 echo "
         <div id='{$row['service_name']}' onclick=\"selectService('{$row['service_name']}')\" class=\"service-item flex flex-col items-center justify-center p-4 border border-transparent rounded-lg bg-white shadow-md cursor-pointer hover:bg-gray-100 w-[200px] shrink-0\">
-            <img src='" . htmlspecialchars($row['service_picture']) . "' alt='" . htmlspecialchars($row['service_name']) . "' class=\"w-12 h-12\">
+            <img src='photo/Services/" . $row['service_name'] . ".png' alt='" . htmlspecialchars($row['service_name']) . "' class=\"w-12 h-12\">
             <span class=\"mt-2 text-base sm:text-lg font-medium\">" . htmlspecialchars($row['service_name']) . "</span>
         </div>";
               }

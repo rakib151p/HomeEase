@@ -11,6 +11,9 @@
 </head>
 
 <body class="bg-blue-50 font-sans">
+<?php 
+  include 'header.php';
+  ?>
     <div class="flex min-h-screen">
         <!-- Sidebar -->
         <aside class="w-64 bg-white shadow-md flex flex-col p-4">

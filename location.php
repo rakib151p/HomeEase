@@ -31,10 +31,10 @@ include "header.php"; // Include header outside the HTML block
       min-height: 150px;
     }
 
-    #district-list {
+    /* #district-list {
       max-height: auto;
       overflow-y: auto;
-    }
+    } */
   </style>
 </head>
 
@@ -58,7 +58,7 @@ include "header.php"; // Include header outside the HTML block
       ];
       foreach ($divisions as $key => $name) {
         echo <<<HTML
-        <button class="division-card bg-white shadow-md rounded-lg p-4 text-center" onclick="showDetails('$key')">
+        <button class="division-card bg-white shadow-md rounded-lg p-4 text-center ml-6" onclick="showDetails('$key')">
           <img src="path-to-$key.jpg" alt="$name" class="rounded-md mb-4">
           <p class="font-medium text-gray-700">$name</p>
         </button>
@@ -71,12 +71,12 @@ HTML;
     <div id="details" class="hidden-section mt-10">
       <button class="bg-blue-600 text-white px-4 py-2 rounded mb-6" onclick="hideDetails()">Back</button>
       <h3 id="location-title" class="text-xl font-semibold text-blue-600 text-center mb-4"></h3>
-      <div class="bg-white shadow-md p-6 rounded-lg border border-blue-200">
+      <!-- <div class="bg-white shadow-md p-6 rounded-lg border border-blue-200"> -->
         <h4 class="text-center text-lg font-semibold text-blue-500 mb-4" id="service-title"></h4>
-        <div id="district-list" class="grid grid-cols-4 gap-4 bg-blue-100 rounded-lg overflow-y-auto h-48">
+        <div id="district-list" class="grid grid-cols-4 gap-4 bg-blue-100 rounded-lg  h-48">
           <!-- Districts will be dynamically populated here -->
         </div>
-      </div>
+      <!-- </div> -->
     </div>
   </main>
 
@@ -125,7 +125,7 @@ HTML;
       divisions[location]?.forEach(district => {
         const button = document.createElement("button");
         button.innerText = district;
-        button.className = "bg-white h-[100px] px-3 py-2 rounded shadow-md";
+        button.className = "bg-white h-[150px] w-[50]px-3 py-2 rounded shadow-md";
         button.onclick = () => fetchUsers(district);
         districtList.appendChild(button);
       });
@@ -145,8 +145,9 @@ HTML;
       alert(`Fetching users for ${district}`); // Replace with actual fetch logic
     }
   </script>
+
+<?php include "footer.php"; ?>
+
 </body>
 
 </html>
-
-<?php include "footer.php"; ?>

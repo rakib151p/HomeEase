@@ -37,7 +37,7 @@
     if($_SESSION['type']=='user'){
       echo '<a href="user_profile/My_profile.php">'.$_SESSION['user_name'].'</a>';
     }else{
-      echo '<a href="provider_profile/My_profile.php">'.$_SESSION['provider_name'].'</a>';
+      echo '<a href="service provider/dashboard.php">'.$_SESSION['provider_name'].'</a>';
     }
         echo'</div>
         <div class="flex">

@@ -1,3 +1,56 @@
+<?php
+// Initialize session
+session_start();
+include '../config.php';
+$provider_id =$_SESSION['provider_id'];
+// Get the total number of columns in the table
+$totalColumnsQuery = "SELECT COUNT(*) as total_columns 
+                      FROM INFORMATION_SCHEMA.COLUMNS 
+                      WHERE TABLE_NAME = 'service_provider'";
+$totalColumnsResult = $con->query($totalColumnsQuery);
+$totalColumns = $totalColumnsResult->fetch_assoc()['total_columns'];
+
+// Count the non-NULL values for the given provider_id
+$nonNullQuery = "SELECT 
+    (provider_id IS NOT NULL) +
+    (provider_name IS NOT NULL) +
+    (provider_email IS NOT NULL) +
+    (provider_password IS NOT NULL) +
+    (provider_code IS NOT NULL) +
+    (provider_status IS NOT NULL) +
+    (provider_district IS NOT NULL) +
+    (provider_registration_date IS NOT NULL) +
+    (provider_experience IS NOT NULL) +
+    (provider_about IS NOT NULL) +
+    (provider_rating IS NOT NULL) +
+    (provider_phone IS NOT NULL) +
+    (provider_gender IS NOT NULL) +
+    (provider_profile_picture IS NOT NULL) +
+    (provider_verified IS NOT NULL) +
+    (provider_expertise IS NOT NULL) +
+    (provider_servable IS NOT NULL) +
+    (provider_upazila IS NOT NULL) +
+    (provider_area IS NOT NULL) +
+    (provider_street_address IS NOT NULL) AS non_null_count
+FROM service_provider
+WHERE provider_id = ?";
+$stmt = $con->prepare($nonNullQuery);
+$stmt->bind_param('i', $provider_id);
+$stmt->execute();
+$nonNullResult = $stmt->get_result();
+$nonNullCount = $nonNullResult->fetch_assoc()['non_null_count'];
+
+// Calculate the percentage
+if ($totalColumns > 0) {
+    $percentage = ($nonNullCount / $totalColumns) * 100;
+    // echo "Percentage of variables set for provider_id $provider_id: " . round($percentage, 2) . "%";
+} else {
+    echo "Could not calculate the percentage because the total number of columns is 0.";
+}
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -11,20 +64,22 @@
 </head>
 
 <body class="bg-blue-50 font-sans">
-  
+    <?php
+    include 'header.php';
+    ?>
     <div class="flex min-h-screen">
         <!-- Sidebar -->
         <aside class="w-64 bg-white shadow-md flex flex-col p-4">
             <div class="flex flex-col items-center">
-                <div class="bg-blue-200 rounded-full w-24 h-24 flex items-center justify-center">
-                    <span class="text-blue-600 text-3xl font-bold">P</span>
+                <div class="bg-blue-200 rounded-full w-24 h-24 flex items-center justify-center overflow-hidden">
+                    <img src="../photo/profile_pictures/<?php echo $_SESSION['provider_profile_picture']; ?>" alt="Profile Picture" class="w-full h-full object-cover">
                 </div>
                 <h2 class="mt-4 font-semibold text-lg">Team R3P innovators</h2>
                 <p class="text-sm text-gray-500">Provider ID: 1023034</p>
             </div>
 
             <nav class="mt-8 space-y-4">
-                <a href="#" class="flex items-center px-4 py-2 text-blue-600 bg-blue-100 rounded-md">
+                <a href="dashboard.php" class="flex items-center px-4 py-2 text-blue-600 bg-blue-100 rounded-md">
                     <span class="material-icons mr-3">Dashboard</span>
                 </a>
                 <a href="profile.php" class="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md">
@@ -42,7 +97,7 @@
                 <a href="Notification.php" class="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md">
                     <span class="material-icons mr-3">Notifications</span>
                 </a>
-                <a href="#" class="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md">
+                <a href="../logout.php" class="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md">
                     <span class="material-icons mr-3">Log Out</span>
                 </a>
             </nav>
@@ -61,7 +116,7 @@
                 <!-- Notice Board -->
                 <div class="col-span-12 md:col-span-8 bg-white shadow-md rounded-md p-6">
                     <h2 class="font-semibold text-lg">Notice Board</h2>
-                    <p class="text-gray-600 mt-2">Dear service provider, to get the job of your choice, keep your profile at least 80% complete. So fill your profile information correctly from our "Edit Profile" section.</p>
+                    <p class="text-gray-600 mt-2">Dear service provider, to get the job of your choice, keep your profile 100% complete. So fill your profile information correctly from our "Edit Profile" section.</p>
                     <p class="text-sm text-gray-400 mt-4">06th December 2024</p>
                 </div>
 
@@ -71,16 +126,16 @@
                     <div class="bg-blue-200 rounded-full w-12 h-12 flex items-center justify-center mt-4">
                         <span class="material-icons text-blue-600">person</span>
                     </div>
-                    <p class="text-gray-600 mt-4">7th December 2024</p>
+                    <p class="text-gray-600 mt-4"><?php echo $_SESSION['provider_registration_date']; ?></p>
                 </div>
 
                 <!-- Profile Completion -->
                 <div class="col-span-12 md:col-span-6 bg-white shadow-md rounded-md p-6 flex items-center justify-between bg-yellow-200">
                     <div>
-                        <h2 class="text-3xl font-bold">64%</h2>
+                        <h2 class="text-3xl font-bold"><?php echo $percentage; ?>%</h2>
                         <p class="text-gray-600 mt-2">Complete & organized profile may help to get better response.</p>
                     </div>
-                    <a href="#" class="text-blue-600 font-semibold">Update Profile &rarr;</a>
+                    <a href="profile.php" class="text-blue-600 font-semibold">Update Profile &rarr;</a>
                 </div>
 
                 <!-- Orders Completed -->
