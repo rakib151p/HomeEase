@@ -48,6 +48,8 @@ if (isset($_SESSION['email'])) {
         $_SESSION['user_district'] = $fetch['user_district'];
         $_SESSION['user_upazila'] = $fetch['user_upazila'];
         $_SESSION['user_area'] = $fetch['user_area'];
+        $_SESSION['user_street_address'] = $fetch['user_street_address'];
+        $_SESSION['user_unit_apt'] = $fetch['user_unit_apt'];
         // echo "<h2>User Session Details:</h2>";
         // echo "<p>User ID: " . $_SESSION['user_id'] . "</p>";
         // echo "<p>User Name: " . $_SESSION['user_name'] . "</p>";

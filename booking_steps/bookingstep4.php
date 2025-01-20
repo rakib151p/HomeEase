@@ -1,6 +1,14 @@
 <?php 
 session_start();
-
+echo $item_id;
+if ($_SERVER['REQUEST_METHOD'] === "POST") {
+    $item_id = $_POST['item_id'];
+    $user_street_address = $_POST['user_street_address'];
+    $user_unit_apt = $_POST['user_unit_apt'];
+    $task_size = $_POST['task_size'];
+    $task_summary=$_POST['task_summary'];
+    // echo $_POST['item_id'] . $_POST['user_street_address'] . $_POST['user_unit_apt'].$_POST['task_size'].$_POST['task_summary'];
+}
 ?>
 
 <!DOCTYPE html>
@@ -24,31 +32,37 @@ session_start();
         <!-- Progress Bar -->
         <div class="w-3/4 flex items-center">
             <!-- Circle 1 -->
-            <div class="relative flex flex-col items-center">
-                <div id="circle1" class="w-8 h-8 rounded-full flex items-center justify-center border-4 border-blue-600  text-blue-700 text-black font-semibold">
-                    1
+            <a href="<?php echo "bookingstep1.php?item_id=".$item_id; ?>">
+                <div class="relative flex flex-col items-center">
+                    <div id="circle1" class="w-8 h-8 rounded-full flex items-center justify-center border-4 border-blue-600  text-blue-700 text-black font-semibold">
+                        1
+                    </div>
+                    <span class="text-xs mt-2 text-blue-700">Location</span>
                 </div>
-                <span class="text-xs mt-2 text-blue-700">Location</span>
-            </div>
+            </a>
             <!-- Line 1 -->
             <div id="line1" class="flex-1 h-1 bg-blue-600"></div>
 
-            <div class="relative flex flex-col items-center">
-                <div id="circle2" class="w-8 h-8 rounded-full flex items-center justify-center border-4 border-blue-600  text-blue-700 text-black font-semibold">
-                    2
+            <a href="<?php echo "bookingstep2.php?item_id=".$item_id."&user_street_address=".$user_street_address."&user_unit_apt=".$user_unit_apt; ?>">
+                <div class="relative flex flex-col items-center">
+                    <div id="circle1" class="w-8 h-8 rounded-full flex items-center justify-center border-4 border-blue-600  text-blue-700 text-black font-semibold">
+                        2
+                    </div>
+                    <span class="text-xs mt-2 text-blue-700">Location</span>
                 </div>
-                <span class="text-xs mt-2 text-blue-700">Browse</span>
-            </div>
+            </a>
             <!-- Line 2 -->
             <div id="line2" class="flex-1 h-1 bg-blue-600"></div>
 
             <!-- Circle 3 -->
-            <div class="relative flex flex-col items-center">
-                <div id="circle3" class="w-8 h-8 rounded-full flex items-center justify-center border-4 border-blue-600  text-blue-700 text-black font-semibold">
-                    3
+            <a href="<?php echo "bookingstep3.php?item_id=".$item_id."&user_street_address=".$user_street_address."&user_unit_apt=".$user_unit_apt."&task_size=".$task_size; ?>">
+                <div class="relative flex flex-col items-center">
+                    <div id="circle1" class="w-8 h-8 rounded-full flex items-center justify-center border-4 border-blue-600  text-blue-700 text-black font-semibold">
+                        3
+                    </div>
+                    <span class="text-xs mt-2 text-blue-700">Location</span>
                 </div>
-                <span class="text-xs mt-2 text-blue-700">Confirm</span>
-            </div>
+            </a>
             <!-- Line 3 -->
             <div id="line3" class="flex-1 h-1 bg-blue-600"></div>
 

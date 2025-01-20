@@ -177,7 +177,7 @@ if (isset($_POST['check-reset-otp'])) {
         $_SESSION['email'] = $email;
         $info = "Please create a new password that you don't use on any other site.";
         $_SESSION['info'] = $info;
-        header('location: service_provider/new-password.php');
+        header('location: new-password.php');
         exit();
     } else {
         $errors['otp-error'] = "You've entered incorrect code!";
@@ -200,7 +200,7 @@ if (isset($_POST['change-password'])) {
         if ($run_query) {
             $info = "Your password changed. Now you can log in with your new password.";
             $_SESSION['info'] = $info;
-            header('Location: service_provider/password-changed.php');
+            header('Location: password-changed.php');
         } else {
             $errors['db-error'] = "Failed to change your password!";
         }

@@ -1,10 +1,41 @@
 <?php
+include '../config.php';
+include_once '../user_details.php';
 session_start();
-if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_SESSION['email'])) {
+if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_SESSION['email']) && $_SESSION['type'] == 'user') {
     $item_id = $_POST['item_id'];
     $item_name = $_POST['item_name'];
     $item_details = $_POST['item_details'];
+    if ($_SESSION['user_district'] == "" || $_SESSION['user_upazila'] == "" || $_SESSION['user_area'] == "") {
+        header('Location: ../user_profile/addressofbooking.php');
+        exit();
+    }
+} else if (isset($_GET['item_id'])) {
+    $item_id = $_GET['item_id'];
+    // Prepare the SQL query
+    $sql = "SELECT `item_name`, `item_details` FROM `item` WHERE `item_id` = ?";
+    $stmt = $con->prepare($sql);
+    $stmt->bind_param("i", $item_id); // Bind the item_id as an integer
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        // Fetch the item details
+        $row = $result->fetch_assoc();
+        $item_name = $row['item_name'];
+        $item_details = $row['item_details'];
+        // echo "Item Name: " . htmlspecialchars($item_name) . "<br>";
+        // echo "Item Details: " . htmlspecialchars($item_details);
+    } else {
+        echo "No item found with ID: " . htmlspecialchars($item_id);
+    }
+    // Close the statement and connection
+    $stmt->close();
 } else {
+    if (isset($_SESSION['email'])) {
+        header('Location: ../home.php');
+        exit();
+    }
     header("Location: ../login.php");
     exit();
 }
@@ -73,18 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_SESSION['email'])) {
                 <span class="text-xs mt-2 text-gray-700">Complete</span>
             </div>
         </div>
-
-
     </div>
-
-
-
-
-
-
-
-
-
     <div id="location-form" class="max-w-4xl mx-auto mt-10 p-6 bg-white shadow rounded-lg bg-gradient-to-bl from-blue-100 via-white to-blue-50 shadow-xl">
         <h2 class="text-2xl font-semibold text-gray-800 mb-4"><?php echo $item_name; ?></h2>
         <h5 class="text-2xl font-semibold text-gray-800 mb-4">
@@ -94,13 +114,14 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_SESSION['email'])) {
             Tell us about your task. We use these details to show Taskers in your area who fit your needs.
         </p>
 
-        <form action="bookingstep2.php" class="space-y-4">
+        <form action="bookingstep2.php" class="space-y-4" method="POST">
             <div>
                 <label for="street" class="block text-sm font-medium text-gray-700">Your task location</label>
-                <input type="text" id="street" placeholder="Street address" class="w-full mt-1 p-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600" required>
+                <input type="text" id="street" name="user_street_address" placeholder="Street address" class="w-full mt-1 p-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600" value="<?php echo $_SESSION['user_street_address']; ?>" required>
             </div>
+            <input type="hidden" name="item_id" value="<?php echo $item_id; ?>">
             <div>
-                <input type="text" id="apartment" placeholder="Unit or apt #" class="w-full mt-1 p-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600" required>
+                <input type="text" id="apartment" name="user_unit_apt" placeholder="Unit or apt #" class="w-full mt-1 p-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-600" value="<?php echo $_SESSION['user_unit_apt']; ?>" required>
             </div>
             <button type="submit" class="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Continue</button>
         </form>

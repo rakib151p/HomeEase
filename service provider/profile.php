@@ -27,6 +27,7 @@ if (isset($_SESSION['provider_id'])) {
 
     // Handle the form submission
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        echo 'check';
         // Fetch provider ID from session
         $provider_id = $_SESSION['provider_id'];
         $provider_name = isset($_POST['provider_name']) && $_POST['provider_name'] !== "Not set" ? $con->real_escape_string($_POST['provider_name']) : null;
@@ -35,19 +36,18 @@ if (isset($_SESSION['provider_id'])) {
         $provider_code = isset($_POST['provider_code']) && $_POST['provider_code'] !== "Not set" ? $con->real_escape_string($_POST['provider_code']) : null;
         $provider_status = isset($_POST['provider_status']) && $_POST['provider_status'] !== "Not set" ? $con->real_escape_string($_POST['provider_status']) : null;
         $provider_district = isset($_POST['provider_district']) && $_POST['provider_district'] !== "Not set" ? $con->real_escape_string($_POST['provider_district']) : null;
-        $provider_registration_date = isset($_POST['provider_registration_date']) && $_POST['provider_registration_date'] !== "Not set" ? $con->real_escape_string($_POST['provider_registration_date']) : null;
-        $provider_experience = isset($_POST['provider_experience']) && $_POST['provider_experience'] !== "Not set" ? $con->real_escape_string($_POST['provider_experience']) : null;
+        $provider_experience = isset($_POST['provider_experience']) && $_POST['provider_experience'] !== null ? $con->real_escape_string($_POST['provider_experience']) : null;
         $provider_about = isset($_POST['provider_about']) && $_POST['provider_about'] !== "Not set" ? $con->real_escape_string($_POST['provider_about']) : null;
         $provider_rating = isset($_POST['provider_rating']) && $_POST['provider_rating'] !== "Not set" ? $con->real_escape_string($_POST['provider_rating']) : null;
         $provider_phone = isset($_POST['provider_phone']) && $_POST['provider_phone'] !== "Not set" ? $con->real_escape_string($_POST['provider_phone']) : null;
         $provider_gender = isset($_POST['provider_gender']) && $_POST['provider_gender'] !== "Not set" ? $con->real_escape_string($_POST['provider_gender']) : null;
         $provider_verified = isset($_POST['provider_verified']) && $_POST['provider_verified'] !== "Not set" ? $con->real_escape_string($_POST['provider_verified']) : null;
-        $provider_expertise = isset($_POST['provider_expertise']) && $_POST['provider_expertise'] !== "Not set" ? $con->real_escape_string($_POST['provider_expertise']) : null;
+        $provider_expertise = isset($_POST['selectedItems']) && $_POST['selectedItems'] !== "" ? $con->real_escape_string($_POST['selectedItems']) : null;
         $provider_servable = isset($_POST['provider_servable']) && $_POST['provider_servable'] !== "Not set" ? $con->real_escape_string($_POST['provider_servable']) : null;
         $provider_upazila = isset($_POST['provider_upazila']) && $_POST['provider_upazila'] !== "Not set" ? $con->real_escape_string($_POST['provider_upazila']) : null;
         $provider_area = isset($_POST['provider_area']) && $_POST['provider_area'] !== "Not set" ? $con->real_escape_string($_POST['provider_area']) : null;
         $provider_street_address = isset($_POST['provider_street_address']) && $_POST['provider_street_address'] !== "Not set" ? $con->real_escape_string($_POST['provider_street_address']) : null;
-
+        echo $_POST['selectedItems'];
         // Handle profile picture upload
         $provider_profile_picture = null;
         if (isset($_FILES['provider_profile_picture']) && $_FILES['provider_profile_picture']['error'] === UPLOAD_ERR_OK) {
@@ -85,9 +85,8 @@ if (isset($_SESSION['provider_id'])) {
         if ($provider_email !== null) $update_fields[] = "`provider_email` = '$provider_email'";
         if ($provider_password !== null) $update_fields[] = "`provider_password` = '$provider_password'";
         if ($provider_code !== null) $update_fields[] = "`provider_code` = '$provider_code'";
-        if ($provider_status !== null) $update_fields[] = "`provider_status` = '$provider_status'";
+        // if ($provider_status !== null) $update_fields[] = "`provider_status` = '$provider_status'";
         if ($provider_district !== null) $update_fields[] = "`provider_district` = '$provider_district'";
-        if ($provider_registration_date !== null) $update_fields[] = "`provider_registration_date` = '$provider_registration_date'";
         if ($provider_experience !== null) $update_fields[] = "`provider_experience` = '$provider_experience'";
         if ($provider_about !== null) $update_fields[] = "`provider_about` = '$provider_about'";
         if ($provider_rating !== null) $update_fields[] = "`provider_rating` = '$provider_rating'";
@@ -182,8 +181,6 @@ if (isset($_SESSION['provider_id'])) {
             <div class="container  w-screen ">
                 <div class="bg-white shadow-xl rounded-xl p-8 max-w-scree mx-auto">
                     <!-- Header -->
-
-
                     <!-- Profile Form -->
                     <form id="providerForm" action="" method="POST" enctype="multipart/form-data">
                         <div class="flex justify-between items-center mb-8">
@@ -352,8 +349,7 @@ if (isset($_SESSION['provider_id'])) {
                                 <!-- <input type="text" id="upazilla" name="upazilla" class="text-gray-600 w-full p-2 border rounded"
                             value="" required> -->
                                 <select id="upazilla" name="provider_upazila"
-                                    class="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:border-blue-600"
-                                    >
+                                    class="border border-gray-300 p-2 rounded-lg w-full focus:outline-none focus:border-blue-600">
                                     <option value="" disabled selected><?php echo empty($_SESSION['provider_upazila']) ? "Not set" : $_SESSION['provider_upazila']; ?></option>
                                 </select>
                             </div>
@@ -376,7 +372,7 @@ if (isset($_SESSION['provider_id'])) {
                                 <label class="block text-gray-700 font-medium mb-2" for="provider_experience">Experience (Years)</label>
                                 <input type="number" id="provider_experience" name="provider_experience"
                                     class="w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-400"
-                                    placeholder="Years of experience" value="">
+                                    placeholder="Years of experience" value="<?php echo $_SESSION['provider_experience'];?>">
                             </div>
                             <div>
                                 <label class="block text-gray-700 font-medium mb-2" for="provider_about">About</label>
@@ -394,7 +390,7 @@ if (isset($_SESSION['provider_id'])) {
                                     type="text"
                                     id="previousSelection"
                                     name="previousSelection"
-                                    value="Option 1, Option 2"
+                                    value="<?php echo isset($_SESSION['provider_expertise'])?$_SESSION['provider_expertise']:"Not set"; ?>"
                                     class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 text-gray-700 cursor-not-allowed sm:text-sm"
                                     readonly>
                             </div>
@@ -443,7 +439,7 @@ if (isset($_SESSION['provider_id'])) {
                                     type="text"
                                     id="selectedItems"
                                     name="selectedItems"
-                                    value="Item 1, Item 2, Item 3"
+                                    value=""
                                     class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 text-gray-700 cursor-not-allowed sm:text-sm"
                                     readonly>
                                 <p class="mt-2 text-sm text-gray-500">Click items to remove them.</p>
@@ -516,18 +512,18 @@ if (isset($_SESSION['provider_id'])) {
                                 selectedItemsInput.value = selectedItems.join(", ");
                             });
                             // Preview the profile picture before uploading
-document.getElementById('provider_profile_picture').addEventListener('change', function (event) {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-    
-    reader.onload = function (e) {
-        document.getElementById('profilePicturePreview').src = e.target.result;
-    };
-    
-    if (file) {
-        reader.readAsDataURL(file);
-    }
-});
+                            document.getElementById('provider_profile_picture').addEventListener('change', function(event) {
+                                const file = event.target.files[0];
+                                const reader = new FileReader();
+
+                                reader.onload = function(e) {
+                                    document.getElementById('profilePicturePreview').src = e.target.result;
+                                };
+
+                                if (file) {
+                                    reader.readAsDataURL(file);
+                                }
+                            });
                         </script>
 
                         <!-- Submit Button -->
