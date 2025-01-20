@@ -1,22 +1,6 @@
 <?php
+include '../config.php';
 session_start();
-$taskers = [];
-for ($i = 1; $i <= 300; $i++) {
-    $taskers[] = [
-        'id' => $i,
-        'name' => "Tasker $i",
-        'tasks' => rand(0, 499) . " Furniture Assembly tasks",
-        'reviews' => "⭐ " . number_format(rand(0, 10) / 10 + 4, 1) . " (" . rand(0, 999) . " reviews)",
-        'description' => "Experienced in assembling various furniture types.",
-        'rate' => number_format(rand(30, 80) + rand(0, 99) / 100, 2),
-        'date' => $i % 3 === 0 ? "Today" : ($i % 3 === 1 ? "Within 3 Days" : "Within A Week"),
-        'timeOfDay' => $i % 4 === 0 ? "Morning" : ($i % 4 === 1 ? "Afternoon" : ($i % 4 === 2 ? "Evening" : "Night")),
-        'type' => $i % 5 === 0 ? "Elite Tasker" : "Great Value",
-    ];
-}
-$taskersJson = json_encode($taskers);
-// print_r($taskers);
-
 if ($_SERVER['REQUEST_METHOD'] === "POST") {
     $_SESSION['selected_item_id'] = $_POST['item_id'];
     $_SESSION['selected_user_street_address'] = $_POST['user_street_address'];
@@ -25,6 +9,80 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     $_SESSION['selected_task_summary'] = $_POST['task_summary'];
     // echo $_POST['item_id'] . $_POST['user_street_address'] . $_POST['user_unit_apt'].$_POST['task_size'].$_POST['task_summary'];
 }
+$item_id=$_SESSION['selected_item_id'];
+$taskers = [];
+// for ($i = 1; $i <= 300; $i++) {
+//     $taskers[] = [
+//         'id' => $i,
+//         'name' => "Tasker $i",
+//         'tasks' => rand(0, 499) . " Furniture Assembly tasks",
+//         'reviews' => "⭐ " . number_format(rand(0, 10) / 10 + 4, 1) . " (" . rand(0, 999) . " reviews)",
+//         'description' => "Experienced in assembling various furniture types.",
+//         'rate' => number_format(rand(30, 80) + rand(0, 99) / 100, 2),
+//         'date' => $i % 3 === 0 ? "Today" : ($i % 3 === 1 ? "Within 3 Days" : "Within A Week"),
+//         'timeOfDay' => $i % 4 === 0 ? "Morning" : ($i % 4 === 1 ? "Afternoon" : ($i % 4 === 2 ? "Evening" : "Night")),
+//         'type' => $i % 5 === 0 ? "Elite Tasker" : "Great Value",
+//     ];
+// }
+$sql = "SELECT item_name FROM item WHERE item_id = ?";
+$stmt = $con->prepare($sql);
+
+// Bind the parameter and execute
+$stmt->bind_param("i", $item_id); // 's' denotes the data type is string
+$stmt->execute();
+
+// Get the result
+$result = $stmt->get_result();
+$check = "";
+// Fetch the item_name
+if ($row = $result->fetch_assoc()) {
+    echo "Item Name: " . $row['item_name'];
+    $check=$row['item_name'];
+} else {
+    echo "No item found with the given item_id.<br>";
+}
+$area=$_SESSION['user_area'];
+// SQL query to fetch required columns from the service_provider table
+$sql = "SELECT provider_id AS id, 
+               provider_name AS name, 
+               provider_about AS description, 
+               provider_expertise AS tasks,
+               provider_profile_picture AS profile_picture,
+               provider_price AS rate, 
+               provider_availability AS date, 
+               provider_availability_time_of_day AS timeOfDay, 
+               provider_type AS type, 
+               provider_review AS reviews 
+        FROM service_provider
+        WHERE provider_servable=1
+         AND provider_expertise LIKE '%$check%'
+         AND provider_area LIKE '%$area%';
+        ";
+echo "User_area: ".$_SESSION['user_area'];
+$result = $con->query($sql);
+if ($result->num_rows > 0) {
+    // Fetch each row and populate the $taskers array
+    while ($row = $result->fetch_assoc()) {
+        $taskers[] = [
+            'id' => $row['id'],
+            'name' => $row['name'],
+            'tasks' => $row['tasks'], // Example dynamic value
+            'profile_picture' => $row['profile_picture'],
+            'reviews' => $row['reviews'], // Already provided
+            'description' => $row['description'], // From database
+            'rate' => number_format($row['rate'], 2), // Ensure rate is formatted
+            'date' => $row['date'], // From database
+            'timeOfDay' => $row['timeOfDay'], // From database
+            'type' => $row['type'], // From database
+        ];
+    }
+} else {
+    echo "No results found.";
+}
+$taskersJson = json_encode($taskers);
+// print_r($taskers);
+
+
 $item_id = $_SESSION['selected_item_id'];
 $user_street_address = $_SESSION['selected_user_street_address'];
 $user_unit_apt = $_SESSION['selected_user_unit_apt'];
@@ -171,7 +229,7 @@ echo "Task Summary: " . $task_summary . "<br>";
                         oninput="updatePriceLabel(this.value)" />
                     <p id="price-label" class="text-sm text-gray-600">
                         The average hourly rate is
-                        <span class="font-medium">$150/hr</span>
+                        <span class="font-medium">BDT 150/hr</span>
                     </p>
                 </div>
 
@@ -351,7 +409,7 @@ echo "Task Summary: " . $task_summary . "<br>";
             taskerSubset.forEach((tasker) => {
                 const taskerCard = `
             <div class="bg-white rounded-lg shadow p-6 flex flex-col md:flex-row items-start gap-4">
-                <img src="https://via.placeholder.com/100" alt="Tasker Profile" class="w-24 h-24 rounded-full">
+                <img src="../photo/profile_pictures/${tasker.profile_picture}" alt="Tasker Profile" class="w-24 h-24 rounded-full">
                 <div class="flex-1">
                     <h3 class="text-lg font-semibold">${tasker.name}</h3>
                     <p class="text-sm text-gray-600 mb-1">${tasker.tasks}</p>
