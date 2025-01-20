@@ -7,6 +7,12 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     $task_size = $_POST['task-size'];
     // echo $_POST['item_id'] . $_POST['user_street_address'] . $_POST['user_unit_apt'].$_POST['task-size'];
 }
+if(isset($_GET['item_id'])){
+    $item_id = $_GET['item_id'];
+    $user_street_address = $_GET['user_street_address'];
+    $user_unit_apt = $_GET['user_unit_apt'];
+    $task_size = $_GET['task_size'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

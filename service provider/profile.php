@@ -47,6 +47,14 @@ if (isset($_SESSION['provider_id'])) {
         $provider_upazila = isset($_POST['provider_upazila']) && $_POST['provider_upazila'] !== "Not set" ? $con->real_escape_string($_POST['provider_upazila']) : null;
         $provider_area = isset($_POST['provider_area']) && $_POST['provider_area'] !== "Not set" ? $con->real_escape_string($_POST['provider_area']) : null;
         $provider_street_address = isset($_POST['provider_street_address']) && $_POST['provider_street_address'] !== "Not set" ? $con->real_escape_string($_POST['provider_street_address']) : null;
+        $provider_availability = "";
+        if (isset($_POST['provider_availability'])) $provider_availability = $_POST['provider_availability'];
+        $provider_price = $_POST['provider_price'];
+        $provider_availability_time_of_day = "";
+        if (isset($_POST['provider_availability_time_of_day'])) {
+            $provider_availability_time_of_day = implode(',', $_POST['provider_availability_time_of_day']);
+            echo $provider_availability_time_of_day . " check";
+        }
         echo $_POST['selectedItems'];
         // Handle profile picture upload
         $provider_profile_picture = null;
@@ -99,7 +107,9 @@ if (isset($_SESSION['provider_id'])) {
         if ($provider_area !== null) $update_fields[] = "`provider_area` = '$provider_area'";
         if ($provider_street_address !== null) $update_fields[] = "`provider_street_address` = '$provider_street_address'";
         if ($provider_profile_picture !== null) $update_fields[] = "`provider_profile_picture` = '$provider_profile_picture'";
-
+        if ($provider_price != null) $update_fields[] = "`provider_price` = '$provider_price'";
+        if ($provider_availability != "") $update_fields[] = "`provider_availability` = '$provider_availability'";
+        if ($provider_availability_time_of_day != "") $update_fields[] = "`provider_availability_time_of_day` = '$provider_availability_time_of_day'";
         // Check if there are fields to update
         if (count($update_fields) > 0) {
             // Combine the update fields into one string
@@ -372,7 +382,7 @@ if (isset($_SESSION['provider_id'])) {
                                 <label class="block text-gray-700 font-medium mb-2" for="provider_experience">Experience (Years)</label>
                                 <input type="number" id="provider_experience" name="provider_experience"
                                     class="w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-400"
-                                    placeholder="Years of experience" value="<?php echo $_SESSION['provider_experience'];?>">
+                                    placeholder="Years of experience" value="<?php echo $_SESSION['provider_experience']; ?>">
                             </div>
                             <div>
                                 <label class="block text-gray-700 font-medium mb-2" for="provider_about">About</label>
@@ -390,7 +400,7 @@ if (isset($_SESSION['provider_id'])) {
                                     type="text"
                                     id="previousSelection"
                                     name="previousSelection"
-                                    value="<?php echo isset($_SESSION['provider_expertise'])?$_SESSION['provider_expertise']:"Not set"; ?>"
+                                    value="<?php echo isset($_SESSION['provider_expertise']) ? $_SESSION['provider_expertise'] : "Not set"; ?>"
                                     class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 text-gray-700 cursor-not-allowed sm:text-sm"
                                     readonly>
                             </div>
@@ -444,6 +454,74 @@ if (isset($_SESSION['provider_id'])) {
                                     readonly>
                                 <p class="mt-2 text-sm text-gray-500">Click items to remove them.</p>
                             </div>
+                            <div>
+
+                            </div>
+
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2" for="provider_price">Expected value (per hour)</label>
+                                <input type="number" id="provider_price" name="provider_price"
+                                    class="w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-400"
+                                    placeholder="Valuation per hour" value="<?php echo $_SESSION['provider_price']; ?>">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Your Availability</label>
+                                <div class="space-y-2">
+                                    <label class="flex items-center">
+                                        <input type="radio" id="availability_today" name="provider_availability" value="today"
+                                            class="form-radio text-blue-500 focus:ring-2 focus:ring-blue-400"
+                                            <?php echo ($_SESSION['provider_availability'] === 'today') ? 'checked' : ''; ?>>
+                                        <span class="ml-2">Today</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="radio" id="availability_3days" name="provider_availability" value="within_3_days"
+                                            class="form-radio text-blue-500 focus:ring-2 focus:ring-blue-400"
+                                            <?php echo ($_SESSION['provider_availability'] === 'within_3_days') ? 'checked' : ''; ?>>
+                                        <span class="ml-2">Within 3 Days</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="radio" id="availability_1week" name="provider_availability" value="within_1_week"
+                                            class="form-radio text-blue-500 focus:ring-2 focus:ring-blue-400"
+                                            <?php echo ($_SESSION['provider_availability'] === 'within_1_week') ? 'checked' : ''; ?>>
+                                        <span class="ml-2">Within One Week</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <?php
+                                $availability_array = explode(',', $_SESSION['provider_availability_time_of_day']);
+                                // echo print_r($availability_array);
+                                ?>
+                                <label class="block text-gray-700 font-medium mb-2" for="provider_availability_segment">Your availability in segments of a day:</label>
+                                <div class="space-y-2">
+                                    <!-- Morning Checkbox -->
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="availability_morning" name="provider_availability_time_of_day[]" value="morning_8_12am"
+                                            class="form-checkbox text-blue-500 focus:ring-2 focus:ring-blue-400"
+                                            <?php echo (in_array('morning_8_12am', $availability_array)) ? 'checked' : ''; ?>>
+                                        <span class="ml-2">Morning (8-12AM)</span>
+                                    </label>
+
+                                    <!-- Noon Checkbox -->
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="availability_noon" name="provider_availability_time_of_day[]" value="noon_12_4pm"
+                                            class="form-checkbox text-blue-500 focus:ring-2 focus:ring-blue-400"
+                                            <?php echo (in_array('noon_12_4pm', $availability_array)) ? 'checked' : ''; ?>>
+                                        <span class="ml-2">Noon (12-4PM)</span>
+                                    </label>
+
+                                    <!-- Afternoon Checkbox -->
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="availability_afternoon" name="provider_availability_time_of_day[]" value="afternoon_4_8pm"
+                                            class="form-checkbox text-blue-500 focus:ring-2 focus:ring-blue-400"
+                                            <?php echo (in_array('afternoon_4_8pm', $availability_array)) ? 'checked' : ''; ?>>
+                                        <span class="ml-2">Afternoon (4-8PM)</span>
+                                    </label>
+                                </div>
+                            </div>
+
+
                         </div>
 
                         <script>

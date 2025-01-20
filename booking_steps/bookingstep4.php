@@ -1,14 +1,41 @@
-<?php 
+<?php
 session_start();
-echo $item_id;
+$taskers = [];
+for ($i = 1; $i <= 300; $i++) {
+    $taskers[] = [
+        'id' => $i,
+        'name' => "Tasker $i",
+        'tasks' => rand(0, 499) . " Furniture Assembly tasks",
+        'reviews' => "⭐ " . number_format(rand(0, 10) / 10 + 4, 1) . " (" . rand(0, 999) . " reviews)",
+        'description' => "Experienced in assembling various furniture types.",
+        'rate' => number_format(rand(30, 80) + rand(0, 99) / 100, 2),
+        'date' => $i % 3 === 0 ? "Today" : ($i % 3 === 1 ? "Within 3 Days" : "Within A Week"),
+        'timeOfDay' => $i % 4 === 0 ? "Morning" : ($i % 4 === 1 ? "Afternoon" : ($i % 4 === 2 ? "Evening" : "Night")),
+        'type' => $i % 5 === 0 ? "Elite Tasker" : "Great Value",
+    ];
+}
+$taskersJson = json_encode($taskers);
+// print_r($taskers);
+
 if ($_SERVER['REQUEST_METHOD'] === "POST") {
-    $item_id = $_POST['item_id'];
-    $user_street_address = $_POST['user_street_address'];
-    $user_unit_apt = $_POST['user_unit_apt'];
-    $task_size = $_POST['task_size'];
-    $task_summary=$_POST['task_summary'];
+    $_SESSION['selected_item_id'] = $_POST['item_id'];
+    $_SESSION['selected_user_street_address'] = $_POST['user_street_address'];
+    $_SESSION['selected_user_unit_apt'] = $_POST['user_unit_apt'];
+    $_SESSION['selected_task_size'] = $_POST['task_size'];
+    $_SESSION['selected_task_summary'] = $_POST['task_summary'];
     // echo $_POST['item_id'] . $_POST['user_street_address'] . $_POST['user_unit_apt'].$_POST['task_size'].$_POST['task_summary'];
 }
+$item_id = $_SESSION['selected_item_id'];
+$user_street_address = $_SESSION['selected_user_street_address'];
+$user_unit_apt = $_SESSION['selected_user_unit_apt'];
+$task_size = $_SESSION['selected_task_size'];
+$task_summary = $_SESSION['selected_task_summary'];
+// Outputting the session variables
+echo "Item ID: " . $item_id . "<br>";
+echo "Street Address: " . $user_street_address . "<br>";
+echo "Unit/Apt: " . $user_unit_apt . "<br>";
+echo "Task Size: " . $task_size . "<br>";
+echo "Task Summary: " . $task_summary . "<br>";
 ?>
 
 <!DOCTYPE html>
@@ -25,14 +52,13 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     <?php
     include 'header.php';
     ?>
-
+    <!-- progress bar -->
     <div align="center">
         <h1 class="text-2xl font-bold mb-8">Task Progress</h1>
-
         <!-- Progress Bar -->
         <div class="w-3/4 flex items-center">
             <!-- Circle 1 -->
-            <a href="<?php echo "bookingstep1.php?item_id=".$item_id; ?>">
+            <a href="<?php echo "bookingstep1.php?item_id=" . $item_id; ?>">
                 <div class="relative flex flex-col items-center">
                     <div id="circle1" class="w-8 h-8 rounded-full flex items-center justify-center border-4 border-blue-600  text-blue-700 text-black font-semibold">
                         1
@@ -43,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
             <!-- Line 1 -->
             <div id="line1" class="flex-1 h-1 bg-blue-600"></div>
 
-            <a href="<?php echo "bookingstep2.php?item_id=".$item_id."&user_street_address=".$user_street_address."&user_unit_apt=".$user_unit_apt; ?>">
+            <a href="<?php echo "bookingstep2.php?item_id=" . $item_id . "&user_street_address=" . $user_street_address . "&user_unit_apt=" . $user_unit_apt; ?>">
                 <div class="relative flex flex-col items-center">
                     <div id="circle1" class="w-8 h-8 rounded-full flex items-center justify-center border-4 border-blue-600  text-blue-700 text-black font-semibold">
                         2
@@ -55,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
             <div id="line2" class="flex-1 h-1 bg-blue-600"></div>
 
             <!-- Circle 3 -->
-            <a href="<?php echo "bookingstep3.php?item_id=".$item_id."&user_street_address=".$user_street_address."&user_unit_apt=".$user_unit_apt."&task_size=".$task_size; ?>">
+            <a href="<?php echo "bookingstep3.php?item_id=" . $item_id . "&user_street_address=" . $user_street_address . "&user_unit_apt=" . $user_unit_apt . "&task_size=" . $task_size; ?>">
                 <div class="relative flex flex-col items-center">
                     <div id="circle1" class="w-8 h-8 rounded-full flex items-center justify-center border-4 border-blue-600  text-blue-700 text-black font-semibold">
                         3
@@ -76,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
         </div>
 
     </div>
-
+    <!-- main part -->
     <div class="container mx-auto py-6 px-4 md:px-0">
         <!-- Main Container -->
         <div class="flex flex-col md:flex-row gap-6">
@@ -208,12 +234,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
             </div>
         </div>
     </div>
-
-
-
-
     <!-- Calender -->
-
     <div>
         <div
             id="overlay"
@@ -269,7 +290,6 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                             </div>
                         </div>
                     </div>
-
                     <!-- Time Selector and Confirmation -->
                     <div>
                         <div id="time-selector" class="mt-4 hidden">
@@ -300,37 +320,24 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
 
     </div>
-    <!-- Overlay and Task Scheduler -->
-
-
-
 
     <script>
-        const taskers = [];
-        for (let i = 1; i <= 150; i++) {
-            taskers.push({
-                id: i,
-                name: `Tasker ${i}`,
-                tasks: `${Math.floor(Math.random() * 500)} Furniture Assembly tasks`,
-                reviews: `⭐ ${(Math.random() * 1 + 4).toFixed(1)} (${Math.floor(
-            Math.random() * 1000
-          )} reviews)`,
-                description: "Experienced in assembling various furniture types.",
-                rate: Math.random() * 50 + 30,
-                date: i % 3 === 0 ?
-                    "Today" : i % 3 === 1 ?
-                    "Within 3 Days" : "Within A Week",
-                timeOfDay: i % 4 === 0 ? "Morning" : i % 4 === 1 ? "Afternoon" : "Evening",
-                type: i % 5 === 0 ? "Elite Tasker" : "Great Value",
-            });
-        }
+        // Assuming PHP passes the taskers as JSON
+        const taskers = <?php echo $taskersJson; ?>;
 
+        // Pagination and filtering variables
         const itemsPerPage = 50;
         let currentPage = 1;
-        let filteredTaskers = taskers;
+        let filteredTaskers = [...taskers]; // Clone taskers for filtering
 
+        // Function to render taskers on the current page
         function renderTaskers(page) {
             const taskerList = document.getElementById("tasker-list");
+            if (!taskerList) {
+                console.error("Tasker list element not found.");
+                return;
+            }
+
             taskerList.innerHTML = "";
             const start = (page - 1) * itemsPerPage;
             const end = start + itemsPerPage;
@@ -343,39 +350,34 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
 
             taskerSubset.forEach((tasker) => {
                 const taskerCard = `
-    <div class="bg-white rounded-lg shadow p-6 flex flex-col md:flex-row items-start gap-4 bg-gradient-to-bl from-blue-100 via-white to-blue-50 shadow-xl border-2 border-blue-200">
-      <img src="https://via.placeholder.com/100" alt="Tasker Profile" class="w-24 h-24 rounded-full">
-      <div class="flex-1">
-        <h3 class="text-lg font-semibold">${tasker.name}</h3>
-        <p class="text-sm text-gray-600 mb-1">${tasker.tasks}</p>
-        <p class="text-sm text-gray-600 mb-2">${tasker.reviews}</p>
-        <p class="mt-2 text-sm text-gray-600">${tasker.description}</p>
-        <div class="flex flex-wrap gap-2 mt-2">
-          <span class="inline-block bg-blue-100 text-blue-600 text-xs font-medium px-2.5 py-1 rounded-md">Rate: $${tasker.rate.toFixed(
-            2
-          )}/hr</span>
-          <span class="inline-block bg-green-100 text-green-600 text-xs font-medium px-2.5 py-1 rounded-md">Available: ${
-            tasker.date
-          }</span>
-          <span class="inline-block bg-purple-100 text-purple-600 text-xs font-medium px-2.5 py-1 rounded-md">Time: ${
-            tasker.timeOfDay
-          }</span>
-          <span class="inline-block bg-yellow-100 text-yellow-600 text-xs font-medium px-2.5 py-1 rounded-md">${
-            tasker.type
-          }</span>
-        </div>
-       <button id="mendaBtn" class="mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg text-sm hover:bg-indigo-700">
-  Select & Continue
-</button>
-      </div>
-    </div>
-  `;
+            <div class="bg-white rounded-lg shadow p-6 flex flex-col md:flex-row items-start gap-4">
+                <img src="https://via.placeholder.com/100" alt="Tasker Profile" class="w-24 h-24 rounded-full">
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold">${tasker.name}</h3>
+                    <p class="text-sm text-gray-600 mb-1">${tasker.tasks}</p>
+                    <p class="text-sm text-gray-600 mb-2">${tasker.reviews}</p>
+                    <p class="mt-2 text-sm text-gray-600">${tasker.description}</p>
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        <span class="bg-blue-100 text-blue-600 text-xs font-medium px-2.5 py-1 rounded-md">Rate: $${parseFloat(tasker.rate).toFixed(2)}/hr</span>
+                        <span class="bg-green-100 text-green-600 text-xs font-medium px-2.5 py-1 rounded-md">Available: ${tasker.date}</span>
+                        <span class="bg-purple-100 text-purple-600 text-xs font-medium px-2.5 py-1 rounded-md">Time: ${tasker.timeOfDay}</span>
+                        <span class="bg-yellow-100 text-yellow-600 text-xs font-medium px-2.5 py-1 rounded-md">${tasker.type}</span>
+                    </div>
+                    <button type="submit" id="mendaBtn" class="mendaBtn mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg text-sm hover:bg-indigo-700">Select & Continue</button>
+                </div>
+            </div>`;
                 taskerList.insertAdjacentHTML("beforeend", taskerCard);
             });
         }
 
+        // Function to render pagination buttons
         function renderPagination() {
             const pagination = document.getElementById("pagination");
+            if (!pagination) {
+                console.error("Pagination element not found.");
+                return;
+            }
+
             pagination.innerHTML = "";
             const totalPages = Math.ceil(filteredTaskers.length / itemsPerPage);
 
@@ -384,7 +386,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                 button.textContent = i;
                 button.className = `px-4 py-2 border border-gray-300 rounded-md text-sm ${
             i === currentPage ? "bg-indigo-600 text-white" : "bg-gray-100"
-          }`;
+        }`;
                 button.addEventListener("click", () => {
                     currentPage = i;
                     renderTaskers(currentPage);
@@ -394,7 +396,8 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
             }
         }
 
-        function filterTaskers(filter = null) {
+        // Function to filter taskers based on criteria
+        function filterTaskers() {
             currentPage = 1;
 
             const selectedTimeOfDay = document.querySelector(
@@ -407,87 +410,67 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                 'input[name="taskerType"]:checked'
             )?.value;
 
-            // Update active filter if provided
-            const activeFilter = document.querySelector(".filter-button.active");
-            if (activeFilter) activeFilter.classList.remove("active");
-            if (filter) {
-                const filterButton = document.querySelector(
-                    `.filter-button[data-filter="${filter}"]`
-                );
-                if (filterButton) filterButton.classList.add("active");
-            }
-
             filteredTaskers = taskers.filter((tasker) => {
-                // Date filter
-                if (filter && filter !== "All" && tasker.date !== filter)
-                    return false;
-
-                // Time of Day filter
-                if (selectedTimeOfDay && tasker.timeOfDay !== selectedTimeOfDay)
-                    return false;
-
-                // Price filter
+                if (selectedTimeOfDay && tasker.timeOfDay !== selectedTimeOfDay) return false;
                 if (tasker.rate > maxPrice) return false;
-
-                // Tasker Type filter
-                if (selectedTaskerType && tasker.type !== selectedTaskerType)
-                    return false;
-
+                if (selectedTaskerType && tasker.type !== selectedTaskerType) return false;
                 return true;
             });
 
             renderTaskers(currentPage);
             renderPagination();
+            attachEventListeners();
         }
 
+        // Function to sort taskers by rate
         function sortTaskers(sortType) {
             if (sortType === "highest") {
-                filteredTaskers.sort((a, b) => b.rate - a.rate);
+                filteredTaskers.sort((a, b) => parseFloat(b.rate) - parseFloat(a.rate));
             } else if (sortType === "lowest") {
-                filteredTaskers.sort((a, b) => a.rate - b.rate);
+                filteredTaskers.sort((a, b) => parseFloat(a.rate) - parseFloat(b.rate));
             }
             renderTaskers(currentPage);
+            attachEventListeners();
         }
+
+        // Update price label dynamically
+        function updatePriceLabel(value) {
+            const priceLabel = document.getElementById("price-label");
+            if (priceLabel) {
+                priceLabel.innerHTML = `The average hourly rate is <span class="font-medium">$${value}/hr</span>`;
+            }
+            attachEventListeners();
+        }
+
+        // Event listeners
 
         document.querySelectorAll(".filter-button").forEach((button) => {
             button.addEventListener("click", (e) => {
-                const filter = e.target.getAttribute("data-filter");
-                filterTaskers(filter);
+                filterTaskers();
             });
         });
 
-        document
-            .querySelectorAll('input[type="radio"], input[type="range"]')
-            .forEach((input) => {
-                input.addEventListener("change", () => {
-                    const activeFilter = document
-                        .querySelector(".filter-button.active")
-                        ?.getAttribute("data-filter");
-                    filterTaskers(activeFilter || "All");
-                });
+        document.querySelectorAll('input[type="radio"], input[type="range"]').forEach((input) => {
+            input.addEventListener("change", () => {
+                filterTaskers();
+                attachEventListeners();
             });
+        });
 
         document.querySelectorAll(".sort-button").forEach((button) => {
             button.addEventListener("click", (e) => {
                 const sortType = e.target.getAttribute("data-sort");
                 sortTaskers(sortType);
+                attachEventListeners();
             });
         });
 
-        function updatePriceLabel(value) {
-            const priceLabel = document.getElementById("price-label");
-            priceLabel.innerHTML = `The average hourly rate is <span class="font-medium">$${value}/hr</span>`;
-        }
-
+        // Initial render
         renderTaskers(currentPage);
         renderPagination();
     </script>
-
-
-
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            const mendaBtn = document.getElementById("mendaBtn");
             const overlay = document.getElementById("overlay");
             const closeBtn = document.getElementById("closeBtn");
             const calendarElement = document.getElementById("calendar");
@@ -508,13 +491,14 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
             let currentMonth = new Date().getMonth();
             let selectedDate = null;
 
-            const availableDates = {
-                "2025-1-7": ["4:00 PM", "5:00 PM", "6:00 PM"],
-                "2025-1-8": ["3:00 PM", "4:30 PM"],
-                "2025-1-9": ["2:00 PM", "3:00 PM", "5:00 PM"],
-                "2025-2-3": ["10:00 AM", "1:00 PM"],
-                "2025-2-4": ["9:00 AM", "11:30 AM"],
-            };
+            // Calculate available dates for the next 7 days
+            const today = new Date();
+            const availableDates = {};
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
+                const dateKey = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+                availableDates[dateKey] = ["9:00 AM", "10:00 AM", "11:00 AM"]; // Example times
+            }
 
             function renderCalendar() {
                 calendarElement.innerHTML = "";
@@ -575,35 +559,24 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
                 alert(`Request for: ${selectedDate} at ${selectedTime}`);
             });
 
-            mendaBtn.addEventListener("click", () => overlay.classList.remove("hidden"));
             closeBtn.addEventListener("click", () => overlay.classList.add("hidden"));
 
-            document.getElementById("prevMonth").addEventListener("click", () => {
-                currentMonth = (currentMonth - 1 + 12) % 12;
-                if (currentMonth === 11) currentYear--;
-                renderCalendar();
-            });
-
-            document.getElementById("nextMonth").addEventListener("click", () => {
-                currentMonth = (currentMonth + 1) % 12;
-                if (currentMonth === 0) currentYear++;
-                renderCalendar();
-            });
-
-            document.getElementById("prevYear").addEventListener("click", () => {
-                currentYear--;
-                renderCalendar();
-            });
-
-            document.getElementById("nextYear").addEventListener("click", () => {
-                currentYear++;
-                renderCalendar();
+            document.querySelectorAll(".mendaBtn").forEach(btn => {
+                btn.addEventListener("click", () => overlay.classList.remove("hidden"));
             });
 
             renderCalendar();
         });
     </script>
-
+    <script>
+        function attachEventListeners() {
+            document.querySelectorAll(".mendaBtn").forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    overlay.classList.remove("hidden");
+                });
+            });
+        }
+    </script>
     <?php
     include '../footer.php';
 

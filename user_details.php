@@ -34,6 +34,10 @@ if (isset($_SESSION['email'])) {
         $_SESSION['provider_upazila'] = $fetch['provider_upazila'];
         $_SESSION['provider_area'] = $fetch['provider_area'];
         $_SESSION['provider_street_address'] = $fetch['provider_street_address'];
+        $_SESSION['provider_availability']=$fetch['provider_availability'];
+        $_SESSION['provider_availability_time_of_day']=$fetch['provider_availability_time_of_day'];
+        $_SESSION['provider_price']=$fetch['provider_price'];
+        
     } else if (mysqli_num_rows($res2) > 0) {
         echo 'user';
         $_SESSION['type'] = 'user';
