@@ -210,9 +210,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <!-- Image Section -->
-        <img id="service-image" src="https://via.placeholder.com/600x300?text=Select+a+Service"
-          alt="Service Image"
-          class="z-0 rounded-[70px] shadow-md w-full max-w-[900px]">
+        <!-- <img id="service-image" src="https://loremflickr.com/200/200?random=1"
+          alt="https://loremflickr.com/200/200?random=1"
+          class="z-0 rounded-[70px] shadow-md w-full max-w-[900px]"> -->
+          <img id="service-image" src="https://loremflickr.com/200/200?random=1"
+     alt="Service images by rakib"
+     class="z-0 rounded-[70px] shadow-md w-full max-w-[900px]"
+     loading="lazy">
       </div>
       <?php
       include 'config.php';

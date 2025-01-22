@@ -14,7 +14,7 @@ if (isset($_POST['confirm'])) {
     if ($row_booking = $result_booking->fetch_assoc()) {
         // echo 'check';
         // Prepare the statement
-        $stmt = $con->prepare("UPDATE `booking` SET `user_end` = 1 WHERE `booking_id` = ?");
+        $stmt = $con->prepare("UPDATE `booking` SET `user_end` = 1 , `booking_status`=1 WHERE `booking_id` = ?");
         // Bind the parameter (assuming booking_id is an integer)
         $stmt->bind_param("i", $booking_id);
         // Execute the statement
@@ -61,22 +61,43 @@ if (isset($_POST['cancel'])) {
 
     // Fetch the booking details from the database
     $sql_booking = "SELECT * 
-                    FROM bookings 
-                    WHERE id='$booking_id' AND status='pending' AND CONCAT(date, ' ', booking_time) > NOW();";
+                    FROM booking 
+                    WHERE booking_id='$booking_id' AND booking_status=0 
+                    AND STR_TO_DATE(CONCAT(booking_date, ' ', booking_time), '%Y-%m-%d %h:%i %p') > NOW()
+                    ";
     $result_booking = mysqli_query($con, $sql_booking);
-
+    // echo 'check';
     if ($row_booking = $result_booking->fetch_assoc()) {
-        $date = $row_booking['date'];  // Date in 'Y-m-d' format
-        $time = $row_booking['booking_time'];  // Time in 'H:i:s' format
+        $date_string = $row_booking['booking_date']; // e.g., '2025-01-01'
+        $time_string = $row_booking['booking_time']; // e.g., '12:00 PM'
+
+        // Parse the date
+        $date = DateTime::createFromFormat('Y-m-d', $date_string);
+        if ($date) {
+            // echo "Date: " . $date->format('Y-m-d') . "\n"; // Output: '2025-01-01'
+        } else {
+            echo "Invalid date format.\n";
+        }
+
+        // Parse the time
+        $time = DateTime::createFromFormat('h:i A', $time_string);
+        if ($time) {
+            // echo "Time: " . $time->format('H:i:s') . "\n"; // Output: '12:00:00'
+        } else {
+            echo "Invalid time format.\n";
+        }
+        // $date = $row_booking['booking_date'];  // Date in 'Y-m-d' format
+        // $time = $row_booking['booking_time'];  // Time in 'H:i:s' format
 
         // Combine date and time into a DateTime object
-        $booking_datetime = new DateTime("$date $time");
+        // echo 'check';
+        $booking_datetime = new DateTime("$date_string $time_string");
+        // echo $booking_datetime->format('Y-m-d H:i:s');
         // echo $booking_datetime->format('Y-m-d H:i:s') . ' ';
         // Get the current date and time
         $current_datetime = new DateTime();
         // $current_datetime->setTimezone(new DateTimeZone('Asia/Dhaka'));
         // echo $current_datetime->format('Y-m-d H:i:s');
-
 
         // Calculate the difference between the booking time and the current time
         $interval = $current_datetime->diff($booking_datetime);
@@ -85,10 +106,10 @@ if (isset($_POST['cancel'])) {
         // $hours_difference = ($interval->days * 24) + $interval->h;
         // echo $hours_difference;
         // Check if the booking is more than 24 hours away
-        if ($interval->days >= 1&& $interval->h>=4) {
+        if ($interval->days >= 1 && $interval->h >= 4) {
             // echo 'yes';
             // Allow cancellation if more than 24 hours ahead
-            $sql_delete = "UPDATE bookings set `status`='cancelled' WHERE id='$booking_id'";
+            $sql_delete = "UPDATE booking set `booking_status`=-1 WHERE booking_id='$booking_id'";
             if (mysqli_query($con, $sql_delete)) {
                 // echo "Booking successfully cancelled.";
                 echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>"' . "<script>
@@ -124,6 +145,8 @@ if (isset($_POST['cancel'])) {
     </script>";
     }
 }
+
+
 if (isset($_POST['rating'])) {
     // echo 'jisan likes sristy';
     // echo $_POST['rating'] . '<br>';
@@ -131,32 +154,27 @@ if (isset($_POST['rating'])) {
 
     $booking_id = $_POST['to'];
     $rating = $_POST['rating'];
-    $customer_id = $_SESSION['customer_id'];
+    $customer_id = $_SESSION['user_id'];
+    $review = $_POST['review'];
+    // echo $review;
 
     //query to fetch my booking details
     $sql_select_booking = "SELECT 
-                            b.id AS booking_id,
-                            b.date,
+                            b.booking_id AS booking_id,
+                            b.booking_date,
                             b.booking_time,
-                            b.shop_id,
-                            b.worker_id,
-                            b.customer_id,
-                            sw.worker_name,
-                            sw.rating,
-                            sw.count_customer,
-                            s.shop_name,
-                            s.shop_state
+                            b.provider_id,
+                            b.user_id,
+                            sw.provider_name,
+                            sw.provider_rating,
+                            sw.provider_review
                         FROM 
-                            bookings b
+                            booking b
                         JOIN 
-                            shop_worker sw ON b.worker_id = sw.worker_id
-                        JOIN 
-                            barber_shop s ON b.shop_id = s.shop_id
-                        JOIN 
-                            customer c ON b.customer_id = c.customer_id
+                            service_provider sw ON b.provider_id = sw.provider_id
                         WHERE 
-                            b.id = '$booking_id'
-                            AND NOW() > CONCAT(b.date, ' ', b.booking_time)";
+                            b.booking_id = '$booking_id'
+                            AND STR_TO_DATE(CONCAT(booking_date, ' ', booking_time), '%Y-%m-%d %h:%i %p') < NOW()";
 
     // Execute the SELECT query
     $result = mysqli_query($con, $sql_select_booking);
@@ -164,34 +182,46 @@ if (isset($_POST['rating'])) {
     if ($result && mysqli_num_rows($result) > 0) {
         // Step 2: Fetch the worker details from the result
         $booking = mysqli_fetch_assoc($result);
-        $worker_id = $booking['worker_id'];
-        $current_rating = $booking['rating'];
-        $count_customer = $booking['count_customer'];
+        $worker_id = $booking['provider_id'];
+        $current_rating = $booking['provider_rating'];
+        $count_customer = $booking['provider_review'];
 
         // Step 3: Calculate the new rating
         $new_rating = (($current_rating * $count_customer) + $rating) / ($count_customer + 1);
 
         // Step 4: Execute the UPDATE query to update worker's rating
-        $sql_update_worker = "UPDATE shop_worker
+        $sql_update_worker = "UPDATE service_provider
                           SET 
-                              rating = '$new_rating', 
-                              count_customer = count_customer + 1
-                          WHERE worker_id = '$worker_id'";
+                              provider_rating = '$new_rating', 
+                              provider_review = provider_review + 1
+                          WHERE provider_id = '$worker_id'";
 
         $update_result = mysqli_query($con, $sql_update_worker);
 
         if ($update_result) {
-            echo "<script>alert('Successfully updated rating.');</script>";
+            // Step 5: Insert the review into the review table
+            $sql_update_rating = "UPDATE service_provider_review
+                          SET 
+                              service_provider_id = '$worker_id', 
+                              customer_id = '$customer_id',
+                              review_text='$review',
+                              review_rating='$rating'
+                          WHERE service_provider_id = '$worker_id'";
+            $update_rating = mysqli_query($con, $sql_update_rating);
+            if ($update_rating) {
+                echo "<script>alert('Successfully updated rating.');</script>";
+            } else {
+                echo "<script>alert('Failed to update service_provider rating.');</script>";
+            }
         } else {
             echo "<script>alert('Failed to update worker rating.');</script>";
         }
     } else {
         echo "<script>alert('You can\'t rate now!');</script>";
     }
-
 }
 // Fetching the bookings of the logged-in customer
-$query = "SELECT * FROM booking WHERE user_id = ? AND (booking_status=0 or booking_status=1) ORDER BY booking_date DESC";
+$query = "SELECT * FROM booking WHERE user_id = ? AND (booking_status=0 or booking_status=1 or booking_status=2) ORDER BY booking_date DESC";
 $stmt = $con->prepare($query);
 $stmt->bind_param("i", $customer_id);
 $stmt->execute();
@@ -499,6 +529,13 @@ $result = $stmt->get_result();
                 <label for="to" class="block text-sm font-medium">To:</label>
                 <input type="text" id="to" name="To" required class="border border-gray-300 p-2 w-full" disabled>
                 <input type="hidden" id="To" name="to">
+                <textarea
+                    id="review"
+                    name="review"
+                    rows="4"
+                    required
+                    class="border border-gray-300 p-2 w-full rounded focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="Write your review here..."></textarea>
             </div>
 
             <!-- Star Rating System -->
