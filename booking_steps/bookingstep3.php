@@ -60,7 +60,7 @@ if(isset($_GET['item_id'])){
                     <div id="circle1" class="w-8 h-8 rounded-full flex items-center justify-center border-4 border-blue-600  text-blue-700 text-black font-semibold">
                         2
                     </div>
-                    <span class="text-xs mt-2 text-blue-700">Location</span>
+                    <span class="text-xs mt-2 text-blue-700">Browse</span>
                 </div>
             </a>
             <!-- Line 2 -->

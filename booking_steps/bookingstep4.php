@@ -36,7 +36,7 @@ $result = $stmt->get_result();
 $item_name = "";
 // Fetch the item_name
 if ($row = $result->fetch_assoc()) {
-    echo "Item Name: " . $row['item_name'];
+    // echo "Item Name: " . $row['item_name'];
     $item_name = $row['item_name'];
 } else {
     echo "No item found with the given item_id.<br>";
@@ -59,7 +59,7 @@ $sql = "SELECT provider_id AS id,
          AND provider_expertise LIKE '%$item_name%'
          AND provider_area LIKE '%$area%';
         ";
-echo "User_area: " . $_SESSION['user_area'];
+// echo "User_area: " . $_SESSION['user_area'];
 $result = $con->query($sql);
 if ($result->num_rows > 0) {
     // Fetch each row and populate the $taskers array
@@ -91,11 +91,53 @@ $user_unit_apt = $_SESSION['selected_user_unit_apt'];
 $task_size = $_SESSION['selected_task_size'];
 $task_summary = $_SESSION['selected_task_summary'];
 // Outputting the session variables
-echo "Item ID: " . $item_id . "<br>";
-echo "Street Address: " . $user_street_address . "<br>";
-echo "Unit/Apt: " . $user_unit_apt . "<br>";
-echo "Task Size: " . $task_size . "<br>";
-echo "Task Summary: " . $task_summary . "<br>";
+// echo "Item ID: " . $item_id . "<br>";
+// echo "Street Address: " . $user_street_address . "<br>";
+// echo "Unit/Apt: " . $user_unit_apt . "<br>";
+// echo "Task Size: " . $task_size . "<br>";
+// echo "Task Summary: " . $task_summary . "<br>";
+
+// Query to fetch reviews along with customer names
+$sql = "
+    SELECT 
+        spr.service_provider_id, 
+        spr.customer_id, 
+        ut.user_name, 
+        spr.review_text, 
+        spr.review_rating 
+    FROM 
+        service_provider_review spr
+    JOIN 
+        user ut 
+    ON 
+        spr.customer_id = ut.user_id
+    ORDER BY 
+        spr.service_provider_id, spr.review_time DESC
+";
+
+$result = $con->query($sql);
+
+$reviewsArray = [];
+
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $providerId = $row['service_provider_id'];
+        $customerName = $row['user_name'];
+        $reviewText = $row['review_text'];
+        $reviewRating = $row['review_rating'];
+
+        // Organize data into an array
+        $reviewsArray[$providerId][] = [
+            'name' => $customerName,
+            'comment' => $reviewText,
+            'rating' => $reviewRating
+        ];
+    }
+} else {
+    echo "No reviews found.";
+}
+$reviewsJson = json_encode($reviewsArray);
+// echo $reviewsJson;
 ?>
 
 <!DOCTYPE html>
@@ -134,7 +176,7 @@ echo "Task Summary: " . $task_summary . "<br>";
                     <div id="circle1" class="w-8 h-8 rounded-full flex items-center justify-center border-4 border-blue-600  text-blue-700 text-black font-semibold">
                         2
                     </div>
-                    <span class="text-xs mt-2 text-blue-700">Location</span>
+                    <span class="text-xs mt-2 text-blue-700">Browse</span>
                 </div>
             </a>
             <!-- Line 2 -->
@@ -146,7 +188,7 @@ echo "Task Summary: " . $task_summary . "<br>";
                     <div id="circle1" class="w-8 h-8 rounded-full flex items-center justify-center border-4 border-blue-600  text-blue-700 text-black font-semibold">
                         3
                     </div>
-                    <span class="text-xs mt-2 text-blue-700">Location</span>
+                    <span class="text-xs mt-2 text-blue-700">Confirm</span>
                 </div>
             </a>
             <!-- Line 3 -->
@@ -168,7 +210,7 @@ echo "Task Summary: " . $task_summary . "<br>";
         <div class="flex flex-col md:flex-row gap-6">
             <!-- Left Sidebar: Filters -->
             <div class="md:w-1/4 bg-white rounded-lg shadow p-6 flex flex-col">
-                <h2 class="text-lg font-semibold mb-4">Date</h2>
+                <!-- <h2 class="text-lg font-semibold mb-4">Date</h2>
                 <div class="flex flex-wrap gap-2 mb-6">
                     <button
                         class="filter-button px-4 py-2 border border-gray-300 rounded-md text-sm bg-gray-100"
@@ -190,7 +232,7 @@ echo "Task Summary: " . $task_summary . "<br>";
                         data-filter="All">
                         Show All
                     </button>
-                </div>
+                </div> -->
 
                 <h2 class="text-lg font-semibold mb-4">Time of day</h2>
                 <div class="space-y-2 mb-6">
@@ -421,8 +463,74 @@ echo "Task Summary: " . $task_summary . "<br>";
         </div>
     </div>
 
+    <!-- review box -->
+    <div id="modal-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50" onclick="closeModal()"></div>
+    <div id="modal" class="hidden fixed inset-0 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">Customer Reviews</h2>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">✕</button>
+            </div>
+            <div
+                id="reviews-container"
+                class="space-y-4 max-h-[300px] overflow-y-auto border-t border-gray-200 pt-4">
+                <!-- Reviews will be loaded here -->
+            </div>
+        </div>
+    </div>
+
     <script>
-        let tasker_id;
+        function showReviews(tasker_Id) {
+            // alert(tasker_Id);
+            const modal = document.getElementById("modal");
+            const overlay = document.getElementById("modal-overlay");
+            const reviewsContainer = document.getElementById("reviews-container");
+            var reviews = <?php echo $reviewsJson; ?>;
+            // Clear any existing reviews
+            reviewsContainer.innerHTML = "";
+            const groupId = tasker_Id; // Specify the group ID
+            if (reviews[groupId]) {
+                console.log(`Group ID: ${groupId}`);
+                reviews[groupId].forEach((review) => {
+                    console.log(`  Name: ${review.name}`);
+                    console.log(`  Comment: ${review.comment}`);
+                    console.log(`  Rating: ${"⭐".repeat(review.rating)} (${review.rating})`);
+                    console.log('---');
+
+                    // Create and display the review card
+                    const reviewCard = document.createElement("div");
+                    reviewCard.className = "bg-gray-100 p-4 rounded-lg shadow-md";
+                    reviewCard.innerHTML = `
+            <h3 class="text-lg font-semibold">${review.name}</h3>
+            <p class="text-yellow-500">Rating: ${"⭐".repeat(review.rating)}</p>
+            <p class="text-gray-600">${review.comment}</p>
+        `;
+                    reviewsContainer.appendChild(reviewCard); // Ensure reviewsContainer is defined in your DOM
+                });
+            } else {
+                // console.log(`No reviews found for Group ID: ${groupId}`);
+                const reviewCard = document.createElement("div");
+                reviewCard.className = "bg-gray-100 p-4 rounded-lg shadow-md";
+                reviewCard.innerHTML = `
+                                            <h3 class="text-lg font-semibold">No review found.</h3>
+                                        `;
+                reviewsContainer.appendChild(reviewCard);
+            }
+
+            // Show modal and overlay
+            modal.classList.remove("hidden");
+            overlay.classList.remove("hidden");
+        }
+
+        function closeModal() {
+            const modal = document.getElementById("modal");
+            const overlay = document.getElementById("modal-overlay");
+
+            modal.classList.add("hidden");
+            overlay.classList.add("hidden");
+        }
+        // end of review 
+
         // Assuming PHP passes the taskers as JSON
         const taskers = <?php echo $taskersJson; ?>;
 
@@ -444,7 +552,7 @@ echo "Task Summary: " . $task_summary . "<br>";
 
                     tasker_id = taskerId;
                     // alert("Selected Tasker ID from 2nd:", taskerId);
-                    
+
                     initializeCalendar(); // Initialize the calendar with the selected tasker ID
                     document.getElementById("overlay").classList.remove("hidden");
                 });
@@ -474,7 +582,7 @@ echo "Task Summary: " . $task_summary . "<br>";
             taskerSubset.forEach((tasker) => {
                 const taskerCard = `
                 <div class="bg-white rounded-lg shadow p-6 flex flex-col md:flex-row items-start gap-4">
-                    <img src="../photo/profile_pictures/${tasker.profile_picture}" alt="Tasker Profile" class="w-24 h-24 rounded-full">
+                    <img src="../photo/profile_pictures/profile_picture_${tasker.id%4}.png" alt="Tasker Profile" class="w-24 h-24 rounded-full">
                     <div class="flex-1">
                         <h3 class="text-lg font-semibold">${tasker.name}</h3>
                         <p class="text-sm text-gray-600 mb-1">Tasker_id: ${tasker.id}</p>
@@ -488,7 +596,7 @@ echo "Task Summary: " . $task_summary . "<br>";
                             <span class="bg-yellow-100 text-yellow-600 text-xs font-medium px-2.5 py-1 rounded-md">${tasker.type}</span>
                         </div>
                         <button type="button" class="mendaBtn mt-4 bg-indigo-600 text-white py-2 px-4 rounded-lg text-sm hover:bg-indigo-700" data-tasker-id="${tasker.id}">Select & Continue</button>
-                        <button type="button" class="details mt-4 bg-green-600 text-white py-2 px-4 rounded-lg text-sm hover:bg-green-800" data-tasker-id="${tasker.id}">See reviews</button>
+                        <button type="button" class="details mt-4 bg-green-600 text-white py-2 px-4 rounded-lg text-sm hover:bg-green-800" data-tasker-id="${tasker.id}" onclick="showReviews(${tasker.id})">See reviews</button>
                     
                         </div>
                 </div>`;
@@ -602,7 +710,7 @@ echo "Task Summary: " . $task_summary . "<br>";
                     return [];
                 });
         }
-        
+
         function initializeCalendar() {
             // alert("alert from calender");
             const overlay = document.getElementById("overlay");
@@ -831,8 +939,6 @@ echo "Task Summary: " . $task_summary . "<br>";
             // Optionally, you can close the overlay or perform other actions here
             document.getElementById("confirmationOverlay").classList.add("hidden");
         });
-
-        
     </script>
     <?php
     include '../footer.php';
