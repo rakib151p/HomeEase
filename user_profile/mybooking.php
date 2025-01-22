@@ -1,4 +1,203 @@
+<?php
+session_start();
+include '../config.php';
 
+
+// Fetching customer ID from the session
+$customer_id = $_SESSION['user_id'];
+//button functionality
+if (isset($_POST['confirm'])) {
+    // echo 'Put the star';
+    $booking_id = $_POST['booking_id'];
+    $sql_booking = "SELECT * FROM booking WHERE booking_id='$booking_id' AND STR_TO_DATE(CONCAT(booking_date, ' ', booking_time), '%Y-%m-%d %h:%i %p') < NOW();";
+    $result_booking = mysqli_query($con, $sql_booking);
+    if ($row_booking = $result_booking->fetch_assoc()) {
+        // echo 'check';
+        // Prepare the statement
+        $stmt = $con->prepare("UPDATE `booking` SET `user_end` = 1 WHERE `booking_id` = ?");
+        // Bind the parameter (assuming booking_id is an integer)
+        $stmt->bind_param("i", $booking_id);
+        // Execute the statement
+        if ($stmt->execute()) {
+            // echo "Booking updated successfully.";
+            $sql_again = "SELECT* FROM booking WHERE user_end=1 AND provider_end=1 AND booking_id='$booking_id'";
+            $result_again = mysqli_query($con, $sql_again);
+            if ($row_again = $result_again->fetch_assoc()) {
+                $stmt_again = $con->prepare("UPDATE `booking` SET `booking_status` = 2 WHERE `booking_id` = ?");
+                // Bind the parameter (assuming booking_id is an integer)
+                $stmt_again->bind_param("i", $booking_id);
+                $stmt_again->execute();
+            }
+            echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>"' . "<script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Successed',
+            text: 'You have successfully confirmed the order.',
+            confirmButtonText: 'OK'
+        });
+    </script>";
+        } else {
+            echo "Error updating booking: " . $stmt->error;
+        }
+        // Close the statement
+        $stmt->close();
+    } else {
+        echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>"' . "<script>
+        Swal.fire({
+            icon: 'warning',
+            title: 'Confirmation Not Allowed',
+            text: 'Since the order time is not over, you cannot confirm now.',
+            confirmButtonText: 'OK'
+        });
+    </script>";
+    }
+    // echo $_POST['booking_id'];
+}
+
+if (isset($_POST['cancel'])) {
+    $date = $time = '';
+    // echo $_POST['booking_id'];
+    $booking_id = $_POST['booking_id'];
+
+    // Fetch the booking details from the database
+    $sql_booking = "SELECT * 
+                    FROM bookings 
+                    WHERE id='$booking_id' AND status='pending' AND CONCAT(date, ' ', booking_time) > NOW();";
+    $result_booking = mysqli_query($con, $sql_booking);
+
+    if ($row_booking = $result_booking->fetch_assoc()) {
+        $date = $row_booking['date'];  // Date in 'Y-m-d' format
+        $time = $row_booking['booking_time'];  // Time in 'H:i:s' format
+
+        // Combine date and time into a DateTime object
+        $booking_datetime = new DateTime("$date $time");
+        // echo $booking_datetime->format('Y-m-d H:i:s') . ' ';
+        // Get the current date and time
+        $current_datetime = new DateTime();
+        // $current_datetime->setTimezone(new DateTimeZone('Asia/Dhaka'));
+        // echo $current_datetime->format('Y-m-d H:i:s');
+
+
+        // Calculate the difference between the booking time and the current time
+        $interval = $current_datetime->diff($booking_datetime);
+        // echo 'Difference: ' . $interval->format('%R%a days, %H hours, %I minutes');
+        // Convert the interval to total hours
+        // $hours_difference = ($interval->days * 24) + $interval->h;
+        // echo $hours_difference;
+        // Check if the booking is more than 24 hours away
+        if ($interval->days >= 1&& $interval->h>=4) {
+            // echo 'yes';
+            // Allow cancellation if more than 24 hours ahead
+            $sql_delete = "UPDATE bookings set `status`='cancelled' WHERE id='$booking_id'";
+            if (mysqli_query($con, $sql_delete)) {
+                // echo "Booking successfully cancelled.";
+                echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>"' . "<script>
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Successed',
+                            text: 'You have successfully cancelled the order.',
+                            confirmButtonText: 'OK'
+                        });
+                    </script>";
+            } else {
+                echo "Error cancelling the booking.";
+            }
+        } else {
+            echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>"' . "<script>
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Cancellation Not Allowed',
+                        text: 'Since the remaining time is not more than 24 hours, you cannot cancel now.',
+                        confirmButtonText: 'OK'
+                    });
+                    </script>";
+        }
+    } else {
+        echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>"';
+        echo "<script>
+        Swal.fire({
+            icon: 'warning',
+            title: 'Cancellation Not Allowed',
+            text: 'Since the remaining time is not more than 24 hours, you cannot cancel now.',
+            confirmButtonText: 'OK'
+        });
+    </script>";
+    }
+}
+if (isset($_POST['rating'])) {
+    // echo 'jisan likes sristy';
+    // echo $_POST['rating'] . '<br>';
+    // echo $_POST['to'];
+
+    $booking_id = $_POST['to'];
+    $rating = $_POST['rating'];
+    $customer_id = $_SESSION['customer_id'];
+
+    //query to fetch my booking details
+    $sql_select_booking = "SELECT 
+                            b.id AS booking_id,
+                            b.date,
+                            b.booking_time,
+                            b.shop_id,
+                            b.worker_id,
+                            b.customer_id,
+                            sw.worker_name,
+                            sw.rating,
+                            sw.count_customer,
+                            s.shop_name,
+                            s.shop_state
+                        FROM 
+                            bookings b
+                        JOIN 
+                            shop_worker sw ON b.worker_id = sw.worker_id
+                        JOIN 
+                            barber_shop s ON b.shop_id = s.shop_id
+                        JOIN 
+                            customer c ON b.customer_id = c.customer_id
+                        WHERE 
+                            b.id = '$booking_id'
+                            AND NOW() > CONCAT(b.date, ' ', b.booking_time)";
+
+    // Execute the SELECT query
+    $result = mysqli_query($con, $sql_select_booking);
+
+    if ($result && mysqli_num_rows($result) > 0) {
+        // Step 2: Fetch the worker details from the result
+        $booking = mysqli_fetch_assoc($result);
+        $worker_id = $booking['worker_id'];
+        $current_rating = $booking['rating'];
+        $count_customer = $booking['count_customer'];
+
+        // Step 3: Calculate the new rating
+        $new_rating = (($current_rating * $count_customer) + $rating) / ($count_customer + 1);
+
+        // Step 4: Execute the UPDATE query to update worker's rating
+        $sql_update_worker = "UPDATE shop_worker
+                          SET 
+                              rating = '$new_rating', 
+                              count_customer = count_customer + 1
+                          WHERE worker_id = '$worker_id'";
+
+        $update_result = mysqli_query($con, $sql_update_worker);
+
+        if ($update_result) {
+            echo "<script>alert('Successfully updated rating.');</script>";
+        } else {
+            echo "<script>alert('Failed to update worker rating.');</script>";
+        }
+    } else {
+        echo "<script>alert('You can\'t rate now!');</script>";
+    }
+
+}
+// Fetching the bookings of the logged-in customer
+$query = "SELECT * FROM booking WHERE user_id = ? AND (booking_status=0 or booking_status=1) ORDER BY booking_date DESC";
+$stmt = $con->prepare($query);
+$stmt->bind_param("i", $customer_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -16,6 +215,7 @@
             background-color: #F4F4F4;
             font-family: 'Inter', sans-serif;
         }
+
         .text-gray-700 {
             font-weight: bolder;
         }
@@ -44,7 +244,7 @@
         }
 
         #sidebar ul li a:hover {
-            color:#00008B;
+            color: #00008B;
         }
 
         #sidebar ul li {
@@ -58,6 +258,7 @@
             color: #00008B;
             margin-right: 40px;
         }
+
         #undernavbar {
             display: flex;
             border-radius: 20px;
@@ -65,6 +266,7 @@
             margin-top: 50px;
             /* Increased margin-bottom for more space */
         }
+
         #box1 {
             /* background-color: #FFFFFF; */
             width: 61%;
@@ -74,6 +276,7 @@
             /* box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px; */
 
         }
+
         #box1 h1 {
             font-size: 2rem;
             color: #00008B;
@@ -81,11 +284,13 @@
             position: relative;
             bottom: 20px;
         }
+
         img {
             height: 100px;
             width: 140px;
             margin: 10px 0 0 60px;
         }
+
         .tables {
             height: 700px;
             width: 1400px;
@@ -116,7 +321,7 @@
             font-size: 42px;
             font-weight: 900;
             margin-left: 90px;
-            color:#00008B;
+            color: #00008B;
         }
 
         .login_name {
@@ -158,23 +363,17 @@
         #name {
             margin: 0 0 0 670px;
         }
-
     </style>
 </head>
 
-
-
-
-
-
 <body class="bg-gradient-to-bl from-blue-50 via-white via-blue-50 to-slate-300 h-screen">
-
+    <?php include 'header.php'; ?>
     <!-- <h2 id="tittlemnm">My Booking</h2> -->
     <section id="undernavbar">
         <div id="sidebar">
             <a href="" id="mma">Manage My Account</a>
             <ul>
-            <li><a href="My_profile.php">My Profile</a></li>
+                <li><a href="My_profile.php">My Profile</a></li>
                 <li><a href="addressofbooking.php">Address of Booking</a></li>
                 <li><a href="myreviews.php">My Reviews</a></li>
                 <li><a href="message.php" id="mymessage">My Messages</a></li>
@@ -192,6 +391,7 @@
             <h2 class="text-3xl font-bold text-blue-900 mb-6" style="position:relative;left:90px;top:10px;">My Bookings
             </h2>
             <?php
+
             if ($result->num_rows > 0) {
                 echo '<div class="overflow-x-auto tables">';
                 echo '<table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-l border-2 border-blue-100">';
@@ -203,6 +403,7 @@
                 echo '<th class="px-2 py-1 text-left">service Item</th>';
                 echo '<th class="px-2 py-1 text-left">Appointment date</th>';
                 echo '<th class="px-2 py-1 text-left">Time</th>';
+                // echo '<th class="px-2 py-1 text-left">Your address</th>';
                 echo '<th class="px-2 py-1 text-left">Status</th>';
                 echo '<th class="px-2 py-1 text-left" colspan="3">Action</th>';
 
@@ -214,58 +415,66 @@
                     echo '<tr class="border-t">';
                     echo '<td class="px-2 py-1">' . htmlspecialchars($row['when_booked']) . '</td>';
                     //fetching shops
-                    $shop_id = $row['shop_id'];
-                    $sql_shop = "select shop_name, shop_state, shop_city, shop_area from barber_shop where shop_id='$shop_id'";
-                    $result_shop = mysqli_query($conn, $sql_shop);
+                    $provider_id = $row['provider_id'];
+                    $sql_shop = "select provider_name, provider_district, provider_upazila, provider_area from service_provider where provider_id='$provider_id'";
+                    $result_shop = mysqli_query($con, $sql_shop);
                     while ($row_shop = $result_shop->fetch_assoc()) {
-                        echo '<td class="px-2 py-1">' . htmlspecialchars($row_shop['shop_name']) . '</td>';
-                        echo '<td class="px-2 py-1">' . htmlspecialchars($row_shop['shop_state']) . ',' . htmlspecialchars($row_shop['shop_city']) . ',' . htmlspecialchars($row_shop['shop_area']) . '</td>';
+                        echo '<td class="px-2 py-1">' . htmlspecialchars($row_shop['provider_name']) . '</td>';
+                        echo '<td class="px-2 py-1">' . htmlspecialchars($row_shop['provider_district']) . ',' . htmlspecialchars($row_shop['provider_upazila']) . ',' . htmlspecialchars($row_shop['provider_area']) . '</td>';
                     }
                     //fetching items
                     $item_id = $row['item_id'];
-                    $sql_item = "select item_name from item_table where item_id='$item_id'";
-                    $result_item = mysqli_query($conn, $sql_item);
+                    $sql_item = "select item_name from item where item_id='$item_id'";
+                    $result_item = mysqli_query($con, $sql_item);
                     while ($row_item = $result_item->fetch_assoc()) {
                         echo '<td class="px-2 py-1">' . htmlspecialchars($row_item['item_name']) . '</td>';
                     }
                     // booking date and time
-                    echo '<td class="px-2 py-1">' . htmlspecialchars($row['date']) . '</td>';
+                    echo '<td class="px-2 py-1">' . htmlspecialchars($row['booking_date']) . '</td>';
                     echo '<td class="px-2 py-1">' . htmlspecialchars($row['booking_time']) . '</td>';
 
                     // expert details 
-                    $worker_id = $row['worker_id'];
-                    $sql_worker = "select worker_name,mobile_number from shop_worker where worker_id='$worker_id'";
-                    $result_worker = mysqli_query($conn, $sql_worker);
-                    while ($row_worker = $result_worker->fetch_assoc()) {
-                        echo '<td class="px-2 py-1">' . htmlspecialchars($row_worker['worker_name']) . '</td>';
-                        echo '<td class="px-2 py-1">' . htmlspecialchars($row_worker['mobile_number']) . '</td>';
-                    }
+                    // $worker_id = $row['worker_id'];
+                    // $sql_worker = "select worker_name,mobile_number from shop_worker where worker_id='$worker_id'";
+                    // $result_worker = mysqli_query($con, $sql_worker);
+                    // while ($row_worker = $result_worker->fetch_assoc()) {
+                    //     echo '<td class="px-2 py-1">' . htmlspecialchars($row_worker['worker_name']) . '</td>';
+                    //     echo '<td class="px-2 py-1">' . htmlspecialchars($row_worker['mobile_number']) . '</td>';
+                    // }
                     //status
-                    echo '<td class="px-2 py-1">' . htmlspecialchars($row['status']) . '</td>';
+                    echo '<td class="px-2 py-1">' . htmlspecialchars(
+                        $row['booking_status'] == 0
+                            ? "pending"
+                            : ($row['booking_status'] == 1
+                                ? "submitted"
+                                : "completed"
+                            )
+                    ) . '</td>';
                     // echo '<td class="px-4 py-2">' . htmlspecialchars($row['status']) . '</td>';
                     // echo '<td class="px-4 py-2">' . htmlspecialchars($row['status']) . '</td>';
                     echo '<td class="px-2 py-1">';
-                    if ($row['status'] == "completed") {
+                    if ($row['booking_status'] == 2) {
                         echo '<button type="" name="confirm" class="text-blue-500">Confirmed</button>';
-                    } else if ($row['customer_end'] == 1) {
+                    } else if ($row['user_end'] == 1) {
                         echo '<button type="" name="confirm" class="text-blue-500">submitted</button>';
                     } else {
                         // echo '<form onsubmit="return confirm(this)" action="mybooking.php" method="POST">';
                         echo '<form onsubmit="return confirm_completed(this)" action="mybooking.php" method="POST">';
-                        echo '<input type="hidden" name="id" value="' . $row['id'] . '">';
+                        echo '<input type="hidden" name="booking_id" value="' . $row['booking_id'] . '">';
                         echo '<button type="submit" name="confirm" class="text-red-500">Confirm?</button>';
                         echo '</form>';
                     }
                     echo '</td>';
                     //star
-                    echo '<td class="px-2 py-1">' .
-                        '<button type="submit" name="change" onclick="rating(\'' . $row['id'] . '\')" style="padding: 0; border: none; background: none;margin-right:30px;">' .
-                        '<img src="../image/icon/star.png" alt="Submit" style="width: 40px; height: 40px; position:relative; right:56px;">' .
-                        '</button>' .
-                        '</td>';
+                    if ($row['booking_status'] == 2)
+                        echo '<td class="px-2 py-1">' .
+                            '<button type="submit" name="change" onclick="rating(\'' . $row['booking_id'] . '\')" style="padding: 0; border: none; background: none;margin-right:30px;">' .
+                            '<img src="../photo/star.png" alt="Submit" style="width: 40px; height: 40px; position:relative; right:56px;">' .
+                            '</button>' .
+                            '</td>';
                     echo '<form onsubmit="return confirm_cancel(this)" action="" method="POST">';
-                    echo '<input type="hidden" name="booking_id" value="' . $row['id'] . '">';
-                    echo '<td class="mr-5 px-0 py-1">' . '<button type="submit" name="cancel" style="padding: 0; border: none; background: none;"><img src="../image/icon/cancel.png" alt="Cancel" style="width: 40px; height: 40px;position:relative; right:60px;"></button>' . '</td>';
+                    echo '<input type="hidden" name="booking_id" value="' . $row['booking_id'] . '">';
+                    echo '<td class="mr-5 px-0 py-1">' . '<button type="submit" name="cancel" style="padding: 0; border: none; background: none;"><img src="../photo/cancel.png" alt="Cancel" style="width: 40px; height: 40px;position:relative; right:60px;"></button>' . '</td>';
                     echo '</form>';
                 }
                 echo '</tbody>';
@@ -358,7 +567,7 @@
         }
 
         // Function to handle clicks outside of the modal
-        window.onclick = function (event) {
+        window.onclick = function(event) {
             var legalNoticeDiv = document.getElementById('legal_notice');
             var overlayDiv = document.getElementById('overlay');
             if (event.target == overlayDiv) {
@@ -395,7 +604,7 @@
         document.getElementById('cancelBtn').addEventListener('click', cancelEmail);
 
         // Form submission handler
-        document.getElementById('ratingForm').addEventListener('submit', function (event) {
+        document.getElementById('ratingForm').addEventListener('submit', function(event) {
             const rating = document.getElementById('rating').value;
             if (rating === '') {
                 alert('Please select a rating before submitting.');
@@ -455,80 +664,80 @@
         }
     </script>
     <footer class="bg-gray-800 text-white py-10 mt-12">
-          <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-6">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-6">
             <!-- Logo and Description -->
             <div class="space-y-4">
-              <div class="flex items-center space-x-2">
-                <img src="https://img.icons8.com/external-flatart-icons-outline-flatarticons/64/external-logo-business-and-team-flatart-icons-outline-flatarticons.png"
-                  alt="Logo" class="w-8 h-8">
-                <span class="text-xl font-semibold">HomeEase</span>
-              </div>
-              <p class="text-gray-400 text-sm">
-                Demandium is the best on-demand business solution that connects customers and service providers in a single
-                platform. Purchase the Demandium source code and get started.
-              </p>
-              <!-- Social Icons -->
-              <div class="flex space-x-4">
-                <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook-f"></i></a>
-                <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin-in"></i></a>
-                <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
-                <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-youtube"></i></a>
-              </div>
-              <!-- Codecanyon Badge -->
-              <div class="mt-4">
-                <a href="#" class="bg-gray-700 text-white text-sm py-2 px-4 rounded-lg inline-flex items-center">
-                  <img src="https://img.icons8.com/ios-filled/24/ffffff/code.png" class="mr-2" />
-                  GET IT ON Codecanyon
-                </a>
-              </div>
+                <div class="flex items-center space-x-2">
+                    <img src="https://img.icons8.com/external-flatart-icons-outline-flatarticons/64/external-logo-business-and-team-flatart-icons-outline-flatarticons.png"
+                        alt="Logo" class="w-8 h-8">
+                    <span class="text-xl font-semibold">HomeEase</span>
+                </div>
+                <p class="text-gray-400 text-sm">
+                    Demandium is the best on-demand business solution that conects customers and service providers in a single
+                    platform. Purchase the Demandium source code and get started.
+                </p>
+                <!-- Social Icons -->
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-youtube"></i></a>
+                </div>
+                <!-- Codecanyon Badge -->
+                <div class="mt-4">
+                    <a href="#" class="bg-gray-700 text-white text-sm py-2 px-4 rounded-lg inline-flex items-center">
+                        <img src="https://img.icons8.com/ios-filled/24/ffffff/code.png" class="mr-2" />
+                        GET IT ON Codecanyon
+                    </a>
+                </div>
             </div>
 
             <!-- Company Links -->
             <div>
-              <h3 class="text-white font-semibold mb-4">Company</h3>
-              <ul class="space-y-2 text-gray-400 text-sm">
-                <li><a href="#" class="hover:text-white">About Us</a></li>
-                <li><a href="#" class="hover:text-white">Contact Us</a></li>
-                <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
-                <li><a href="#" class="hover:text-white">Service & Support Policy</a></li>
-                <li><a href="#" class="hover:text-white">Cookies Policy</a></li>
-                <li><a href="#" class="hover:text-white">Blog</a></li>
-              </ul>
+                <h3 class="text-white font-semibold mb-4">Company</h3>
+                <ul class="space-y-2 text-gray-400 text-sm">
+                    <li><a href="#" class="hover:text-white">About Us</a></li>
+                    <li><a href="#" class="hover:text-white">Contact Us</a></li>
+                    <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
+                    <li><a href="#" class="hover:text-white">Service & Support Policy</a></li>
+                    <li><a href="#" class="hover:text-white">Cookies Policy</a></li>
+                    <li><a href="#" class="hover:text-white">Blog</a></li>
+                </ul>
             </div>
 
             <!-- Quick Links -->
             <div>
-              <h3 class="text-white font-semibold mb-4">Quick Links</h3>
-              <ul class="space-y-2 text-gray-400 text-sm">
-                <li><a href="#" class="hover:text-white">Demo</a></li>
-                <li><a href="#" class="hover:text-white">Documentation</a></li>
-                <li><a href="#" class="hover:text-white">Community</a></li>
-                <li><a href="#" class="hover:text-white">Support</a></li>
-                <li><a href="#" class="hover:text-white">FAQs</a></li>
-              </ul>
+                <h3 class="text-white font-semibold mb-4">Quick Links</h3>
+                <ul class="space-y-2 text-gray-400 text-sm">
+                    <li><a href="#" class="hover:text-white">Demo</a></li>
+                    <li><a href="#" class="hover:text-white">Documentation</a></li>
+                    <li><a href="#" class="hover:text-white">Community</a></li>
+                    <li><a href="#" class="hover:text-white">Support</a></li>
+                    <li><a href="#" class="hover:text-white">FAQs</a></li>
+                </ul>
             </div>
 
             <!-- Contact Information -->
             <div>
-              <h3 class="text-white font-semibold mb-4">Contact Us</h3>
-              <ul class="space-y-2 text-gray-400 text-sm">
-                <li class="flex items-center space-x-2">
-                  <span class="text-green-500"><i class="fas fa-phone"></i></span>
-                  <span>+8801325887797</span>
-                </li>
-                <li class="flex items-center space-x-2">
-                  <span class="text-blue-500"><i class="fas fa-envelope"></i></span>
-                  <span>support@6amtech.com</span>
-                </li>
-              </ul>
-              <div class="mt-4">
-                <a href="#" class="inline-flex items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700">
-                  Support Ticket →
-                </a>
-              </div>
+                <h3 class="text-white font-semibold mb-4">Contact Us</h3>
+                <ul class="space-y-2 text-gray-400 text-sm">
+                    <li class="flex items-center space-x-2">
+                        <span class="text-green-500"><i class="fas fa-phone"></i></span>
+                        <span>+8801325887797</span>
+                    </li>
+                    <li class="flex items-center space-x-2">
+                        <span class="text-blue-500"><i class="fas fa-envelope"></i></span>
+                        <span>support@6amtech.com</span>
+                    </li>
+                </ul>
+                <div class="mt-4">
+                    <a href="#" class="inline-flex items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700">
+                        Support Ticket →
+                    </a>
+                </div>
             </div>
-          </div>
-        </footer>
+        </div>
+    </footer>
 
 </body>
 
