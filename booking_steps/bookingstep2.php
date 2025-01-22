@@ -2,7 +2,7 @@
 session_start();
 $previousPage = $_SERVER['HTTP_REFERER'] ?? 'javascript:history.back()';;
 if ($_SERVER['REQUEST_METHOD'] === "POST") {
-    echo $_POST['item_id'] . $_POST['user_street_address'] . $_POST['user_unit_apt'];
+    // echo $_POST['item_id'] . $_POST['user_street_address'] . $_POST['user_unit_apt'];
     $item_id = $_POST['item_id'];
     $user_street_address = $_POST['user_street_address'];
     $user_unit_apt = $_POST['user_unit_apt'];

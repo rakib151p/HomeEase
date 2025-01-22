@@ -46,27 +46,62 @@ include 'config.php';
     <div id="sub-services-container" class="mt-10 max-w-6xl mx-auto hidden">
         <h2 class="text-xl font-bold text-gray-700 mb-5">Sub Services for <span id="service-title" class="text-blue-600"></span></h2>
         <!-- <a href=""> -->
-            <div id="sub-services" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- Sub-services will be dynamically populated here -->
-            </div>
+        <div id="sub-services" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Sub-services will be dynamically populated here -->
+        </div>
         <!-- </a> -->
     </div>
+    <?php
+    // Fetch services from the database
+    $services_query = "SELECT service_id, service_name FROM service";
+    $services_result = $con->query($services_query);
 
+    // Initialize the services array
+    $services = [];
+
+    // Fetch services and their items
+    if ($services_result->num_rows > 0) {
+        while ($service = $services_result->fetch_assoc()) {
+            $service_id = $service['service_id'];
+
+            // Query to fetch items for the current service
+            $items_query = "SELECT item_name FROM item WHERE service_id = '$service_id'";
+            $items_result = $con->query($items_query);
+
+            // Collect item names
+            $subservices = [];
+            if ($items_result->num_rows > 0) {
+                while ($item = $items_result->fetch_assoc()) {
+                    $subservices[] = $item['item_name'];
+                }
+            }
+
+            // Add service data to the array
+            $services[$service['service_name']] = $subservices;
+        }
+    }
+
+    // Output the services array (for debugging or JavaScript conversion if needed)
+    // echo '<pre>';
+    // print_r($services);
+    // echo '</pre>';
+    ?>
     <script>
         function showSubServices(serviceName) {
-            const subServices = {
-                'Cleaning Service': ['Home Cleaning', 'Office Cleaning', 'Window Cleaning'],
-                'Plumbing Service': ['Leak Repair', 'Pipe Installation', 'Drain Cleaning'],
-                'Painting Service': ['Interior Painting', 'Exterior Painting', 'Wall Texturing'],
-                'Filter Service': ['Water Filter Installation', 'Air Filter Maintenance'],
-                'Door Service': ['Door Installation', 'Lock Repair', 'Door Painting'],
-                'Electricity Service': ['Wiring', 'Appliance Repair', 'Lighting Installation'],
-                'Kitchen Service': ['Cabinet Repair', 'Sink Installation'],
-                'Furniture Service': ['Assembly', 'Repair', 'Polishing'],
-                'E-Waste Service': ['Electronics Disposal', 'Recycling'],
-                'Gadget Service': ['Device Repair', 'Software Installation'],
-                'Design Service': ['Interior Design', 'Graphic Design']
-            };
+            // const subServices = {
+            //     'Cleaning Service': ['Home Cleaning', 'Office Cleaning', 'Window Cleaning'],
+            //     'Plumbing Service': ['Leak Repair', 'Pipe Installation', 'Drain Cleaning'],
+            //     'Painting Service': ['Interior Painting', 'Exterior Painting', 'Wall Texturing'],
+            //     'Filter Service': ['Water Filter Installation', 'Air Filter Maintenance'],
+            //     'Door Service': ['Door Installation', 'Lock Repair', 'Door Painting'],
+            //     'Electricity Service': ['Wiring', 'Appliance Repair', 'Lighting Installation'],
+            //     'Kitchen Service': ['Cabinet Repair', 'Sink Installation'],
+            //     'Furniture Service': ['Assembly', 'Repair', 'Polishing'],
+            //     'E-Waste Service': ['Electronics Disposal', 'Recycling'],
+            //     'Gadget Service': ['Device Repair', 'Software Installation'],
+            //     'Design Service': ['Interior Design', 'Graphic Design']
+            // };
+            const subServices = <?php echo json_encode($services); ?>;
 
             const subServiceContainer = document.querySelector('#sub-services');
             const serviceTitle = document.getElementById('service-title');
@@ -92,6 +127,10 @@ include 'config.php';
             }
         }
     </script>
+    <?php
+    include 'footer.php';
+
+    ?>
 </body>
 
 </html>

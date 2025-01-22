@@ -233,7 +233,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 <li><a href="My_profile.php">My Profile</a></li>
                 <li><a href="addressofbooking.php">Address of Booking</a></li>
                 <li><a href="myreviews.php">My Reviews</a></li>
-                <li><a href="message.php" id="mymessage">My Messages</a></li>
                 <li><a href="mybooking.php" id="mma">My booking</a></li>
                 <li><a href="mycancellations.php">My Cancellations</a></li>
                 <li><a href="Notifications.php">My Notifications</a></li>

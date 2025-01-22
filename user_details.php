@@ -39,7 +39,7 @@ if (isset($_SESSION['email'])) {
         $_SESSION['provider_price']=$fetch['provider_price'];
         
     } else if (mysqli_num_rows($res2) > 0) {
-        echo 'user';
+        // echo 'user';
         $_SESSION['type'] = 'user';
         $fetch = mysqli_fetch_assoc($res2);
         $_SESSION['user_id'] = $fetch['user_id'];
