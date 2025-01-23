@@ -236,7 +236,7 @@ echo "<script>const words = " . json_encode($itemNames) . ";</script>";
         </div>
         <script>
           function searchBar(query) {
-            const redirectUrl = `search_result.php?query=${query}`;
+            const redirectUrl = `service_details.php?name=${query}`;
             window.location.href = redirectUrl; // Redirect to the new page
           }
         </script>
@@ -366,7 +366,8 @@ echo "<script>const words = " . json_encode($itemNames) . ";</script>";
             while ($item = $items_result->fetch_assoc()) {
               $subservices[] = [
                 'name' => $item['item_name'],
-                'link' => "service.php?item_id={$item['item_id']}",
+                // 'link' => "service.php?item_id={$item['item_id']}",
+                'link' => "service_details.php?name={$item['item_name']}",
               ];
             }
           }

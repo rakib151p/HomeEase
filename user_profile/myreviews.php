@@ -2,40 +2,57 @@
 require '../config.php';
 session_start();
 
+// Ensure user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../login.php');
+    exit();
+}
+$customer_id = $_SESSION['user_id'];
+
+// Handle review cancellation
 if (isset($_POST['cancel'])) {
-    $review_id = $_POST['review_id'];
-    // echo $review_id;
-    // Delete review from the database
-    $sql_review = "DELETE FROM review_shop WHERE review_id='$review_id'";
-    $result_review = mysqli_query($conn, $sql_review);
-    if ($result_review) {
-        echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>' . "<script>
-        Swal.fire({
-            icon: 'success',
-            title: 'Deleted successfully.'
-        });
-        </script>";
+    if (!empty($_POST['review_id']) && is_numeric($_POST['review_id'])) {
+        $review_id = intval($_POST['review_id']);
+
+        $sql_review = "DELETE FROM review_platform WHERE review_id=?";
+        $stmt = $con->prepare($sql_review);
+        $stmt->bind_param("i", $review_id);
+        if ($stmt->execute()) {
+            echo "<script>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Deleted successfully.',
+                    confirmButtonText: 'OK'
+                });
+            </script>";
+        } else {
+            echo "<script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error deleting review.',
+                    text: 'Something went wrong. Please try again.',
+                    confirmButtonText: 'OK'
+                });
+            </script>";
+        }
     } else {
-        echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>' . "<script>
-        Swal.fire({
-            icon: 'warning',
-            title: 'Error deleting review.',
-            text: 'Something went wrong.',
-            confirmButtonText: 'OK'
-        });
+        echo "<script>
+            Swal.fire({
+                icon: 'warning',
+                title: 'Invalid review ID.',
+                text: 'Unable to process your request.',
+                confirmButtonText: 'OK'
+            });
         </script>";
     }
 }
-// Fetching customer ID from the session
-$customer_id = $_SESSION['user_id'];
 
-// Fetching the bookings of the logged-in customer
-$query = "SELECT * FROM service_provider_review WHERE customer_id = ? ORDER BY review_time";
+// Fetch reviews for the logged-in user
+$query = "SELECT * FROM review_platform WHERE user_id = ? ORDER BY review_date DESC";
 $stmt = $con->prepare($query);
 $stmt->bind_param("i", $customer_id);
 $stmt->execute();
 $result = $stmt->get_result();
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -60,7 +77,7 @@ $result = $stmt->get_result();
         }
 
         * {
-            font-family: cursive;
+            /* font-family: cursive; */
         }
 
         .t {
@@ -253,189 +270,90 @@ $result = $stmt->get_result();
 
 <body class="bg-gradient-to-bl from-blue-50 via-white via-blue-50 to-slate-300 h-screen">
 
-<?php
-include 'header.php';
-?>
+    <?php
+    include 'header.php';
+    ?>
 
-<!-- <h2 id="tittlemnm">My Booking</h2> -->
-<section id="undernavbar">
-    <div id="sidebar">
-        <a href="" id="mma">Manage My Account</a>
-        <ul>
-            <li><a href="My_profile.php">My Profile</a></li>
-            <li><a href="addressofbooking.php">Address of Booking</a></li>
-            <li><a href="myreviews.php">My Reviews</a></li>
-            <li><a href="mybooking.php" id="mma">My booking</a></li>
-            <li><a href="mycancellations.php">My Cancellations</a></li>
-            <li><a href="Notifications.php">My Notifications</a></li>
-        </ul>
-        <?php
-        if (isset($_SESSION['type'])) {
-            echo '<a href="../logout.php" class="text-gray-700 hover:text-pink-600 " style="font-size:30px;margin:10px 0 0 20px; line-height:50px;">Logout</a>';
-        }
-        ?>
-    </div>
-    <div id="box1">
-        <h2 class="text-3xl font-bold text-pink-700 mb-6" style="color:#00008B;margin:10px 0 0 0;">My Reviews</h2>
-        <?php
-        if ($result->num_rows > 0) {
-            echo '<div class="overflow-x-auto tables">';
-            echo '<table class="min-w-full bg-white border border-gray-200 rounded-lg">';
-            echo '<thead class="bg-blue-500 text-white">';
-            echo '<tr>';
-            echo '<th class="px-4 py-2 text-left">Serial</th>';
-            echo '<th class="px-4 py-2 text-left">Service Provider</th>';
-            echo '<th class="px-4 py-2 text-left">Provider Address</th>';
-            echo '<th class="px-4 py-2 text-left">Review</th>';
-            echo '<th class="px-4 py-2 text-left">Rating</th>';
-            echo '<th class="px-4 py-2 text-left">Date & Time</th>';
-            echo '<th class="px-4 py-2 text-center" colspan="2">Action</th>';
-            echo '</tr>';
-            echo '</thead>';
-            echo '<tbody class="text-gray-700">';
-            $cnt = 1;
-            while ($row = $result->fetch_assoc()) {
-                echo '<tr class="border-t">';
-                echo '<td class="px-4 py-2">' . $cnt++ . '</td>';
-                // Fetching shop details
-                $shop_id = $row['shop_id'];
-                $sql_shop = "SELECT shop_name, shop_state, shop_city, shop_area FROM barber_shop WHERE shop_id='$shop_id'";
-                $result_shop = mysqli_query($conn, $sql_shop);
-                while ($row_shop = $result_shop->fetch_assoc()) {
-                    echo '<td class="px-4 py-2">' . htmlspecialchars($row_shop['shop_name']) . '</td>';
-                    echo '<td class="px-4 py-2">' . htmlspecialchars($row_shop['shop_state']) . ', ' . htmlspecialchars($row_shop['shop_city']) . ', ' . htmlspecialchars($row_shop['shop_area']) . '</td>';
+    <!-- <h2 id="tittlemnm">My Booking</h2> -->
+    <section id="undernavbar">
+        <div id="sidebar">
+            <a href="" id="mma">Manage My Account</a>
+            <ul>
+                <li><a href="My_profile.php">My Profile</a></li>
+                <li><a href="addressofbooking.php">Address of Booking</a></li>
+                <li><a href="myreviews.php">My Reviews</a></li>
+                <li><a href="mybooking.php" id="mma">My booking</a></li>
+                <li><a href="mycancellations.php">My Cancellations</a></li>
+                <li><a href="Notifications.php">My Notifications</a></li>
+            </ul>
+            <?php
+            if (isset($_SESSION['type'])) {
+                echo '<a href="../logout.php" class="text-gray-700 hover:text-pink-600 " style="font-size:30px;margin:10px 0 0 20px; line-height:50px;">Logout</a>';
+            }
+            ?>
+        </div>
+        <div id="box1" class="w-3/4 p-8 bg-white rounded-lg shadow-lg">
+            <h2 class="text-3xl font-bold text-blue-700 mb-6">My Reviews</h2>
+            <?php if ($result->num_rows > 0) { ?>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+                        <thead class="bg-blue-500 text-white">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Serial</th>
+                                <th class="px-4 py-2 text-left">Service Provider ID</th>
+                                <th class="px-4 py-2 text-left">Review</th>
+                                <th class="px-4 py-2 text-left">Rating</th>
+                                <th class="px-4 py-2 text-left">Date & Time</th>
+                                <th class="px-4 py-2 text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-700">
+                            <?php
+                            $cnt = 1;
+                            while ($row = $result->fetch_assoc()) {
+                            ?>
+                                <tr class="border-t">
+                                    <td class="px-4 py-2"><?php echo $cnt++; ?></td>
+                                    <td class="px-4 py-2"><?php echo htmlspecialchars($row['user/provider']); ?></td>
+                                    <td class="px-4 py-2"><?php echo htmlspecialchars($row['review_text']); ?></td>
+                                    <td class="px-4 py-2"><?php echo htmlspecialchars($row['review_rating']); ?></td>
+                                    <td class="px-4 py-2"><?php echo htmlspecialchars($row['review_date']); ?></td>
+                                    <td class="px-4 py-2 text-center">
+                                        <form method="post" onsubmit="return confirmDelete();">
+                                            <input type="hidden" name="review_id" value="<?php echo $row['review_id']; ?>">
+                                            <button type="submit" name="cancel" class="bg-red-500 text-white px-4 py-1 rounded">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <?php } ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php } else { ?>
+                <p class="text-gray-700">No reviews found.</p>
+            <?php } ?>
+        </div>
+    </section>
+    <?php
+    include "footer.php";
+    ?>
+    <script>
+        function confirmDelete(event) {
+            event.preventDefault();
+            Swal.fire({
+                title: "Are you sure?",
+                text: "This review will be permanently deleted.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    event.target.submit();
                 }
-                echo '<td class="px-4 py-2">' . htmlspecialchars($row['review']) . '</td>';
-                echo '<td class="px-4 py-2">' . htmlspecialchars($row['star']) . '</td>';
-                echo '<td class="px-4 py-2">' . htmlspecialchars($row['date_and_time']) . '</td>';
-                // Action buttons
-                // Change button in a separate 
-                // echo '<td class="px-2 py-1">';
-                // echo '<button type="submit" name="change" class="text-blue-500">Change</button>';
-                // echo '</td>';
-                // Delete button in a separate form
-                echo '<td class="px-2 py-1">';
-                echo '<form onsubmit="confirmDelete(this)" action="myreviews.php" method="POST">';
-                echo '<input type="hidden" name="review_id" value="' . $row['review_id'] . '">';
-                echo '<button type="submit" name="cancel" class="text-red-500">Delete</button>';
-                echo '</form>';
-                echo '</td>';
-
-                echo '</tr>';
-            }
-            echo '</tbody>';
-            echo '</table>';
-            echo '</div>';
-        } else {
-            echo '<p class="text-gray-500">No reviews found.</p>';
+            });
         }
-        ?>
-    </div>
+    </script>
+        </body>
 
-</section>
-
-<script>
-    function confirmDelete(form) {
-        event.preventDefault(); // Prevent the form from submitting immediately
-
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                const hiddenInput = document.createElement("input");
-                hiddenInput.setAttribute("type", "hidden");
-                hiddenInput.setAttribute("name", "cancel");
-                hiddenInput.setAttribute("value", "Delete");
-                form.appendChild(hiddenInput);
-
-                form.submit(); // Submit the form if confirmed
-            }
-        });
-    }
-</script>
-<footer class="bg-gray-800 text-white py-10 mt-12">
-    <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-6">
-        <!-- Logo and Description -->
-        <div class="space-y-4">
-            <div class="flex items-center space-x-2">
-                <img src="https://img.icons8.com/external-flatart-icons-outline-flatarticons/64/external-logo-business-and-team-flatart-icons-outline-flatarticons.png"
-                    alt="Logo" class="w-8 h-8">
-                <span class="text-xl font-semibold">HomeEase</span>
-            </div>
-            <p class="text-gray-400 text-sm">
-                Demandium is the best on-demand business solution that connects customers and service providers in a single
-                platform. Purchase the Demandium source code and get started.
-            </p>
-            <!-- Social Icons -->
-            <div class="flex space-x-4">
-                <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook-f"></i></a>
-                <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin-in"></i></a>
-                <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
-                <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-youtube"></i></a>
-            </div>
-            <!-- Codecanyon Badge -->
-            <div class="mt-4">
-                <a href="#" class="bg-gray-700 text-white text-sm py-2 px-4 rounded-lg inline-flex items-center">
-                    <img src="https://img.icons8.com/ios-filled/24/ffffff/code.png" class="mr-2" />
-                    GET IT ON Codecanyon
-                </a>
-            </div>
-        </div>
-
-        <!-- Company Links -->
-        <div>
-            <h3 class="text-white font-semibold mb-4">Company</h3>
-            <ul class="space-y-2 text-gray-400 text-sm">
-                <li><a href="#" class="hover:text-white">About Us</a></li>
-                <li><a href="#" class="hover:text-white">Contact Us</a></li>
-                <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
-                <li><a href="#" class="hover:text-white">Service & Support Policy</a></li>
-                <li><a href="#" class="hover:text-white">Cookies Policy</a></li>
-                <li><a href="#" class="hover:text-white">Blog</a></li>
-            </ul>
-        </div>
-
-        <!-- Quick Links -->
-        <div>
-            <h3 class="text-white font-semibold mb-4">Quick Links</h3>
-            <ul class="space-y-2 text-gray-400 text-sm">
-                <li><a href="#" class="hover:text-white">Demo</a></li>
-                <li><a href="#" class="hover:text-white">Documentation</a></li>
-                <li><a href="#" class="hover:text-white">Community</a></li>
-                <li><a href="#" class="hover:text-white">Support</a></li>
-                <li><a href="#" class="hover:text-white">FAQs</a></li>
-            </ul>
-        </div>
-
-        <!-- Contact Information -->
-        <div>
-            <h3 class="text-white font-semibold mb-4">Contact Us</h3>
-            <ul class="space-y-2 text-gray-400 text-sm">
-                <li class="flex items-center space-x-2">
-                    <span class="text-green-500"><i class="fas fa-phone"></i></span>
-                    <span>+8801325887797</span>
-                </li>
-                <li class="flex items-center space-x-2">
-                    <span class="text-blue-500"><i class="fas fa-envelope"></i></span>
-                    <span>support@6amtech.com</span>
-                </li>
-            </ul>
-            <div class="mt-4">
-                <a href="#" class="inline-flex items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700">
-                    Support Ticket →
-                </a>
-            </div>
-        </div>
-    </div>
-</footer>
-
-
-</body>
-
-</html>
+        </html>

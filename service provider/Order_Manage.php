@@ -1,6 +1,148 @@
 <?php
 session_start();
 include '../config.php';
+// Fetching customer ID from the session
+$customer_id = $_SESSION['provider_id'];
+//button functionality
+if (isset($_POST['confirm'])) {
+    // echo 'Put the star';
+    $booking_id = $_POST['booking_id'];
+    $sql_booking = "SELECT * FROM booking WHERE booking_id='$booking_id' AND STR_TO_DATE(CONCAT(booking_date, ' ', booking_time), '%Y-%m-%d %h:%i %p') < NOW();";
+    $result_booking = mysqli_query($con, $sql_booking);
+    if ($row_booking = $result_booking->fetch_assoc()) {
+        // echo 'check';
+        // Prepare the statement
+        $stmt = $con->prepare("UPDATE `booking` SET `provider_end` = 1 , `booking_status`=1 WHERE `booking_id` = ?");
+        // Bind the parameter (assuming booking_id is an integer)
+        $stmt->bind_param("i", $booking_id);
+        // Execute the statement
+        if ($stmt->execute()) {
+            // echo "Booking updated successfully.";
+            $sql_again = "SELECT* FROM booking WHERE user_end=1 AND provider_end=1 AND booking_id='$booking_id'";
+            $result_again = mysqli_query($con, $sql_again);
+            if ($row_again = $result_again->fetch_assoc()) {
+                $stmt_again = $con->prepare("UPDATE `booking` SET `booking_status` = 2 WHERE `booking_id` = ?");
+                // Bind the parameter (assuming booking_id is an integer)
+                $stmt_again->bind_param("i", $booking_id);
+                $stmt_again->execute();
+            }
+            echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>"' . "<script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Successed',
+            text: 'You have successfully confirmed the order.',
+            confirmButtonText: 'OK'
+        });
+    </script>";
+        } else {
+            echo "Error updating booking: " . $stmt->error;
+        }
+        // Close the statement
+        $stmt->close();
+    } else {
+        echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>"' . "<script>
+        Swal.fire({
+            icon: 'warning',
+            title: 'Confirmation Not Allowed',
+            text: 'Since the order time is not over, you cannot confirm now.',
+            confirmButtonText: 'OK'
+        });
+    </script>";
+    }
+    // echo $_POST['booking_id'];
+}
+
+if (isset($_POST['cancel'])) {
+    $date = $time = '';
+    // echo $_POST['booking_id'];
+    $booking_id = $_POST['booking_id'];
+
+    // Fetch the booking details from the database
+    $sql_booking = "SELECT * 
+                    FROM booking 
+                    WHERE booking_id='$booking_id' AND booking_status=0 
+                    AND STR_TO_DATE(CONCAT(booking_date, ' ', booking_time), '%Y-%m-%d %h:%i %p') > NOW()
+                    ";
+    $result_booking = mysqli_query($con, $sql_booking);
+    // echo 'check';
+    if ($row_booking = $result_booking->fetch_assoc()) {
+        $date_string = $row_booking['booking_date']; // e.g., '2025-01-01'
+        $time_string = $row_booking['booking_time']; // e.g., '12:00 PM'
+
+        // Parse the date
+        $date = DateTime::createFromFormat('Y-m-d', $date_string);
+        if ($date) {
+            // echo "Date: " . $date->format('Y-m-d') . "\n"; // Output: '2025-01-01'
+        } else {
+            echo "Invalid date format.\n";
+        }
+
+        // Parse the time
+        $time = DateTime::createFromFormat('h:i A', $time_string);
+        if ($time) {
+            // echo "Time: " . $time->format('H:i:s') . "\n"; // Output: '12:00:00'
+        } else {
+            echo "Invalid time format.\n";
+        }
+        // $date = $row_booking['booking_date'];  // Date in 'Y-m-d' format
+        // $time = $row_booking['booking_time'];  // Time in 'H:i:s' format
+
+        // Combine date and time into a DateTime object
+        // echo 'check';
+        $booking_datetime = new DateTime("$date_string $time_string");
+        // echo $booking_datetime->format('Y-m-d H:i:s');
+        // echo $booking_datetime->format('Y-m-d H:i:s') . ' ';
+        // Get the current date and time
+        $current_datetime = new DateTime();
+        // $current_datetime->setTimezone(new DateTimeZone('Asia/Dhaka'));
+        // echo $current_datetime->format('Y-m-d H:i:s');
+
+        // Calculate the difference between the booking time and the current time
+        $interval = $current_datetime->diff($booking_datetime);
+        // echo 'Difference: ' . $interval->format('%R%a days, %H hours, %I minutes');
+        // Convert the interval to total hours
+        // $hours_difference = ($interval->days * 24) + $interval->h;
+        // echo $hours_difference;
+        // Check if the booking is more than 24 hours away
+        if ($interval->days >= 1 && $interval->h >= 4) {
+            // echo 'yes';
+            // Allow cancellation if more than 24 hours ahead
+            $sql_delete = "UPDATE booking set `booking_status`=-1 WHERE booking_id='$booking_id'";
+            if (mysqli_query($con, $sql_delete)) {
+                // echo "Booking successfully cancelled.";
+                echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>"' . "<script>
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Successed',
+                            text: 'You have successfully cancelled the order.',
+                            confirmButtonText: 'OK'
+                        });
+                    </script>";
+            } else {
+                echo "Error cancelling the booking.";
+            }
+        } else {
+            echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>"' . "<script>
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Cancellation Not Allowed',
+                        text: 'Since the remaining time is not more than 24 hours, you cannot cancel now.',
+                        confirmButtonText: 'OK'
+                    });
+                    </script>";
+        }
+    } else {
+        echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>"';
+        echo "<script>
+        Swal.fire({
+            icon: 'warning',
+            title: 'Cancellation Not Allowed',
+            text: 'Since the remaining time is not more than 24 hours, you cannot cancel now.',
+            confirmButtonText: 'OK'
+        });
+    </script>";
+    }
+}
 
 ?>
 
@@ -73,19 +215,21 @@ include '../config.php';
                     <?php
                     // echo 'check';
                     $provider_id = $_SESSION['provider_id']; // Replace with dynamic provider_id if required
-                    $query = "SELECT b.booking_date, b.booking_time, b.task_details,b.task_length, b.booking_status, 
+                    $query = "SELECT b.booking_id,b.booking_date, b.booking_time, b.task_details,b.task_length, b.booking_status, 
                                         u.user_name,u.user_district,u.user_upazila, u.user_area,u.user_street_address, u.user_unit_apt,
                                          s.item_name 
                                 FROM booking b
                                 JOIN user u ON b.user_id = u.user_id
                                 JOIN item s ON b.item_id = s.item_id
-                                WHERE b.provider_id = ?";
+                                WHERE b.provider_id = ?
+                                ORDER BY b.booking_date";
                     $stmt = $con->prepare($query);
                     $stmt->bind_param('i', $provider_id);
                     $stmt->execute();
                     $result = $stmt->get_result();
                     if ($result->num_rows > 0) {
                         while ($booking = $result->fetch_assoc()) {
+                            $booking_id = $booking['booking_id'];
                             $booking_date = $booking['booking_date'];
                             $customer_name = $booking['user_name'];
                             $customer_address = $booking['user_district'] . ',' . $booking['user_upazila'] . ',' . $booking['user_area'] . ',' . $booking['user_street_address'] . ',' . $booking['user_unit_apt'];
@@ -164,12 +308,19 @@ include '../config.php';
                                         </button>';
                             } else {
                                 echo '<div class="mt-6 flex justify-between">
-                                <button class="bg-green-500 hover:bg-green-600 text-white py-2 px-6 rounded-xl shadow-lg transition transform hover:scale-105">
+                               <form onsubmit="return confirm_completed(this)" action="" method="POST">
+                                <input type="hidden" name="booking_id" value="' . $booking_id . '">
+                                <button name="confirm" class="bg-green-500 hover:bg-green-600 text-white py-2 px-6 rounded-xl shadow-lg transition transform hover:scale-105">
                                     Confirm
                                 </button>
-                                <button class="bg-red-500 hover:bg-red-600 text-white py-2 px-6 rounded-xl shadow-lg transition transform hover:scale-105">
+                                </form>
+                                <form onsubmit="return confirm_completed(this)" action="" method="POST">
+                                <input type="hidden" name="booking_id" value="' . $booking_id . '">
+                                <button name="cancel" class="bg-red-500 hover:bg-red-600 text-white py-2 px-6 rounded-xl shadow-lg transition transform hover:scale-105">
                                     Cancel
                                 </button>
+                                </form>
+                                
                             </div>';
                             }
                             echo '</div>';

@@ -2,6 +2,11 @@
 require '../config.php';
 session_start();
 
+// Ensure user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../login.php');
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -9,7 +14,7 @@ session_start();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RadiantHub BD</title>
+    <title>HomeEase</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -28,7 +33,7 @@ session_start();
             /* font-family: 'Times New Roman', Times, serif; */
             font-family: cursive;
             font-size: 50px;
-            color:#00008B;
+            color: #00008B;
         }
 
         #sidebar {
@@ -59,7 +64,7 @@ session_start();
         #mma {
             font-size: 27.9px;
             text-decoration: none;
-            color:#00008B;
+            color: #00008B;
             margin-right: 40px;
         }
 
@@ -141,7 +146,7 @@ session_start();
 
         #tittlemnm {
             font-size: x-large;
-            color:#00008B;
+            color: #00008B;
             margin: 50px 0 0 340px;
         }
 
@@ -154,7 +159,7 @@ session_start();
             margin: 0 0 0 670px;
         }
 
-       
+
 
         .box1 {
             width: 1200px;
@@ -166,23 +171,22 @@ session_start();
             position: absolute;
             left: 410px;
             font-size: 2rem;
-            color:#00008B;
+            color: #00008B;
             font-weight: 900;
         }
     </style>
 </head>
 
 <body class="bg-gradient-to-bl from-blue-50 via-white via-blue-50 to-slate-300 h-screen">
-
-  <?php 
-    include 'header.php';
-  ?>
+    <?php
+    include "header.php";
+    ?>
     <!-- <h2 id="tittlemnm">My Booking</h2> -->
     <section id="undernavbar">
         <div id="sidebar">
             <a href="" id="mma">Manage My Account</a>
             <ul>
-            <li><a href="My_profile.php">My Profile</a></li>
+                <li><a href="My_profile.php">My Profile</a></li>
                 <li><a href="addressofbooking.php">Address of Booking</a></li>
                 <li><a href="myreviews.php">My Reviews</a></li>
                 <li><a href="mybooking.php" id="mma">My booking</a></li>
@@ -191,29 +195,42 @@ session_start();
             </ul>
             <?php
             if (isset($_SESSION['type'])) {
-                echo '<a href="../logout.php" class="text-gray-700 hover:text-blue-600 " style="font-size:30px;margin:10px 0 0 20px; line-height:50px;">Logout</a>';
+                echo '<a href="../logout.php" class="text-gray-700 hover:text-pink-600 " style="font-size:30px;margin:10px 0 0 20px; line-height:50px;">Logout</a>';
             }
             ?>
         </div>
-        <h3 class="box_title">My Notification</h3>
-        <div class="box1">
-            <?php
-            // $shop_id = 121;
-            $customer_id = $_SESSION['customer_id'];
-            $sql_notify = "SELECT * FROM customer_notifications WHERE customer_id='$customer_id' ORDER BY date_and_time desc";
-            $result_notify = mysqli_query($con, $sql_notify);
-            if ($result_notify->num_rows > 0) {
-                while ($row_notify = $result_notify->fetch_assoc()) {
-                    echo '<div class="bg-blue-100 border border-blue-400 text-blue-700 my-5 px-4 py-3 rounded relative w-4000"
-                    role="alert"><h4 class="font-bold text-lg">' . $row_notify['subject'] . '</h4>';
-                    echo '<p class="mt-2">' . $row_notify['message'] . '</p>';
-                    echo '<p class="mb-0">Admin, RadientHub BD
-                                    </p><span id="current-time" class="absolute bottom-0 right-0 mb-2 mr-2 text-sm text-gray-500">' . $row_notify['date_and_time'] . '</span></div>';
-                }
-            }
-            ?>
-        </div>
-    </section>
+
+
+            <h3 class="box_title">My Notification</h3>
+            <div class="box1">
+                <div class="bg-blue-100 border border-blue-400 text-blue-700 my-5 px-4 py-3 rounded relative w-4000"
+                    role="alert">
+                    <h4 class="font-bold text-lg">Welcome to HomeEase</h4>
+                    <p class="mt-2">Thank you for joining HomeEase! We’re excited to have you here.</p>
+                    <p class="mb-0">Admin, HomeEase</p>
+                    <span class="absolute bottom-0 right-0 mb-2 mr-2 text-sm text-gray-500">2025-01-21 10:00 AM</span>
+                </div>
+
+                <div class="bg-blue-100 border border-blue-400 text-blue-700 my-5 px-4 py-3 rounded relative w-4000"
+                    role="alert">
+                    <h4 class="font-bold text-lg">Special Offer: 20% Off on Services</h4>
+                    <p class="mt-2">Enjoy a 20% discount on all services booked this month.</p>
+                    <p class="mb-0">Admin, HomeEase</p>
+                    <span class="absolute bottom-0 right-0 mb-2 mr-2 text-sm text-gray-500">2025-01-22 02:00 PM</span>
+                </div>
+
+                <div class="bg-blue-100 border border-blue-400 text-blue-700 my-5 px-4 py-3 rounded relative w-4000"
+                    role="alert">
+                    <h4 class="font-bold text-lg">System Maintenance Notification</h4>
+                    <p class="mt-2">Our system will undergo maintenance on Saturday at 10:00 PM. Expect downtime for about 2 hours.</p>
+                    <p class="mb-0">Admin, HomeEase</p>
+                    <span class="absolute bottom-0 right-0 mb-2 mr-2 text-sm text-gray-500">2025-01-22 08:00 AM</span>
+                </div>
+            </div>
+        </section>
+        <?php
+        include "footer.php";
+        ?>
 </body>
 
 </html>
