@@ -1,154 +1,134 @@
 <?php
 session_start();
-include "header.php"; // Include header outside the HTML block
-?>
+include 'config.php';
 
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HomeEase</title>
+  <title>Dropdown with Sub-service Cards</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .hidden-section {
-      display: none;
-    }
 
-    .visible-section {
-      display: block;
-    }
-
-    .division-row {
-      display: flex;
-      gap: 16px;
-      overflow-x: auto;
-      padding: 8px;
-    }
-
-    .division-card {
-      min-width: 150px;
-      min-height: 150px;
-    }
-
-    /* #district-list {
-      max-height: auto;
-      overflow-y: auto;
-    } */
-  </style>
 </head>
 
-<body>
-  <!-- Main Section -->
-  <main class="container mx-auto my-10">
-    <!-- Available Locations -->
-    <h2 class="text-center text-2xl font-semibold text-gray-700 mb-8">Available Locations</h2>
-    <div class="division-row">
-      <!-- Location Cards -->
-      <?php
-      $divisions = [
-        "dhaka" => "Dhaka",
-        "khulna" => "Khulna",
-        "sylhet" => "Sylhet",
-        "chattogram" => "Chattogram",
-        "mymensingh" => "Mymensingh",
-        "rajshahi" => "Rajshahi",
-        "rangpur" => "Rangpur",
-        "barishal" => "Barishal",
-      ];
-      foreach ($divisions as $key => $name) {
-        echo <<<HTML
-        <button class="division-card bg-white shadow-md rounded-lg p-4 text-center ml-6" onclick="showDetails('$key')">
-          <img src="path-to-$key.jpg" alt="$name" class="rounded-md mb-4">
-          <p class="font-medium text-gray-700">$name</p>
-        </button>
-HTML;
-      }
-      ?>
-    </div>
+<body class="bg-gradient-to-bl from-blue-100 via-white via-blue-100 to-slate-300 min-h-screen">
 
-    <!-- Hidden Section -->
-    <div id="details" class="hidden-section mt-10">
-      <button class="bg-blue-600 text-white px-4 py-2 rounded mb-6" onclick="hideDetails()">Back</button>
-      <h3 id="location-title" class="text-xl font-semibold text-blue-600 text-center mb-4"></h3>
-      <!-- <div class="bg-white shadow-md p-6 rounded-lg border border-blue-200"> -->
-        <h4 class="text-center text-lg font-semibold text-blue-500 mb-4" id="service-title"></h4>
-        <div id="district-list" class="grid grid-cols-4 gap-4 bg-blue-100 rounded-lg  h-48">
-          <!-- Districts will be dynamically populated here -->
-        </div>
-      <!-- </div> -->
+  <?php
+  include 'header.php';
+  ?>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const divisions = {
+        Dhaka: ["Dhaka", "Gazipur", "Narayanganj"],
+        Chittagong: ["Chittagong", "Cox's Bazar", "Rangamati"],
+        Rajshahi: ["Rajshahi", "Pabna", "Natore"],
+      };
+
+      const services = {
+        Cleaning: ["Floor Cleaning", "Window Cleaning", "Carpet Cleaning"],
+        Plumbing: ["Pipe Fixing", "Leakage Repair", "Installation"],
+        Electrical: ["Wiring", "Appliance Repair", "Circuit Installation"],
+      };
+
+      const divisionDropdown = document.getElementById("division");
+      const districtDropdown = document.getElementById("district");
+      const serviceDropdown = document.getElementById("service");
+      const subServiceContainer = document.getElementById("sub-service-container");
+
+      // Update Districts
+      divisionDropdown.addEventListener("change", () => {
+        const selectedDivision = divisionDropdown.value;
+        districtDropdown.innerHTML = '<option value="">Select District</option>';
+
+        if (selectedDivision) {
+          divisions[selectedDivision].forEach((district) => {
+            const option = document.createElement("option");
+            option.value = district;
+            option.textContent = district;
+            districtDropdown.appendChild(option);
+          });
+        }
+      });
+
+      // Update Sub-services
+      serviceDropdown.addEventListener("change", () => {
+        const selectedService = serviceDropdown.value;
+        subServiceContainer.innerHTML = "";
+
+        if (selectedService && services[selectedService]) {
+          const subServices = services[selectedService];
+          subServiceContainer.innerHTML = `
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Available Sub-services:</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              ${subServices
+                .map(
+                  (subService) => `
+                  <div class="bg-white border rounded-lg shadow-md p-4">
+                    <h4 class="text-md font-bold text-indigo-600 mb-2">${subService}</h4>
+                    <p class="text-gray-600">This is the description for ${subService}. Click below to know more.</p>
+                    <button class="mt-3 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">More Info</button>
+                  </div>
+                `
+                )
+                .join("")}
+            </div>
+          `;
+        } else {
+          subServiceContainer.innerHTML = `<p class="text-gray-600">No sub-services available. Please select a valid service.</p>`;
+        }
+      });
+    });
+  </script>
+  <!-- Top Navigation Bar -->
+  <nav class=" ">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+      <h1 class="text-xl font-bold text-indigo-600">Service Selector</h1>
+
+      <div class="flex gap-4">
+        <!-- Division Dropdown -->
+        <select id="division" class="border-gray-300 h-[50px] w-[130px] rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+          <option class="ml-[10px] border-2 border-slate-900 value="">Select Division</option>
+          <option value=" Dhaka">Dhaka</option>
+          <option value="Chittagong">Chittagong</option>
+          <option value="Rajshahi">Rajshahi</option>
+        </select>
+
+        <!-- District Dropdown -->
+        <select id="district" class="border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+          <option value="">Select District</option>
+        </select>
+
+        <!-- Service Dropdown -->
+        <select id="service" class="border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+          <option value="">Select Service</option>
+          <option value="Cleaning">Cleaning</option>
+          <option value="Plumbing">Plumbing</option>
+          <option value="Electrical">Electrical</option>
+        </select>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="pt-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4">Welcome to the Service Selector</h2>
+        <p class="text-gray-600">Select your division, district, and service from the dropdown menus at the top. Sub-services will appear below in card format.</p>
+      </div>
+
+      <!-- Sub-service Display -->
+      <div id="sub-service-container" class="bg-white p-6 rounded-lg shadow-md mt-6">
+        <p class="text-gray-600">Please select a service to view sub-services.</p>
+      </div>
     </div>
   </main>
-
-  <!-- JavaScript -->
-  <script>
-    const divisions = {
-      dhaka: [
-        "Dhaka", "Faridpur", "Gazipur", "Gopalganj", "Kishoreganj",
-        "Madaripur", "Manikganj", "Munshiganj", "Narayanganj",
-        "Narsingdi", "Rajbari", "Shariatpur", "Tangail"
-      ],
-      khulna: [
-        "Khulna", "Bagerhat", "Chuadanga", "Jashore", "Jhenaidah",
-        "Kushtia", "Magura", "Meherpur", "Narail", "Satkhira"
-      ],
-      sylhet: ["Sylhet", "Habiganj", "Moulvibazar", "Sunamganj"],
-      chattogram: [
-        "Chattogram", "Bandarban", "Brahmanbaria", "Chandpur",
-        "Cox's Bazar", "Cumilla", "Feni", "Khagrachari", "Lakshmipur",
-        "Noakhali", "Rangamati"
-      ],
-      mymensingh: ["Mymensingh", "Jamalpur", "Netrokona", "Sherpur"],
-      rajshahi: [
-        "Rajshahi", "Bogura", "Chapainawabganj", "Joypurhat",
-        "Naogaon", "Natore", "Pabna", "Sirajganj"
-      ],
-      rangpur: [
-        "Rangpur", "Dinajpur", "Gaibandha", "Kurigram",
-        "Lalmonirhat", "Nilphamari", "Panchagarh", "Thakurgaon"
-      ],
-      barishal: ["Barishal", "Barguna", "Bhola", "Jhalokati", "Patuakhali", "Pirojpur"],
-    };
-
-    function showDetails(location) {
-      const detailsSection = document.getElementById("details");
-      detailsSection.classList.remove("hidden-section");
-      detailsSection.classList.add("visible-section");
-
-      const locationTitle = document.getElementById("location-title");
-      const serviceTitle = document.getElementById("service-title");
-      locationTitle.innerText = `Service Available in ${capitalize(location)}`;
-      serviceTitle.innerText = `Available Districts in ${capitalize(location)}`;
-
-      const districtList = document.getElementById("district-list");
-      districtList.innerHTML = "";
-      divisions[location]?.forEach(district => {
-        const button = document.createElement("button");
-        button.innerText = district;
-        button.className = "bg-white h-[150px] w-[50]px-3 py-2 rounded shadow-md";
-        button.onclick = () => fetchUsers(district);
-        districtList.appendChild(button);
-      });
-    }
-
-    function hideDetails() {
-      const detailsSection = document.getElementById("details");
-      detailsSection.classList.add("hidden-section");
-      detailsSection.classList.remove("visible-section");
-    }
-
-    function capitalize(word) {
-      return word.charAt(0).toUpperCase() + word.slice(1);
-    }
-
-    function fetchUsers(district) {
-      alert(`Fetching users for ${district}`); // Replace with actual fetch logic
-    }
-  </script>
-
-<?php include "footer.php"; ?>
-
+  <?php include 'footer.php'; ?>
 </body>
 
 </html>

@@ -1,93 +1,82 @@
 <?php
 session_start();
 include '../config.php';
-// Check if form is submitted
+
 if (isset($_POST['submit'])) {
-    // Get form input values
-    $user_id = $_SESSION['user_id']; // Fetch user_id from session
+    $user_id = $_SESSION['user_id'];
     $user_name = empty($_POST['user_name']) ? $_SESSION['user_name'] : $_POST['user_name'];
     $user_email = empty($_POST['user_email']) ? $_SESSION['user_email'] : $_POST['user_email'];
     $user_phone = empty($_POST['user_phone']) ? $_SESSION['user_phone'] : $_POST['user_phone'];
     $user_gender = empty($_POST['user_gender']) ? $_SESSION['user_gender'] : $_POST['user_gender'];
+
+    $user_profile_picture = $_SESSION['user_profile_picture']; // Keep existing picture if no new one
+
     if (!empty($_POST['user_password'])) {
-        $user_password = $_POST['user_password'];
-        $user_password = password_hash($user_password, PASSWORD_DEFAULT); // Use hashing if password is provided
+        $user_password = password_hash($_POST['user_password'], PASSWORD_DEFAULT);
     }
 
-    // Optional: Password encryption
-
-    // Check if a file is uploaded
     if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-        // Define the allowed file extensions
         $allowed_extensions = ['jpg', 'jpeg', 'png'];
         $file_name = $_FILES['image']['name'];
         $file_tmp = $_FILES['image']['tmp_name'];
         $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
 
-        // Check if the file extension is allowed
         if (in_array($file_ext, $allowed_extensions)) {
-            $upload_dir = 'photo/profile picture/';
-            $new_file_name = $user_id . '.' . $file_ext; // Assign a unique file name (user_id)
+            $upload_dir = '../photo/profile_pictures/';
+            $new_file_name = $user_id . '.' . $file_ext;
             $target_file = $upload_dir . $new_file_name;
 
-            // Move the uploaded file to the target directory
             if (move_uploaded_file($file_tmp, $target_file)) {
                 $user_profile_picture = $new_file_name;
+                $_SESSION['user_profile_picture'] = $new_file_name;
             } else {
-                $user_profile_picture = ''; // If file upload fails
+                echo "File upload failed!";
             }
         } else {
-            // Handle invalid file extension
             echo "Invalid file extension!";
         }
-    } else {
-        $user_profile_picture = ''; // If no file is uploaded
     }
 
-    // If all fields are validated, proceed to update the user data
-    $user_district = $_SESSION['user_district']; // Add other fields as necessary
+    $user_district = $_SESSION['user_district'];
     $user_upazila = $_SESSION['user_upazila'];
     $user_area = $_SESSION['user_area'];
-    if (!empty($_POST['user_password'])) {
-        $sql = "UPDATE `user` SET 
+
+    $sql = "UPDATE `user` SET 
             `user_name` = '$user_name', 
             `user_email` = '$user_email', 
             `user_phone` = '$user_phone', 
-            `user_password` = '$user_password', 
             `user_gender` = '$user_gender', 
-            `user_profile_picture` = '$user_profile_picture', 
             `user_district` = '$user_district', 
             `user_upazila` = '$user_upazila', 
-            `user_area` = '$user_area'
-            WHERE `user_id` = '$user_id'";
-    } else { // Prepare SQL to update user data
-        $sql = "UPDATE `user` SET 
-            `user_name` = '$user_name', 
-            `user_email` = '$user_email', 
-            `user_phone` = '$user_phone',
-            `user_gender` = '$user_gender', 
-            `user_profile_picture` = '$user_profile_picture', 
-            `user_district` = '$user_district', 
-            `user_upazila` = '$user_upazila', 
-            `user_area` = '$user_area'
-            WHERE `user_id` = '$user_id'";
+            `user_area` = '$user_area'";
+
+    if (!empty($user_profile_picture)) {
+        $sql .= ", `user_profile_picture` = '$user_profile_picture'";
     }
-    // Execute the query
+
+    if (!empty($_POST['user_password'])) {
+        $sql .= ", `user_password` = '$user_password'";
+    }
+
+    $sql .= " WHERE `user_id` = '$user_id'";
+
     if ($con->query($sql) === TRUE) {
-        echo "Profile updated successfully!";
         $_SESSION['user_name'] = $user_name;
         $_SESSION['user_email'] = $user_email;
         $_SESSION['user_phone'] = $user_phone;
         $_SESSION['user_gender'] = $user_gender;
+
+        echo "Profile updated successfully!";
         header("Location: " . $_SERVER['PHP_SELF']);
         exit;
     } else {
         echo "Error: " . $con->error;
     }
-    // Close the database connection
+
     $con->close();
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -291,6 +280,7 @@ if (isset($_POST['submit'])) {
                 <li><a href="addressofbooking.php">Address of Booking</a></li>
                 <li><a href="myreviews.php">My Reviews</a></li>
                 <li><a href="mybooking.php" id="mma">My booking</a></li>
+                <!-- <li><a href="ChatApp/users.php">Message</a></li> -->
                 <li><a href="mycancellations.php">My Cancellations</a></li>
                 <li><a href="Notifications.php">My Notifications</a></li>
             </ul>
@@ -304,11 +294,15 @@ if (isset($_POST['submit'])) {
         <div id="box1" class="shadow-l border-2 bg-blue-100">
             <div id="left">
                 <div class="mb-6 flex justify-center">
-                    <img id="profileImage" src="<?php echo "Profile_pic"; ?>" alt=""
+                    <img id="profileImage"
+                        src="<?php echo isset($_SESSION['user_profile_picture']) && !empty($_SESSION['user_profile_picture'])
+                                    ? '../photo/profile_pictures/' . $_SESSION['user_profile_picture']
+                                    : '../photo/profile_pictures/default.png'; ?>"
+                        alt="Profile Picture"
                         class="w-400 h-400 rounded-full mx-auto mb-4">
                 </div>
-
             </div>
+
             <div id="right">
 
                 <div id="profile_edit">

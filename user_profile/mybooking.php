@@ -314,6 +314,7 @@ $result = $stmt->get_result();
             position: relative;
             bottom: 20px;
         }
+
         .tables {
             height: 700px;
             width: 1400px;
@@ -491,12 +492,12 @@ $result = $stmt->get_result();
                     if ($row['booking_status'] == 2)
                         echo '<td class="px-2 py-1">' .
                             '<button type="submit" name="change" onclick="rating(\'' . $row['booking_id'] . '\')" style="padding: 0; border: none; background: none;margin-right:30px;">' .
-                            '<img src="../photo/star.png" alt="Submit" style="width: 40px; height: 40px; position:relative; right:56px;">' .
+                            '<img src="../photo/star.png" alt="Submit" style="width: 40px; height: 40px;">' .
                             '</button>' .
                             '</td>';
                     echo '<form onsubmit="return confirm_cancel(this)" action="" method="POST">';
                     echo '<input type="hidden" name="booking_id" value="' . $row['booking_id'] . '">';
-                    echo '<td class="mr-5 px-0 py-1">' . '<button type="submit" name="cancel" style="padding: 0; border: none; background: none;"><img src="../photo/cancel.png" alt="Cancel" style="width: 40px; height: 40px;position:relative; right:60px;"></button>' . '</td>';
+                    echo '<td class="mr-5 px-0 py-1">' . '<button type="submit" name="cancel" style="padding: 0; border: none; background: none;"><img src="../photo/cancel.png" alt="Cancel" style="width: 40px; height: 40px; margin-right:50px;"></button>' . '</td>';
                     echo '</form>';
                 }
                 echo '</tbody>';

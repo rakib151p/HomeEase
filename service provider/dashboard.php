@@ -3,6 +3,7 @@
 session_start();
 include '../config.php';
 $provider_id =$_SESSION['provider_id'];
+include '../user_details.php';
 // Get the total number of columns in the table
 $totalColumnsQuery = "SELECT COUNT(*) as total_columns 
                       FROM INFORMATION_SCHEMA.COLUMNS 
@@ -44,7 +45,7 @@ if ($totalColumns > 0) {
 } else {
     echo "Could not calculate the percentage because the total number of columns is 0.";
 }
-// echo $_SESSION['provider_name'];
+echo $_SESSION['provider_name'];
 ?>
 
 
@@ -138,9 +139,11 @@ if ($totalColumns > 0) {
 
                 <!-- Orders Completed -->
                 <?php
+                
                 function getCompletedOrders($con)
                 {
-                    $query = "SELECT COUNT(*) AS completed_orders FROM booking WHERE booking_status = '2'";
+                    $provider_id=$_SESSION['provider_id'];
+                    $query = "SELECT COUNT(*) AS completed_orders FROM booking WHERE booking_status = '2' AND provider_id='$provider_id'";
                     $result = $con->query($query);
                     if (!$result) {
                         die("Query failed: " . $con->error); // Error handling
@@ -162,24 +165,27 @@ if ($totalColumns > 0) {
                 <!-- Charts -->
 
                 <?php
+                $provider_id=$_SESSION['provider_id'];
                 // Fetch monthly income data
                 $incomeQuery = "
 SELECT 
-    DATE_FORMAT(sp.provider_registration_date, '%Y-%m-%d') AS month,
-    SUM(
-        sp.provider_price * COALESCE(order_count, 0)
-    ) AS total_income
+    DATE_FORMAT(b.booking_date, '%Y-%m') AS month,
+    sp.provider_id AS p_id,
+    SUM(sp.provider_price * COALESCE(b.order_count, 0)) AS total_income
 FROM service_provider sp
 LEFT JOIN (
     SELECT 
         provider_id,
-        COUNT(*) AS order_count
+        COUNT(*) AS order_count,
+        booking_date
     FROM booking
     WHERE booking_status = '2'
-    GROUP BY provider_id
+    GROUP BY provider_id, DATE_FORMAT(booking_date, '%Y-%m')
 ) b ON sp.provider_id = b.provider_id
-GROUP BY month
-ORDER BY month
+WHERE sp.provider_id = '$provider_id'
+GROUP BY month, sp.provider_id
+ORDER BY month;
+
 ";
 
                 // Execute the query
