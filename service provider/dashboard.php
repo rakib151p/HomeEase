@@ -44,7 +44,7 @@ if ($totalColumns > 0) {
 } else {
     echo "Could not calculate the percentage because the total number of columns is 0.";
 }
-
+// echo $_SESSION['provider_name'];
 ?>
 
 
@@ -72,8 +72,8 @@ if ($totalColumns > 0) {
                 <div class="bg-blue-200 rounded-full w-24 h-24 flex items-center justify-center overflow-hidden">
                     <img src="../photo/profile_pictures/<?php echo $_SESSION['provider_profile_picture']; ?>" alt="Profile Picture" class="w-full h-full object-cover">
                 </div>
-                <h2 class="mt-4 font-semibold text-lg">Team R3P innovators</h2>
-                <p class="text-sm text-gray-500">Provider ID: 1023034</p>
+                <h2 class="mt-4 font-semibold text-lg"><?php echo $_SESSION['provider_name'];?></h2>
+                <p class="text-sm text-gray-500">Provider ID: <?php echo $_SESSION['provider_id'];?></p>
             </div>
 
             <nav class="mt-8 space-y-4">

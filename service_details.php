@@ -1,23 +1,27 @@
-<?php 
+<?php
 include 'config.php';
 session_start();
-$item_name='';
-$item_id='';
-if(isset($_GET['name'])){
-    echo $_GET['name'];
-    $item_name = $_GET['name'];
+$item_name = '';
+$item_id = '';
+$check = true;
+if (isset($_GET['name']) && $_GET['name'] != "") {
+  echo $_GET['name'];
+  $item_name = $_GET['name'];
 
-    // Use this item_id to fetch subservice details from the database
-    $query = "SELECT * FROM item WHERE item_name = '$item_name'";
-    $result = $con->query($query);
+  // Use this item_id to fetch subservice details from the database
+  $query = "SELECT * FROM item WHERE item_name = '$item_name'";
+  $result = $con->query($query);
 
-    if ($result->num_rows > 0) {
-        $item = $result->fetch_assoc();
-        $item_id = $item['item_id'];
-    }
-
-}else{
-    
+  if ($result->num_rows > 0) {
+    $item = $result->fetch_assoc();
+    $item_id = $item['item_id'];
+  } else {
+    header("Location: home.php?check='notavailable'");
+  exit();
+  }
+} else {
+  header("Location: home.php?check='notavailable'");
+  exit();
 }
 
 
@@ -42,7 +46,7 @@ if(isset($_GET['name'])){
 
     #Addpicture {
       background-image: url("photo/sample.jpg");
-   
+
 
     }
   </style>
@@ -370,8 +374,8 @@ if(isset($_GET['name'])){
   </div>
   <!-- <div class="mt-24"></div>
   </div> -->
-  <?php 
-    include 'footer.php';
+  <?php
+  include 'footer.php';
   ?>
   <script>
     function scrollToSection(id) {
@@ -379,10 +383,11 @@ if(isset($_GET['name'])){
         behavior: 'smooth'
       });
     }
+
     function searchBar(item_id) {
-            const redirectUrl = `service.php?item_id=${item_id}`;
-            window.location.href = redirectUrl; // Redirect to the new page
-          }
+      const redirectUrl = `service.php?item_id=${item_id}`;
+      window.location.href = redirectUrl; // Redirect to the new page
+    }
   </script>
 
 </body>

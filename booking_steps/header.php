@@ -14,7 +14,7 @@
     </div>
     <div class="flex">
       <img src="..\photo\Home\time.png" class="h-6 mt-2">
-      <a href="#" class="text-base md:text-lg font-semibold px-2 py-2 hover:border-b-2 hover:border-blue-600 transition ease-in-out duration-500">
+      <a href="../all_services.php" class="text-base md:text-lg font-semibold px-2 py-2 hover:border-b-2 hover:border-blue-600 transition ease-in-out duration-500">
         All Services
       </a>
 
@@ -42,7 +42,7 @@
         echo'</div>
         <div class="flex">
         <img src="..\photo\Home\add-user.png" class="h-6 mt-2">
-        <a href="logout.php" class="text-base md:text-lg font-semibold px-2 py-2 hover:border-b-2 hover:border-blue-600 transition ease-in-out duration-500">
+        <a href="../logout.php" class="text-base md:text-lg font-semibold px-2 py-2 hover:border-b-2 hover:border-blue-600 transition ease-in-out duration-500">
           Logout
         </a>
         </div>
@@ -51,7 +51,7 @@
   } else {
     echo '<div class="flex">
         <img src="..\photo\Home\add-user.png" class="h-6 mt-2">
-        <a href="login.php" class="text-base md:text-lg font-semibold px-2 py-2 hover:border-b-2 hover:border-blue-600 transition ease-in-out duration-500">
+        <a href="../login.php" class="text-base md:text-lg font-semibold px-2 py-2 hover:border-b-2 hover:border-blue-600 transition ease-in-out duration-500">
           Signup/Login
         </a>
       </div>';

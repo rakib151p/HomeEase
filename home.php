@@ -41,7 +41,17 @@ if ($result->num_rows > 0) {
 }
 echo "<script>const words = " . json_encode($itemNames) . ";</script>";
 
-
+if(isset($_GET['check'])){
+  echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
+  echo "<script>
+        Swal.fire({
+            icon: 'warning',
+            title: 'Not available',
+            text: 'This service is not available now.',
+            confirmButtonText: 'OK'
+        });
+    </script>";
+}
 ?>
 
 <!DOCTYPE html>
