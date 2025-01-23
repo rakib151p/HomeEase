@@ -9,26 +9,21 @@ $totalColumnsQuery = "SELECT COUNT(*) as total_columns
                       WHERE TABLE_NAME = 'service_provider'";
 $totalColumnsResult = $con->query($totalColumnsQuery);
 $totalColumns = $totalColumnsResult->fetch_assoc()['total_columns'];
-
+$totalColumns=15;
 // Count the non-NULL values for the given provider_id
 $nonNullQuery = "SELECT 
-    (provider_id IS NOT NULL) +
     (provider_name IS NOT NULL) +
     (provider_email IS NOT NULL) +
     (provider_password IS NOT NULL) +
-    (provider_code IS NOT NULL) +
-    (provider_status IS NOT NULL) +
     (provider_district IS NOT NULL) +
-    (provider_registration_date IS NOT NULL) +
     (provider_experience IS NOT NULL) +
     (provider_about IS NOT NULL) +
-    (provider_rating IS NOT NULL) +
     (provider_phone IS NOT NULL) +
     (provider_gender IS NOT NULL) +
     (provider_profile_picture IS NOT NULL) +
-    (provider_verified IS NOT NULL) +
     (provider_expertise IS NOT NULL) +
-    (provider_servable IS NOT NULL) +
+    (provider_availability IS NOT NULL) +
+    (provider_availability_time_of_day IS NOT NULL) +
     (provider_upazila IS NOT NULL) +
     (provider_area IS NOT NULL) +
     (provider_street_address IS NOT NULL) AS non_null_count
@@ -39,6 +34,8 @@ $stmt->bind_param('i', $provider_id);
 $stmt->execute();
 $nonNullResult = $stmt->get_result();
 $nonNullCount = $nonNullResult->fetch_assoc()['non_null_count'];
+// echo 'non null count'.$nonNullCount;
+// echo 'Total columns'.$totalColumns;
 
 // Calculate the percentage
 if ($totalColumns > 0) {
@@ -139,63 +136,242 @@ if ($totalColumns > 0) {
                 </div>
 
                 <!-- Orders Completed -->
-                <div class="md:col-span-6 bg-blue-100 shadow-md rounded-md p-6 flex items-center justify-between ">
+                <?php
+                function getCompletedOrders($con)
+                {
+                    $query = "SELECT COUNT(*) AS completed_orders FROM booking WHERE booking_status = 'complete'";
+                    $result = $con->query($query);
+                    if (!$result) {
+                        die("Query failed: " . $con->error); // Error handling
+                    }
+                    $row = $result->fetch_assoc();
+                    return $row['completed_orders'] ?? 0;
+                }
+                $completedOrders = getCompletedOrders($con);
+                ?>
+                <div class="md:col-span-6 bg-blue-100 shadow-md rounded-md p-6 flex items-center justify-between">
                     <div>
-                        <h2 class="text-3xl font-bold">8</h2>
+                        <h2 class="text-3xl font-bold"><?php echo $completedOrders; ?></h2>
                         <p class="text-gray-600 mt-2">Orders you have completed till today</p>
                     </div>
                     <div class="bg-blue-100 p-4 rounded-full">
                         <span class="material-icons text-blue-600">check_circle</span>
                     </div>
                 </div>
-
                 <!-- Charts -->
-                <div class="col-span-12 md:col-span-6 bg-white shadow-md rounded-md p-6">
-                    <h2 class="font-semibold text-lg">Income</h2>
-                    <canvas id="incomeChart" class="mt-4"></canvas>
-                </div>
-                <div class="col-span-12 md:col-span-6 bg-white shadow-md rounded-md p-6">
-                    <h2 class="font-semibold text-lg">Daywise Customer Count</h2>
-                    <canvas id="customerChart" class="mt-4"></canvas>
-                </div>
-            </div>
-        </main>
-    </div>
+                <?php
+// Database connection
 
-    <script>
-        // Income Chart
-        const incomeChartCtx = document.getElementById('incomeChart').getContext('2d');
-        new Chart(incomeChartCtx, {
-            type: 'bar',
-            data: {
-                labels: ['January', 'February', 'March', 'April', 'May', 'June'],
-                datasets: [{
-                    label: 'Income',
-                    data: [6000, 8000, 12000, 10000, 14000, 16000],
-                    backgroundColor: '#3b82f6',
-                }]
+$incomeQuery = "
+    SELECT 
+        DATE_FORMAT(sp.provider_registration_date, '%Y-%m') AS month,
+        SUM(
+            sp.provider_price * COALESCE(order_count, 0)
+        ) AS total_income
+    FROM service_provider sp
+    LEFT JOIN (
+        SELECT 
+            provider_id,
+            COUNT(*) AS order_count
+        FROM booking
+        WHERE booking_status = 'complete'
+        GROUP BY provider_id
+    ) b ON sp.provider_id = b.provider_id
+    GROUP BY month
+    ORDER BY sp.provider_registration_date
+";
+
+// Execute the query
+$result = $con->query($incomeQuery);
+
+if (!$result) {
+    die("Query failed: " . $con->error);
+}
+
+// Prepare income data for the chart
+$incomeData = [];
+while ($row = $result->fetch_assoc()) {
+    $incomeData[] = $row;
+}
+
+// Encode the data to JSON format for use in JavaScript
+$incomeJSON = json_encode($incomeData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+
+
+$customerQuery = "
+    SELECT 
+        booking_date AS booking_day, 
+        COUNT(*) AS customer_count 
+    FROM booking 
+    WHERE 
+        provider_end = 1 AND 
+        user_end = 1 AND 
+        booking_status = 'complete'
+    GROUP BY booking_date 
+    ORDER BY booking_date ASC 
+    LIMIT 30
+";
+
+$result = $con->query($customerQuery);
+
+if (!$result) {
+    die("Query failed: " . $con->error);
+}
+
+// Prepare data for the customer chart
+$days = [];
+$counts = [];
+while ($row = $result->fetch_assoc()) {
+    $days[] = $row['booking_day'];
+    $counts[] = $row['customer_count'];
+}
+
+$con->close();
+?>
+
+<div class="col-span-12 md:col-span-6 bg-white shadow-md rounded-md p-6">
+    <h2 class="font-semibold text-lg">Monthly Income</h2>
+    <canvas id="incomeChart" width="400" height="200"></canvas>
+</div>
+
+<div class="col-span-12 md:col-span-6 bg-white shadow-md rounded-md p-6">
+    <h2 class="font-semibold text-lg">Daywise Customer Count</h2>
+    <canvas id="customerChart" class="mt-4"></canvas>
+</div>
+
+<script>
+    // Income Chart
+const incomeData = <?php echo $incomeJSON; ?>;
+
+// Map data to a full year (January to December) with default income as 0 for months not present in data
+const months = [
+    "January", "February", "March", "April", "May",
+    "June", "July", "August", "September", "October",
+    "November", "December"
+];
+const incomeValues = Array(12).fill(0); // Initialize all months with 0 income
+
+// Populate incomeValues with actual data
+incomeData.forEach(item => {
+    const monthIndex = parseInt(item.month.split('-')[1], 10) - 1; // Extract month index (1-based to 0-based)
+    incomeValues[monthIndex] = parseFloat(item.total_income); // Update income for the month
+});
+
+// Check if the chart element exists
+if (document.getElementById('incomeChart')) {
+    const incomeChartCtx = document.getElementById('incomeChart').getContext('2d');
+    new Chart(incomeChartCtx, {
+        type: 'bar',
+        data: {
+            labels: months, // X-axis labels (January to December)
+            datasets: [{
+                label: 'Monthly Income (BDT)',
+                data: incomeValues, // Y-axis values
+                backgroundColor: '#3b82f6',
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true, // Start Y-axis at 0
+                    ticks: {
+                        stepSize: 1000, // Fixed interval for Y-axis
+                        callback: function(value) {
+                            return `BDT${value.toLocaleString()}`; // Format Y-axis values in Taka
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Income (in BDT)',
+                        font: {
+                            size: 14
+                        }
+                    },
+                    max: 100000 // Optional: Set max limit for Y-axis
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Months',
+                        font: {
+                            size: 14
+                        }
+                    }
+                }
             },
-        });
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.dataset.label}: BDT${context.raw.toLocaleString()}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
 
-        // Daywise Customer Count Chart
+     // Customer Chart
+     const days = <?php echo json_encode($days); ?>;
+    const counts = <?php echo json_encode($counts); ?>;
+
+    if (document.getElementById('customerChart')) {
         const customerChartCtx = document.getElementById('customerChart').getContext('2d');
         new Chart(customerChartCtx, {
             type: 'line',
             data: {
-                labels: Array.from({
-                    length: 30
-                }, (_, i) => i + 1),
+                labels: days,
                 datasets: [{
                     label: 'Customers',
-                    data: Array.from({
-                        length: 30
-                    }, () => Math.floor(Math.random() * 15 + 1)),
+                    data: counts,
                     borderColor: '#3b82f6',
                     backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#3b82f6',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 1,
                 }]
             },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1 // Force integer steps on the Y-axis
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Booking Date'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.raw}`;
+                            }
+                        }
+                    }
+                }
+            }
         });
-    </script>
+    }
+</script>
+
+
 </body>
 
 </html>

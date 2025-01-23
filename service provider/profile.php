@@ -388,7 +388,8 @@ if (isset($_SESSION['provider_id'])) {
                                 <label class="block text-gray-700 font-medium mb-2" for="provider_about">About</label>
                                 <textarea id="provider_about" name="provider_about" rows="4"
                                     class="w-full border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-400"
-                                    placeholder="Tell us about yourself"></textarea>
+                                    placeholder="Tell us about yourself"
+                                    ><?php echo $_SESSION['provider_about']; ?></textarea>
                             </div>
                         </div>
 
