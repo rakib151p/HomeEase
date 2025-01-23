@@ -25,7 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   exit;
   // echo $_POST['rating'] . " " . $_POST['comment'];
 }
-// Fetch all item_name values
+
+// Fetch all item_name values for trie data structure suggestion
 $sql = "SELECT item_name FROM item";
 $result = $con->query($sql);
 
@@ -38,7 +39,7 @@ if ($result->num_rows > 0) {
 } else {
   echo "No items found.";
 }
-echo "<script>const words = " . json_encode($itemNames) . ";alert(words);</script>";
+echo "<script>const words = " . json_encode($itemNames) . ";</script>";
 
 
 ?>
@@ -132,8 +133,12 @@ echo "<script>const words = " . json_encode($itemNames) . ";alert(words);</scrip
           // ];
 
           words.sort();
-          alert(words);
-
+          // alert(words);
+          // Function for case-insensitive filtering
+          function searchWords(query) {
+            const lowercaseQuery = query.toLowerCase();
+            return words.filter(word => word.toLowerCase().includes(lowercaseQuery));
+          }
           // Trie Implementation
           class TrieNode {
             constructor() {
@@ -194,7 +199,7 @@ echo "<script>const words = " . json_encode($itemNames) . ";alert(words);</scrip
           // Handle input event for search
           searchBox.addEventListener('input', () => {
             const query = searchBox.value;
-
+            const check = searchWords(query);
             // Clear previous suggestions
             suggestionsBox.innerHTML = '';
 
@@ -219,7 +224,7 @@ echo "<script>const words = " . json_encode($itemNames) . ";alert(words);</scrip
         </script>
 
         <div class="absolute right-2 top-2">
-          <button class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-violet-500 group shadow-xl flex items-center justify-center relative overflow-hidden">
+          <button onclick="searchBar(document.getElementById('search').value)" class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-violet-500 group shadow-xl flex items-center justify-center relative overflow-hidden">
             <svg class="relative z-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 64 64" height="40" width="40">
               <path fill-opacity="0.01" fill="white" d="M63.6689 29.0491L34.6198 63.6685L0.00043872 34.6194L29.0496 1.67708e-05L63.6689 29.0491Z"></path>
               <path stroke-linejoin="round" stroke-linecap="round" stroke-width="3.76603" stroke="white" d="M42.8496 18.7067L21.0628 44.6712"></path>
@@ -229,6 +234,12 @@ echo "<script>const words = " . json_encode($itemNames) . ";alert(words);</scrip
             <div class="w-full h-full -rotate-45 absolute -left-[32%] -top-[32%] group-hover:left-[100%] group-hover:top-[100%] bg-black duration-1000"></div>
           </button>
         </div>
+        <script>
+          function searchBar(query) {
+            const redirectUrl = `search_result.php?query=${query}`;
+            window.location.href = redirectUrl; // Redirect to the new page
+          }
+        </script>
       </div>
 
       <!-- Service Grid -->

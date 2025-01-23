@@ -1,8 +1,9 @@
-
-<?php 
+<?php
 session_start();
 include '../config.php';
+
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -16,9 +17,9 @@ include '../config.php';
 </head>
 
 <body class="bg-blue-50 font-sans">
-<?php 
-  include 'header.php';
-  ?>
+    <?php
+    include 'header.php';
+    ?>
     <div class="flex min-h-screen">
         <!-- Sidebar -->
         <aside class="w-64 bg-white shadow-md flex flex-col p-4">
@@ -57,56 +58,164 @@ include '../config.php';
 
         <!-- Main Content -->
         <main class="flex-1 p-6">
-            <div class="box1">
-
-                <div class="overflow-x-auto tables">
-                    <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-l border-2 border-blue-100">
-                        <thead class="bg-blue-500 text-white">
-                            <tr>
-                                <th class="px-2 py-1 text-left">Booking Date</th>
-                                <th class="px-2 py-1 text-left">Customer</th>
-                                <th class="px-2 py-1 text-left">Customer address</th>
-                                <th class="px-2 py-1 text-left">Service Item</th>
-                                <th class="px-2 py-1 text-left">Appointment date</th>
-                                <th class="px-2 py-1 text-left">Time</th>
-                                <th class="px-2 py-1 text-left">Status</th>
-                                <th class="px-2 py-1 text-left" colspan="3">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody class="text-gray-700">
-                            <!-- Example Static Data Row -->
-                            <tr class="border-t">
-                                <td class="px-2 py-1">2025-01-16</td>
-                                <td class="px-2 py-1">Sample Shop</td>
-                                <td class="px-2 py-1">New York, NY, Broadway</td>
-                                <td class="px-2 py-1">Haircut</td>
-                                <td class="px-2 py-1">2025-01-18</td>
-                                <td class="px-2 py-1">10:00 AM</td>
-                                <td class="px-2 py-1">Pending</td>
-                                <td class="px-2 py-1">
-                                    <button type="button" class="text-blue-500">Confirm?</button>
-                                </td>
-                                <td class="px-2 py-1">
-                                    <button type="submit" name="change" onclick="rating('123')" style="padding: 0; border: none; background: none;margin-right:30px;">
-                                        <img src="../image/icon/star.png" alt="Submit" style="width: 40px; height: 40px; position:relative; right:56px;">
-                                    </button>
-                                </td>
-                                <form action="" method="POST">
-                                    <input type="hidden" name="booking_id" value="123">
-                                    <td class="mr-5 px-0 py-1">
-                                        <button type="submit" name="cancel" style="padding: 0; border: none; background: none;">
-                                            <img src="../image/icon/cancel.png" alt="Cancel" style="width: 40px; height: 40px; position:relative; right:60px;">
-                                        </button>
-                                    </td>
-                                </form>
-                            </tr>
-                            <!-- Repeat similar rows for more bookings -->
-                        </tbody>
-                    </table>
-                </div>
+            <div class="flex justify-end gap-2">
+                <input id="dateFilter" type="date" class="border rounded-lg p-2 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Select Date" />
+                <button id="searchButton" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition duration-200">Search</button>
             </div>
 
-        </main>
+            <span class="text-4xl ml-[470px]"><span class="text-blue-700 font-bold text-4xl">Ordered Manage By</span> Service provider</span>
+            <!-- Main Content -->
+            <main class="flex-1 w-full p-6 flex flex-col items-center justify-center mt-16">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8" id="bookingCards">
+                    <!-- Card 1 -->
+
+                    <!-- dynamic creation of cards  -->
+                    <?php
+                    // echo 'check';
+                    $provider_id = $_SESSION['provider_id']; // Replace with dynamic provider_id if required
+                    $query = "SELECT b.booking_date, b.booking_time, b.task_details,b.task_length, b.booking_status, 
+                                        u.user_name,u.user_district,u.user_upazila, u.user_area,u.user_street_address, u.user_unit_apt,
+                                         s.item_name 
+                                FROM booking b
+                                JOIN user u ON b.user_id = u.user_id
+                                JOIN item s ON b.item_id = s.item_id
+                                WHERE b.provider_id = ?";
+                    $stmt = $con->prepare($query);
+                    $stmt->bind_param('i', $provider_id);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    if ($result->num_rows > 0) {
+                        while ($booking = $result->fetch_assoc()) {
+                            $booking_date = $booking['booking_date'];
+                            $customer_name = $booking['user_name'];
+                            $customer_address = $booking['user_district'] . ',' . $booking['user_upazila'] . ',' . $booking['user_area'] . ',' . $booking['user_street_address'] . ',' . $booking['user_unit_apt'];
+                            $service_item = $booking['item_name'];
+                            $task_details = $booking['task_details'];
+                            $appointment_time = $booking['booking_time'];
+                            $status = $booking['booking_status'];
+                            $status_label = ($status == 0) ? 'Pending' : (($status == 1) ? 'Confirmed' : (($status == 2) ? 'Completed' : 'Cancelled'));
+
+                            echo "<div>";
+                            //divided the block based on appointment time
+                            if ($appointment_time == '08:00 AM') {
+                                echo '<div class="text-2xl text-center font-bold bg-gradient-to-br from-blue-50 via-white to-blue-100 border-2 border-slate-300  shadow-lg rounded-lg p-6 flex flex-col justify-between transform hover:scale-105 transition duration-300">
+                                        Slot-1
+                                      </div>';
+                            } else if ($appointment_time == '12:00 AM') {
+                                echo '<div class="text-2xl text-center font-bold bg-gradient-to-br from-blue-50 via-white to-blue-100 border-2 border-slate-300  shadow-lg rounded-lg p-6 flex flex-col justify-between transform hover:scale-105 transition duration-300">
+                                        Slot-2
+                                      </div>';
+                            } else {
+                                echo '<div class="text-2xl text-center font-bold bg-gradient-to-br from-blue-50 via-white to-blue-100 border-2 border-slate-300  shadow-lg rounded-lg p-6 flex flex-col justify-between transform hover:scale-105 transition duration-300">
+                                        Slot-3
+                                      </div>';
+                            }
+                            echo '<div class=" border-2 border-slate-300 mt-4 bg-gradient-to-br from-blue-50 via-white to-blue-100 h-[430px] w-[390px] shadow-2xl rounded-2xl p-6 flex flex-col justify-between transform hover:scale-105 transition duration-300 hover:shadow-blue-300">
+                            <div class="grid gap-4">
+                                <!-- Title Section -->
+                                <div class="flex items-center gap-2">
+                                    <div class="h-10 w-10 bg-blue-500 text-white rounded-full flex items-center justify-center">
+                                        <span class="text-xl font-bold">B</span>
+                                    </div>
+                                    <h2 class="text-3xl font-bold text-gray-700">Booking Details</h2>
+                                </div>
+
+                                <!-- Booking Info -->
+                                <div class="space-y-2">
+                                    <p class="text-lg text-gray-700 flex items-center">
+                                        <span class="font-bold w-32">Booking Date:</span>
+                                        <span class="booking-date text-gray-600">' . date('Y-m-d', strtotime($booking['booking_date'])) . '</span>
+                                    </p>
+                                    <p class="text-lg text-gray-700 flex items-center">
+                                        <span class="font-bold w-32">Customer:</span>
+                                        <span class="text-gray-600">' . $customer_name . '</span>
+                                    </p>
+                                    <p class="text-lg text-gray-700 flex items-center">
+                                        <span class="font-bold w-32">Address:</span>
+                                        <span class="text-gray-600">' . $customer_address . '</span>
+                                    </p>
+                                    <p class="text-lg text-gray-700 flex items-center">
+                                        <span class="font-bold w-32">Service Item:</span>
+                                        <span class="text-gray-600">' . $service_item . '</span>
+                                    </p>
+                                    <p class="text-lg text-gray-700 flex items-center">
+                                        <span class="font-bold w-32">Task details:</span>
+                                        <span class="text-gray-600">' . $task_details . '</span>
+                                    </p>
+                                    <p class="text-lg text-gray-700 flex items-center">
+                                        <span class="font-bold w-32">Time:</span>
+                                        <span class="text-gray-600">' . $appointment_time . '</span>
+                                    </p>
+                                    <p class="text-lg text-gray-700 flex items-center">
+                                        <span class="font-bold w-32">Status:</span>
+                                        <span class="text-yellow-500 font-semibold">' . $status_label . '</span>
+                                    </p>
+                                </div>
+                            </div>';
+
+                            // <!-- Buttons Section -->
+                            if ($status_label == "Completed") {
+                                echo '<button class="bg-green-500 hover:bg-green-600 text-white py-2 px-6 rounded-xl shadow-lg transition transform hover:scale-105">
+                                            Completed
+                                        </button>';
+                            } else if ($status_label == "Cancelled") {
+                                echo '<button class="bg-green-500 hover:bg-green-600 text-white py-2 px-6 rounded-xl shadow-lg transition transform hover:scale-105">
+                                            Cancelled
+                                        </button>';
+                            } else {
+                                echo '<div class="mt-6 flex justify-between">
+                                <button class="bg-green-500 hover:bg-green-600 text-white py-2 px-6 rounded-xl shadow-lg transition transform hover:scale-105">
+                                    Confirm
+                                </button>
+                                <button class="bg-red-500 hover:bg-red-600 text-white py-2 px-6 rounded-xl shadow-lg transition transform hover:scale-105">
+                                    Cancel
+                                </button>
+                            </div>';
+                            }
+                            echo '</div>';
+                            echo "</div>";
+                        }
+                    } else {
+                        echo '<p class="text-center text-gray-500">No bookings found!</p>';
+                    }
+                    ?>
+                </div>
+            </main>
+
+            <script>
+                // document.getElementById("searchButton").addEventListener("click", function() {
+                //     const selectedDate = document.getElementById("dateFilter").value;
+                //     alert(selectedDate);
+                //     const cards = document.querySelectorAll("#bookingCards > div");
+                //     cards.forEach(card => {
+                //         const cardDate = card.querySelector(".booking-date").textContent;
+                //         alert(cardDate);
+                //         card.style.display = cardDate === selectedDate ? "block" : "none";
+                //     });
+                // });
+                // DOM
+                document.addEventListener("DOMContentLoaded", function() {
+                    const today = new Date().toISOString().split('T')[0];
+                    document.getElementById("dateFilter").value = today;
+                    filterBookings(today);
+                });
+
+                document.getElementById("searchButton").addEventListener("click", function() {
+                    const selectedDate = document.getElementById("dateFilter").value;
+                    filterBookings(selectedDate);
+                });
+
+                function filterBookings(date) {
+                    const cards = document.querySelectorAll("#bookingCards > div");
+                    cards.forEach(card => {
+                        const cardDate = card.querySelector(".booking-date").textContent;
+                        card.style.display = cardDate === date ? "block" : "none";
+                    });
+                }
+            </script>
+    </div>
+
+    </main>
     </div>
 
 </body>

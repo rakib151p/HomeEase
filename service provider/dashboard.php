@@ -48,6 +48,7 @@ if ($totalColumns > 0) {
 ?>
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -139,7 +140,7 @@ if ($totalColumns > 0) {
                 <?php
                 function getCompletedOrders($con)
                 {
-                    $query = "SELECT COUNT(*) AS completed_orders FROM booking WHERE booking_status = 'complete'";
+                    $query = "SELECT COUNT(*) AS completed_orders FROM booking WHERE booking_status = '2'";
                     $result = $con->query($query);
                     if (!$result) {
                         die("Query failed: " . $con->error); // Error handling
@@ -159,46 +160,50 @@ if ($totalColumns > 0) {
                     </div>
                 </div>
                 <!-- Charts -->
-                <?php
-// Database connection
 
-$incomeQuery = "
+                <?php
+                // Fetch monthly income data
+                $incomeQuery = "
+SELECT 
+    DATE_FORMAT(sp.provider_registration_date, '%Y-%m-%d') AS month,
+    SUM(
+        sp.provider_price * COALESCE(order_count, 0)
+    ) AS total_income
+FROM service_provider sp
+LEFT JOIN (
     SELECT 
-        DATE_FORMAT(sp.provider_registration_date, '%Y-%m') AS month,
-        SUM(
-            sp.provider_price * COALESCE(order_count, 0)
-        ) AS total_income
-    FROM service_provider sp
-    LEFT JOIN (
-        SELECT 
-            provider_id,
-            COUNT(*) AS order_count
-        FROM booking
-        WHERE booking_status = 'complete'
-        GROUP BY provider_id
-    ) b ON sp.provider_id = b.provider_id
-    GROUP BY month
-    ORDER BY sp.provider_registration_date
+        provider_id,
+        COUNT(*) AS order_count
+    FROM booking
+    WHERE booking_status = '2'
+    GROUP BY provider_id
+) b ON sp.provider_id = b.provider_id
+GROUP BY month
+ORDER BY month
 ";
 
-// Execute the query
-$result = $con->query($incomeQuery);
+                // Execute the query
+                $result = $con->query($incomeQuery);
 
-if (!$result) {
-    die("Query failed: " . $con->error);
-}
+                if (!$result) {
+                    die("Query failed: " . $con->error);
+                }
 
-// Prepare income data for the chart
-$incomeData = [];
-while ($row = $result->fetch_assoc()) {
-    $incomeData[] = $row;
-}
+                // Prepare income data for the chart
+                $incomeData = [];
+                while ($row = $result->fetch_assoc()) {
+                    $incomeData[] = $row;
+                }
 
-// Encode the data to JSON format for use in JavaScript
-$incomeJSON = json_encode($incomeData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+                // Encode the data to JSON format for use in JavaScript
+                $incomeJSON = json_encode($incomeData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
 
 
-$customerQuery = "
+
+
+
+
+                $customerQuery = "
     SELECT 
         booking_date AS booking_day, 
         COUNT(*) AS customer_count 
@@ -206,170 +211,221 @@ $customerQuery = "
     WHERE 
         provider_end = 1 AND 
         user_end = 1 AND 
-        booking_status = 'complete'
+        booking_status = '2'
     GROUP BY booking_date 
     ORDER BY booking_date ASC 
     LIMIT 30
 ";
 
-$result = $con->query($customerQuery);
+                $result = $con->query($customerQuery);
 
-if (!$result) {
-    die("Query failed: " . $con->error);
-}
+                if (!$result) {
+                    die("Query failed: " . $con->error);
+                }
 
-// Prepare data for the customer chart
-$days = [];
-$counts = [];
-while ($row = $result->fetch_assoc()) {
-    $days[] = $row['booking_day'];
-    $counts[] = $row['customer_count'];
-}
+                // Prepare data for the customer chart
+                $days = [];
+                $counts = [];
+                while ($row = $result->fetch_assoc()) {
+                    $days[] = $row['booking_day'];
+                    $counts[] = $row['customer_count'];
+                }
 
-$con->close();
-?>
+                $con->close();
+                ?>
 
-<div class="col-span-12 md:col-span-6 bg-white shadow-md rounded-md p-6">
-    <h2 class="font-semibold text-lg">Monthly Income</h2>
-    <canvas id="incomeChart" width="400" height="200"></canvas>
-</div>
+                <div class="col-span-12 md:col-span-6 bg-white shadow-md rounded-md p-6">
+                    <h2 class="font-semibold text-lg">Monthly Income</h2>
+                    <canvas id="incomeChart" width="400" height="200"></canvas>
+                </div>
 
-<div class="col-span-12 md:col-span-6 bg-white shadow-md rounded-md p-6">
-    <h2 class="font-semibold text-lg">Daywise Customer Count</h2>
-    <canvas id="customerChart" class="mt-4"></canvas>
-</div>
+                <div class="col-span-12 md:col-span-6 bg-white shadow-md rounded-md p-6">
+                    <h2 class="font-semibold text-lg">Daywise Customer Count</h2>
+                    <canvas id="customerChart" class="mt-4"></canvas>
+                </div>
 
-<script>
-    // Income Chart
-const incomeData = <?php echo $incomeJSON; ?>;
+                <script>
+                    // Get the income data from PHP
+const incomeData = <?php echo $incomeJSON; ?> || [];
 
-// Map data to a full year (January to December) with default income as 0 for months not present in data
+// Define months (January to December)
 const months = [
     "January", "February", "March", "April", "May",
     "June", "July", "August", "September", "October",
     "November", "December"
 ];
-const incomeValues = Array(12).fill(0); // Initialize all months with 0 income
 
-// Populate incomeValues with actual data
+// Initialize income values for each month (set to 0 by default)
+const incomeValues = Array(12).fill(0);
+
+// Populate incomeValues with actual data from PHP
 incomeData.forEach(item => {
-    const monthIndex = parseInt(item.month.split('-')[1], 10) - 1; // Extract month index (1-based to 0-based)
-    incomeValues[monthIndex] = parseFloat(item.total_income); // Update income for the month
+    const monthIndex = parseInt(item.month.split('-')[1], 10) - 1; // Convert month to 0-based index
+    incomeValues[monthIndex] = parseFloat(item.total_income); // Store total income for the month
 });
 
-// Check if the chart element exists
-if (document.getElementById('incomeChart')) {
-    const incomeChartCtx = document.getElementById('incomeChart').getContext('2d');
-    new Chart(incomeChartCtx, {
-        type: 'bar',
-        data: {
-            labels: months, // X-axis labels (January to December)
-            datasets: [{
-                label: 'Monthly Income (BDT)',
-                data: incomeValues, // Y-axis values
-                backgroundColor: '#3b82f6',
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true, // Start Y-axis at 0
-                    ticks: {
-                        stepSize: 1000, // Fixed interval for Y-axis
-                        callback: function(value) {
-                            return `BDT${value.toLocaleString()}`; // Format Y-axis values in Taka
-                        }
-                    },
-                    title: {
-                        display: true,
-                        text: 'Income (in BDT)',
-                        font: {
-                            size: 14
-                        }
-                    },
-                    max: 100000 // Optional: Set max limit for Y-axis
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Months',
-                        font: {
-                            size: 14
-                        }
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'top',
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `${context.dataset.label}: BDT${context.raw.toLocaleString()}`;
-                        }
-                    }
-                }
-            }
-        }
-    });
-}
+// Ensure chart rendering happens after DOM is loaded
+document.addEventListener('DOMContentLoaded', function () {
+    if (document.getElementById('incomeChart')) {
+        const incomeChartCtx = document.getElementById('incomeChart').getContext('2d');
 
-     // Customer Chart
-     const days = <?php echo json_encode($days); ?>;
-    const counts = <?php echo json_encode($counts); ?>;
+        // Create a gradient for the bars
+        const gradient = incomeChartCtx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, '#3b82f6');
+        gradient.addColorStop(1, '#93c5fd');
 
-    if (document.getElementById('customerChart')) {
-        const customerChartCtx = document.getElementById('customerChart').getContext('2d');
-        new Chart(customerChartCtx, {
-            type: 'line',
+        new Chart(incomeChartCtx, {
+            type: 'bar',
             data: {
-                labels: days,
+                labels: months, // X-axis labels (January to December)
                 datasets: [{
-                    label: 'Customers',
-                    data: counts,
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
-                    borderWidth: 2,
-                    pointBackgroundColor: '#3b82f6',
-                    pointBorderColor: '#ffffff',
-                    pointBorderWidth: 1,
+                    label: 'Monthly Income (BDT)',
+                    data: incomeValues, // Y-axis values
+                    backgroundColor: gradient, // Gradient fill
+                    borderColor: '#1e3a8a',
+                    borderWidth: 1,
+                    hoverBackgroundColor: '#2563eb',
+                    hoverBorderColor: '#1e40af'
                 }]
             },
             options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1 // Force integer steps on the Y-axis
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Monthly Income Overview (BDT)',
+                        font: {
+                            size: 18,
+                            weight: 'bold'
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 20
                         }
                     },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Booking Date'
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 14
+                            },
+                            color: '#333'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#1e3a8a',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        footerColor: '#ffffff',
+                        borderWidth: 1,
+                        borderColor: '#93c5fd',
+                        callbacks: {
+                            label: function (context) {
+                                return `${context.dataset.label}: BDT ${context.raw.toLocaleString()}`;
+                            }
                         }
                     }
                 },
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return `${context.dataset.label}: ${context.raw}`;
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#e5e7eb',
+                            borderDash: [5, 5]
+                        },
+                        ticks: {
+                            color: '#374151',
+                            stepSize: 1000, // Fixed interval for Y-axis
+                            callback: function (value) {
+                                return `BDT ${value.toLocaleString()}`; // Format Y-axis values
                             }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Income (in BDT)',
+                            font: {
+                                size: 14
+                            },
+                            color: '#111827'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: '#f3f4f6'
+                        },
+                        ticks: {
+                            color: '#374151'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Months',
+                            font: {
+                                size: 14
+                            },
+                            color: '#111827'
                         }
                     }
                 }
             }
         });
     }
-</script>
+});
+
+
+                    // Customer Chart
+                    const days = <?php echo json_encode($days); ?>;
+                    const counts = <?php echo json_encode($counts); ?>;
+
+                    if (document.getElementById('customerChart')) {
+                        const customerChartCtx = document.getElementById('customerChart').getContext('2d');
+                        new Chart(customerChartCtx, {
+                            type: 'line',
+                            data: {
+                                labels: days,
+                                datasets: [{
+                                    label: 'Customers',
+                                    data: counts,
+                                    borderColor: '#3b82f6',
+                                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                                    borderWidth: 2,
+                                    pointBackgroundColor: '#3b82f6',
+                                    pointBorderColor: '#ffffff',
+                                    pointBorderWidth: 1,
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: {
+                                            stepSize: 1 // Force integer steps on the Y-axis
+                                        }
+                                    },
+                                    x: {
+                                        title: {
+                                            display: true,
+                                            text: 'Booking Date'
+                                        }
+                                    }
+                                },
+                                plugins: {
+                                    legend: {
+                                        display: true,
+                                        position: 'top'
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(context) {
+                                                return `${context.dataset.label}: ${context.raw}`;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                </script>
 
 
 </body>

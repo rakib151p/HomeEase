@@ -13,7 +13,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $selectedItemName = $_POST['selected_item_name'] ?? '';
     $userStreetAddress = $_POST['street_address'] ?? '';
     $userUnitApt = $_POST['selected_user_unit_apt'] ?? '';
-    $taskSize = $_POST['task_size'] ?? '';
+    $task_size = $_POST['task_size'] ?? ''; // Get the task size from the form or set to an empty string if not set
+
+    // Assign numeric values based on task size
+    if ($task_size === 'Small') {
+        $task_size_value = 1;
+    } elseif ($task_size === 'Medium') {
+        $task_size_value = 2;
+    } elseif ($task_size === 'Large') {
+        $task_size_value = 3;
+    } else {
+        $task_size_value = ''; // or set a default value if needed
+    }
+    $taskSize = $task_size_value;
     $taskSummary = $_POST['task_summary'] ?? '';
     $userId = $_SESSION['user_id'];
 
@@ -117,10 +129,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <p class="text-gray-600 text-center mt-2"><?= $errorMsg ?? "An unknown error occurred."; ?></p>
         <?php endif; ?>
         <div class="mt-6 text-center">
-        <a href="../home.php" class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition">
-            Go to Home
-        </a>
-    </div>
+            <a href="../home.php" class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition">
+                Go to Home
+            </a>
+        </div>
     </div>
 </body>
 
