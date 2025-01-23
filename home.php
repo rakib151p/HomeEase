@@ -25,6 +25,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   exit;
   // echo $_POST['rating'] . " " . $_POST['comment'];
 }
+// Fetch all item_name values
+$sql = "SELECT item_name FROM item";
+$result = $con->query($sql);
+
+$itemNames = [];
+if ($result->num_rows > 0) {
+  // Loop through the results and store item_name in an array
+  while ($row = $result->fetch_assoc()) {
+    $itemNames[] = $row['item_name'];
+  }
+} else {
+  echo "No items found.";
+}
+echo "<script>const words = " . json_encode($itemNames) . ";alert(words);</script>";
+
+
 ?>
 
 <!DOCTYPE html>
@@ -100,10 +116,108 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <!-- Input Container -->
       <div class="relative rounded-full bg-white shadow-xl w-[90%] sm:w-[500px] mx-auto mt-10 overflow-hidden">
         <input
+          id="search"
           class="input bg-transparent outline-none border-none pl-6 pr-10 py-5 w-full text-base sm:text-lg font-semibold"
           placeholder="Hover on Submit"
           name="text"
           type="text" />
+        <ul id="suggestions" class="suggestions"></ul>
+
+        <script>
+          // Sample Data
+          // const words = [
+          //   "apple", "app", "application", "banana", "band",
+          //   "bat", "batman", "battle", "cat", "cater",
+          //   "caterpillar", "dog", "dolphin", "donkey", "dragon"
+          // ];
+
+          words.sort();
+          alert(words);
+
+          // Trie Implementation
+          class TrieNode {
+            constructor() {
+              this.children = {};
+              this.isEndOfWord = false;
+            }
+          }
+          class Trie {
+            constructor() {
+              this.root = new TrieNode();
+            }
+            // Insert a word into the Trie
+            insert(word) {
+              let current = this.root;
+              for (const char of word) {
+                if (!current.children[char]) {
+                  current.children[char] = new TrieNode();
+                }
+                current = current.children[char];
+              }
+              current.isEndOfWord = true;
+            }
+
+            // Get suggestions based on prefix
+            startsWith(prefix) {
+              let current = this.root;
+              for (const char of prefix) {
+                if (!current.children[char]) {
+                  return [];
+                }
+                current = current.children[char];
+              }
+
+              const results = [];
+              this.collectWords(current, prefix, results);
+              return results;
+            }
+
+            // Helper function to collect words
+            collectWords(node, prefix, results) {
+              if (node.isEndOfWord) {
+                results.push(prefix);
+              }
+              for (const char in node.children) {
+                this.collectWords(node.children[char], prefix + char, results);
+              }
+            }
+          }
+
+          // Initialize the Trie and insert words
+          const trie = new Trie();
+          words.forEach(word => trie.insert(word));
+
+          // DOM Elements
+          const searchBox = document.getElementById('search');
+          const suggestionsBox = document.getElementById('suggestions');
+
+          // Handle input event for search
+          searchBox.addEventListener('input', () => {
+            const query = searchBox.value;
+
+            // Clear previous suggestions
+            suggestionsBox.innerHTML = '';
+
+            if (query.length > 0) {
+              const suggestions = trie.startsWith(query);
+
+              // Display suggestions
+              suggestions.forEach(suggestion => {
+                const li = document.createElement('li');
+                li.textContent = suggestion;
+
+                // Add click functionality to select a suggestion
+                li.addEventListener('click', () => {
+                  searchBox.value = suggestion;
+                  suggestionsBox.innerHTML = ''; // Clear suggestions after selection
+                });
+
+                suggestionsBox.appendChild(li);
+              });
+            }
+          });
+        </script>
+
         <div class="absolute right-2 top-2">
           <button class="w-12 h-12 md:w-14 md:h-14 rounded-full bg-violet-500 group shadow-xl flex items-center justify-center relative overflow-hidden">
             <svg class="relative z-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 64 64" height="40" width="40">
@@ -213,10 +327,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <!-- <img id="service-image" src="https://loremflickr.com/200/200?random=1"
           alt="https://loremflickr.com/200/200?random=1"
           class="z-0 rounded-[70px] shadow-md w-full max-w-[900px]"> -->
-          <img id="service-image" src="https://loremflickr.com/200/200?random=1"
-     alt="Service images by rakib"
-     class="z-0 rounded-[70px] shadow-md w-full max-w-[900px]"
-     loading="lazy">
+        <img id="service-image" src="https://loremflickr.com/200/200?random=1"
+          alt="Service images by rakib"
+          class="z-0 rounded-[70px] shadow-md w-full max-w-[900px]"
+          loading="lazy">
       </div>
       <?php
       include 'config.php';
