@@ -1,7 +1,18 @@
-<?php
+<?php 
 session_start();
 include '../config.php';
+
+// Get reviews for the logged-in service provider
+$provider_id = $_SESSION['provider_id'];
+$query = "SELECT r.review_id, r.review_text, r.review_rating, r.review_time, u.user_name, u.user_address 
+          FROM service_provider_review r
+          JOIN user u ON r.customer_id = u.user_id
+          WHERE r.service_provider_id = '$provider_id' 
+          ORDER BY r.review_time DESC"; 
+
+$result = mysqli_query($con, $query);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -15,9 +26,7 @@ include '../config.php';
 </head>
 
 <body class="bg-blue-50 font-sans">
-    <?php
-    include 'header.php';
-    ?>
+    <?php include 'header.php'; ?>
     <div class="flex min-h-screen">
         <!-- Sidebar -->
         <aside class="w-64 bg-white shadow-md flex flex-col p-4">
@@ -62,45 +71,39 @@ include '../config.php';
                         <thead class="bg-blue-500 text-white">
                             <tr>
                                 <th class="px-4 py-2 text-left">Serial</th>
-                                <th class="px-4 py-2 text-left">customer</th>
+                                <th class="px-4 py-2 text-left">Customer</th>
                                 <th class="px-4 py-2 text-left">Customer Address</th>
                                 <th class="px-4 py-2 text-left">Review</th>
                                 <th class="px-4 py-2 text-left">Rating</th>
                                 <th class="px-4 py-2 text-left">Date & Time</th>
-                                <th class="px-4 py-2 text-center" colspan="2">Action</th>
                             </tr>
                         </thead>
                         <tbody class="text-gray-700">
-                            <!-- Example Static Data Row -->
-                            <tr class="border-t">
-                                <td class="px-4 py-2">1</td>
-                                <td class="px-4 py-2">Sample Shop</td>
-                                <td class="px-4 py-2">New York, NY, Broadway</td>
-                                <td class="px-4 py-2">Great service!</td>
-                                <td class="px-4 py-2">5</td>
-                                <td class="px-4 py-2">2025-01-16 10:00 AM</td>
-                                <td class="px-2 py-1">
-                                    <button type="submit" name="change" class="text-blue-500">Change</button>
-                                </td>
-                                <td class="px-2 py-1">
-                                    <form action="myreviews.php" method="POST">
-                                        <input type="hidden" name="review_id" value="123">
-                                        <button type="submit" name="cancel" class="text-red-500">Delete</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            <!-- Repeat similar rows for more reviews -->
+                            <?php 
+                            if (mysqli_num_rows($result) > 0) {
+                                $serial = 1;
+                                while ($row = mysqli_fetch_assoc($result)) {
+                                    echo '<tr class="border-t">
+                                            <td class="px-4 py-2">'.$serial.'</td>
+                                            <td class="px-4 py-2">'.$row['user_name'].'</td>
+                                            <td class="px-4 py-2">'.$row['user_address'].'</td>
+                                            <td class="px-4 py-2">'.$row['review_text'].'</td>
+                                            <td class="px-4 py-2">'.$row['review_rating'].'</td>
+                                            <td class="px-4 py-2">'.$row['review_time'].'</td>
+                                          </tr>';
+                                    $serial++;
+                                }
+                            } else {
+                                echo '<tr><td colspan="6" class="px-4 py-2 text-center">No reviews available</td></tr>';
+                            }
+                            ?>
                         </tbody>
                     </table>
                 </div>
             </div>
-
-
-
-
         </main>
     </div>
+    <?php include 'footer.php'; ?>
 
 </body>
-
 </html>

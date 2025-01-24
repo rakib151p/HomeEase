@@ -306,6 +306,10 @@ if (isset($_POST['cancel'])) {
                                 echo '<button class="bg-green-500 hover:bg-green-600 text-white py-2 px-6 rounded-xl shadow-lg transition transform hover:scale-105">
                                             Cancelled
                                         </button>';
+                            }  else if ($status_label == "Confirmed") {
+                                echo '<button class="bg-green-500 hover:bg-green-600 text-white py-2 px-6 rounded-xl shadow-lg transition transform hover:scale-105">
+                                            Confirmed
+                                        </button>';
                             } else {
                                 echo '<div class="mt-6 flex justify-between">
                                <form onsubmit="return confirm_completed(this)" action="" method="POST">
