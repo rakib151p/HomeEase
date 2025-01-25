@@ -8,13 +8,13 @@ $tasker_id = $_GET['tasker_id'] ?? null; // Get the tasker_id from the query str
 
 $arr = [];
 $bookingDate = $date ?? '2025-01-01'; // Use the provided date or default to '2025-01-01'
-$times = ['08:00 AM', '12:00 AM', '04:00 PM']; // Time slots to check
+$times = ['08:00 AM', '12:00 PM', '04:00 PM']; // Time slots to check
 // $date = "2025-01-01";
 // Prepare SQL query to fetch booked times
 $sql = "SELECT time_slot 
         FROM (SELECT '08:00 AM' AS time_slot
             UNION ALL
-            SELECT '12:00 AM'
+            SELECT '12:00 PM'
             UNION ALL
             SELECT '04:00 PM') AS all_times
         WHERE time_slot NOT IN (

@@ -63,12 +63,13 @@ if (isset($_POST['cancel'])) {
                     WHERE booking_id='$booking_id' AND booking_status=0 
                     AND STR_TO_DATE(CONCAT(booking_date, ' ', booking_time), '%Y-%m-%d %h:%i %p') > NOW()
                     ";
+    
     $result_booking = mysqli_query($con, $sql_booking);
     // echo 'check';
     if ($row_booking = $result_booking->fetch_assoc()) {
         $date_string = $row_booking['booking_date']; // e.g., '2025-01-01'
         $time_string = $row_booking['booking_time']; // e.g., '12:00 PM'
-
+        $user_id=$row_booking['user_id'];
         // Parse the date
         $date = DateTime::createFromFormat('Y-m-d', $date_string);
         if ($date) {
@@ -109,6 +110,16 @@ if (isset($_POST['cancel'])) {
             // Allow cancellation if more than 24 hours ahead
             $sql_delete = "UPDATE booking set `booking_status`=-1 WHERE booking_id='$booking_id'";
             if (mysqli_query($con, $sql_delete)) {
+                $message = "Your booking has been cancelled by the" . $_SESSION['provider_name'] . ". Please contact support for more details.";
+                $sql_notify = "INSERT INTO `notifications_by_admin` 
+                                (`provider_id`, `message`, `subject`, `user_id`)
+                                VALUES
+                                ('0', '$message', 'Booking Cancellation Notice', '$user_id');
+                                ";
+                if (mysqli_query($con, $sql_notify)) {
+                    // echo 'check';
+                }
+
                 // echo "Booking successfully cancelled.";
                 echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>"' . "<script>
                         Swal.fire({
@@ -165,12 +176,12 @@ if (isset($_POST['cancel'])) {
     <div class="flex min-h-screen">
         <!-- Sidebar -->
         <aside class="w-64 bg-white shadow-md flex flex-col p-4">
-        <div class="flex flex-col items-center">
+            <div class="flex flex-col items-center">
                 <div class="bg-blue-200 rounded-full w-24 h-24 flex items-center justify-center overflow-hidden">
                     <img src="../photo/profile_pictures/<?php echo $_SESSION['provider_profile_picture']; ?>" alt="Profile Picture" class="w-full h-full object-cover">
                 </div>
-                <h2 class="mt-4 font-semibold text-lg"><?php echo $_SESSION['provider_name'];?></h2>
-                <p class="text-sm text-gray-500">Provider ID: <?php echo $_SESSION['provider_id'];?></p>
+                <h2 class="mt-4 font-semibold text-lg"><?php echo $_SESSION['provider_name']; ?></h2>
+                <p class="text-sm text-gray-500">Provider ID: <?php echo $_SESSION['provider_id']; ?></p>
             </div>
 
             <nav class="mt-8 space-y-4">
@@ -215,7 +226,7 @@ if (isset($_POST['cancel'])) {
                     <?php
                     // echo 'check';
                     $provider_id = $_SESSION['provider_id']; // Replace with dynamic provider_id if required
-                    $query = "SELECT b.booking_id,b.booking_date, b.booking_time, b.task_details,b.task_length, b.booking_status, 
+                    $query = "SELECT b.booking_id,b.booking_date, b.booking_time, b.task_details,b.task_length, b.booking_status,b.provider_end, 
                                         u.user_name,u.user_district,u.user_upazila, u.user_area,u.user_street_address, u.user_unit_apt,
                                          s.item_name 
                                 FROM booking b
@@ -237,8 +248,12 @@ if (isset($_POST['cancel'])) {
                             $task_details = $booking['task_details'];
                             $appointment_time = $booking['booking_time'];
                             $status = $booking['booking_status'];
-                            $status_label = ($status == 0) ? 'Pending' : (($status == 1) ? 'Confirmed' : (($status == 2) ? 'Completed' : 'Cancelled'));
-
+                            $provider_end = $booking['provider_end'];
+                            $status_label = ($status == 0) ? 'Pending'
+                                : (($status == 1 && $provider_end == 1) ? 'Confirmed'
+                                    : (($status == 1 && $provider_end == 0) ? 'Submitted'
+                                        : (($status == 2) ? 'Completed'
+                                            : 'Cancelled')));
                             echo "<div>";
                             //divided the block based on appointment time
                             if ($appointment_time == '08:00 AM') {
@@ -306,7 +321,7 @@ if (isset($_POST['cancel'])) {
                                 echo '<button class="bg-green-500 hover:bg-green-600 text-white py-2 px-6 rounded-xl shadow-lg transition transform hover:scale-105">
                                             Cancelled
                                         </button>';
-                            }  else if ($status_label == "Confirmed") {
+                            } else if ($status_label == "Confirmed") {
                                 echo '<button class="bg-green-500 hover:bg-green-600 text-white py-2 px-6 rounded-xl shadow-lg transition transform hover:scale-105">
                                             Confirmed
                                         </button>';

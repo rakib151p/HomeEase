@@ -1,4 +1,4 @@
-<nav class="  h-20 w-full py-6 flex justify-between items-center top-0 left-0 z-20 px-6 md:px-16 lg:px-24 border-b-2 border-slate-300">
+<nav class="fixed h-20 bg-blue-100  w-full py-6 flex justify-between items-center top-0 left-0 z-[999] px-6 md:px-16 lg:px-24 border-b-2 border-slate-300">
   <div class="text-2xl md:text-4xl font-bold flex items-center text-black">
     <a href="home.php" class="flex items-center gap-1">
       <span>HOME</span>
@@ -22,7 +22,7 @@
 
     <div class="flex">
       <img src="photo\Home\phone.png" class="h-6 mt-2">
-      <a href="#" class="text-base md:text-lg font-semibold px-2 py-2 hover:border-b-2 hover:border-blue-600 transition ease-in-out duration-500">
+      <a href="about_us.php" class="text-base md:text-lg font-semibold px-2 py-2 hover:border-b-2 hover:border-blue-600 transition ease-in-out duration-500">
         About Us
       </a>
     </div>
@@ -59,3 +59,4 @@
   ?>
 
 </nav>
+<br><br><br><br>

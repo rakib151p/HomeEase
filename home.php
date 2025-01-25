@@ -557,7 +557,7 @@ if (isset($_GET['check'])) {
             FROM booking
             GROUP BY item_id
             ORDER BY order_count DESC
-            LIMIT 3
+            LIMIT 4
         ) AS top_items ON i.item_id = top_items.item_id";
 
             $result = $con->query($sql);
@@ -571,7 +571,7 @@ if (isset($_GET['check'])) {
             ?>
 
             <span class="font-bold text-3xl mt-12 pr-[200px]">Popular Services</span>
-            <div class="grid grid-cols-3 gap-6 mt-12">
+            <div class="grid grid-cols-4 gap-6 mt-12 mr-[200]">
               <?php foreach ($items as $item): ?>
                 <div class="w-60 h-80 bg-white-800 rounded-3xl p-4 flex flex-col items-start justify-center gap-3 border border-blue-500 shadow-xl">
                   <div class="w-52 h-40 bg-sky-300 rounded-2xl">

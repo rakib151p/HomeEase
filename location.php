@@ -24,6 +24,7 @@ include 'config.php';
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const divisions = {
+        Dhak: ["Dhaka", "Gazipur", "Narayanganj"],
         Dhaka: ["Dhaka", "Gazipur", "Narayanganj"],
         Chittagong: ["Chittagong", "Cox's Bazar", "Rangamati"],
         Rajshahi: ["Rajshahi", "Pabna", "Natore"],
@@ -93,7 +94,7 @@ include 'config.php';
         <!-- Division Dropdown -->
         <select id="division" class="border-gray-300 h-[50px] w-[130px] rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
           <option class="ml-[10px] border-2 border-slate-900 value="">Select Division</option>
-          <option value=" Dhaka">Dhaka</option>
+          <option value="Dhaka">Dhaka</option>
           <option value="Chittagong">Chittagong</option>
           <option value="Rajshahi">Rajshahi</option>
         </select>
