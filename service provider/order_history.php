@@ -1,6 +1,14 @@
 <?php 
 session_start();
 include '../config.php';
+
+// Fetch completed orders where booking_status = 2
+$sql = "SELECT b.booking_id, u.user_name, u.user_address, b.booking_date, b.booking_time, b.task_details 
+        FROM booking b
+        JOIN user u ON b.user_id = u.user_id
+        WHERE b.booking_status = 2";
+
+$result = mysqli_query($con, $sql);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -17,11 +25,11 @@ include '../config.php';
 <body class="bg-blue-50 font-sans">
 <?php 
   include 'header.php';
-  ?>
+?>
     <div class="flex min-h-screen">
         <!-- Sidebar -->
         <aside class="w-64 bg-white shadow-md flex flex-col p-4">
-        <div class="flex flex-col items-center">
+            <div class="flex flex-col items-center">
                 <div class="bg-blue-200 rounded-full w-24 h-24 flex items-center justify-center overflow-hidden">
                     <img src="../photo/profile_pictures/<?php echo $_SESSION['provider_profile_picture']; ?>" alt="Profile Picture" class="w-full h-full object-cover">
                 </div>
@@ -65,39 +73,34 @@ include '../config.php';
                                 <th class="px-4 py-2 text-left">Serial</th>
                                 <th class="px-4 py-2 text-left">Customer</th>
                                 <th class="px-4 py-2 text-left">Customer Address</th>
-
-                                <th class="px-4 py-2 text-left">Rating</th>
                                 <th class="px-4 py-2 text-left">Date & Time</th>
-                                <th class="px-4 py-2 text-center" colspan="2">Action</th>
+                                <th class="px-4 py-2 text-left">Task Details</th>
+                                <th class="px-4 py-2 text-left">Booking Status</th>
                             </tr>
                         </thead>
                         <tbody class="text-gray-700">
-                            <!-- Example Static Data Row -->
-                            <tr class="border-t">
-                                <td class="px-4 py-2">1</td>
-                                <td class="px-4 py-2">Sample Shop</td>
-                                <td class="px-4 py-2">New York, NY, Broadway</td>
-                                <td class="px-4 py-2">5</td>
-                                <td class="px-4 py-2">2025-01-16 10:00 AM</td>
-                                <td class="px-2 py-1">
-                                    <button type="submit" name="change" class="text-blue-500">Change</button>
-                                </td>
-                                <td class="px-2 py-1">
-                                    <form action="myreviews.php" method="POST">
-                                        <input type="hidden" name="review_id" value="123">
-                                        <button type="submit" name="cancel" class="text-red-500">Delete</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            <!-- Repeat similar rows for more reviews -->
+                        <?php 
+                        if (mysqli_num_rows($result) > 0) {
+                            $serial = 1;
+                            while ($row = mysqli_fetch_assoc($result)) {
+                                echo "<tr>";
+                                echo "<td class='px-4 py-2'>{$serial}</td>";
+                                echo "<td class='px-4 py-2'>{$row['user_name']}</td>";
+                                echo "<td class='px-4 py-2'>{$row['user_address']}</td>";
+                                echo "<td class='px-4 py-2'>{$row['booking_date']} {$row['booking_time']}</td>";
+                                echo "<td class='px-4 py-2'>{$row['task_details']}</td>";
+                                echo "<td class='px-4 py-2'>Completed</td>";
+                                echo "</tr>";
+                                $serial++;
+                            }
+                        } else {
+                            echo "<tr><td colspan='6' class='px-4 py-2 text-center'>No completed orders found.</td></tr>";
+                        }
+                        ?>
                         </tbody>
                     </table>
                 </div>
             </div>
-
-
-
-
         </main>
     </div>
 
