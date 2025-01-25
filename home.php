@@ -368,7 +368,7 @@ if (isset($_GET['check'])) {
           class="z-0 rounded-[70px] shadow-md w-full max-w-[900px]"> -->
           <img id="service-image" src=""
             alt="Service images by rakib"
-            class="z-0 rounded-[70px] shadow-md w-full max-w-[900px]"
+            class="z-0 rounded-[50px] shadow-md w-full max-w-[1200px] max-h-[700px]"
             loading="lazy">
         </div>
         <?php
