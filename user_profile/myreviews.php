@@ -335,7 +335,7 @@ $result = $stmt->get_result();
         </div>
     </section>
     <?php
-    include "footer.php";
+    include '../footer.php';
     ?>
     <script>
         function confirmDelete(event) {

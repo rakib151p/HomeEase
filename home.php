@@ -575,17 +575,20 @@ if (isset($_GET['check'])) {
               <?php foreach ($items as $item): ?>
                 <div class="w-60 h-80 bg-white-800 rounded-3xl p-4 flex flex-col items-start justify-center gap-3 border border-blue-500 shadow-xl">
                   <div class="w-52 h-40 bg-sky-300 rounded-2xl">
-                    <img src="uploads/<?php echo $item['item_picture']; ?>" class="rounded-2xl h-40 w-52">
+                    <img src="photo/item/<?php echo $item['item_name']; ?>.jpeg" class="rounded-2xl h-40 w-52">
                   </div>
                   <div>
                     <p class="font-extrabold text-black"><?php echo htmlspecialchars($item['item_name']); ?></p>
                     <p class="text-black"><?php echo htmlspecialchars($item['item_details']); ?></p>
                   </div>
-                  <button
-                    class="bg-sky-700 font-extrabold p-2 px-6 rounded-xl hover:bg-sky-500 transition-colors"
-                    onclick="goToDetailsPage('<?php echo htmlspecialchars($item['item_name']); ?>')">
-                    See more
-                  </button>
+                  <div class="flex items-center justify-between w-full">
+                    <button
+                      class="bg-sky-700 font-extrabold p-2 px-6 rounded-xl hover:bg-sky-500 transition-colors"
+                      onclick="goToDetailsPage('<?php echo htmlspecialchars($item['item_name']); ?>')">
+                      See more
+                    </button>
+                  </div>
+
                 </div>
               <?php endforeach; ?>
             </div>
@@ -712,18 +715,6 @@ if (isset($_GET['check'])) {
                 </button>
               </div>
             </div>
-
-
-            <!-- Navigation Buttons -->
-            <button id="left-button" class="absolute rounded-lg bg-blue-400 right-[1240px] bottom-[60px] h-[50px] w-[50px]">
-              &larr;
-            </button>
-            <button id="right-button" class="absolute rounded-lg bg-blue-400 left-[1250px] bottom-[60px] h-[50px] w-[50px]">
-              &rarr;
-            </button>
-            </div>
-            </div>
-
             <!-- Comment Modal -->
             <div id="comment-modal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-10">
               <div class="bg-white rounded-lg shadow-lg w-[400px] p-6">

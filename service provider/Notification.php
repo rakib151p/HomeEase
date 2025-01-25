@@ -1,8 +1,28 @@
-<?php 
+<?php
 session_start();
 include '../config.php';
 
+// Check if the provider is logged in
+if (!isset($_SESSION['provider_id'])) {
+    header('Location: ../login.php');
+    exit();
+}
+
+$provider_id = $_SESSION['provider_id'];
+
+// Fetch notifications for the provider
+$sql = "SELECT * FROM notifications_by_admin WHERE provider_id = ? ORDER BY date_time DESC";
+$stmt = $con->prepare($sql);
+$stmt->bind_param("i", $provider_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+$notifications = [];
+while ($row = $result->fetch_assoc()) {
+    $notifications[] = $row;
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -16,18 +36,18 @@ include '../config.php';
 </head>
 
 <body class="bg-blue-50 font-sans">
-<?php 
-  include 'header.php';
-  ?>
+    <?php
+    include 'header.php';
+    ?>
     <div class="flex min-h-screen">
         <!-- Sidebar -->
         <aside class="w-64 bg-white shadow-md flex flex-col p-4">
-        <div class="flex flex-col items-center">
+            <div class="flex flex-col items-center">
                 <div class="bg-blue-200 rounded-full w-24 h-24 flex items-center justify-center overflow-hidden">
                     <img src="../photo/profile_pictures/<?php echo $_SESSION['provider_profile_picture']; ?>" alt="Profile Picture" class="w-full h-full object-cover">
                 </div>
-                <h2 class="mt-4 font-semibold text-lg"><?php echo $_SESSION['provider_name'];?></h2>
-                <p class="text-sm text-gray-500">Provider ID: <?php echo $_SESSION['provider_id'];?></p>
+                <h2 class="mt-4 font-semibold text-lg"><?php echo $_SESSION['provider_name']; ?></h2>
+                <p class="text-sm text-gray-500">Provider ID: <?php echo $_SESSION['provider_id']; ?></p>
             </div>
 
             <nav class="mt-8 space-y-4">
@@ -57,28 +77,22 @@ include '../config.php';
 
         <!-- Main Content -->
         <main class="flex-1 p-6">
-            <!-- Main Content Area -->
-
             <div class="main-content p-4 flex-1">
-
-                <!-- Static Notification Example -->
-                <div class="bg-blue-100 border border-blue-400 text-green-700 my-5 px-4 py-3 rounded relative" role="alert">
-                    <h4 class="font-bold text-lg">New Update Available!</h4>
-                    <p class="mt-2">The latest version of the app is now available. Please update to enjoy new features.</p>
-                    <p class="mb-0">Admin, RadientHub BD</p>
-                    <span id="current-time" class="absolute bottom-0 right-0 mb-2 mr-2 text-sm text-gray-500">2025-01-16 10:00 AM</span>
-                </div>
-                <!-- Another Static Notification Example -->
-                <div class="bg-blue-100 border border-blue-400 text-green-700 my-5 px-4 py-3 rounded relative" role="alert">
-                    <h4 class="font-bold text-lg">Maintenance Notice</h4>
-                    <p class="mt-2">Scheduled maintenance will occur on January 20, 2025, from 2:00 AM to 4:00 AM.</p>
-                    <p class="mb-0">Admin, RadientHub BD</p>
-                    <span id="current-time" class="absolute bottom-0 right-0 mb-2 mr-2 text-sm text-gray-500">2025-01-14 08:00 PM</span>
-                </div>
+                <h2 class="text-xl font-bold mb-4">Notifications</h2>
+                <?php if (count($notifications) > 0): ?>
+                    <?php foreach ($notifications as $notification): ?>
+                        <div class="bg-blue-100 border border-blue-400 text-green-700 my-5 px-4 py-3 rounded relative" role="alert">
+                            <h4 class="font-bold text-lg"><?php echo htmlspecialchars($notification['subject']); ?></h4>
+                            <p class="mt-2"><?php echo htmlspecialchars($notification['message']); ?></p>
+                            <span class="text-sm text-gray-500"><?php echo htmlspecialchars($notification['date_time']); ?></span>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p class="text-gray-600">You have no notifications.</p>
+                <?php endif; ?>
             </div>
-
-
         </main>
+
     </div>
 
 </body>

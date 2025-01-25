@@ -5,7 +5,7 @@ $item_name = '';
 $item_id = '';
 $check = true;
 if (isset($_GET['name']) && $_GET['name'] != "") {
-  echo $_GET['name'];
+  // echo $_GET['name'];
   $item_name = $_GET['name'];
 
   // Use this item_id to fetch subservice details from the database
@@ -17,7 +17,7 @@ if (isset($_GET['name']) && $_GET['name'] != "") {
     $item_id = $item['item_id'];
   } else {
     header("Location: home.php?check='notavailable'");
-  exit();
+    exit();
   }
 } else {
   header("Location: home.php?check='notavailable'");
@@ -45,9 +45,17 @@ if (isset($_GET['name']) && $_GET['name'] != "") {
     }
 
     #Addpicture {
-      background-image: url("photo/sample.jpg");
-
-
+      background-image: url("photo/item/<?php echo $item_name; ?>.jpeg");
+      background-size: cover;
+      /* Or use contain, auto, or a specific size */
+      background-repeat: no-repeat;
+      /* Ensures the image doesn't repeat */
+      background-position: center;
+      /* Centers the image */
+      width: 1900px;
+      /* Set your desired width */
+      height: 880px;
+      /* Set your desired height */
     }
   </style>
 </head>
@@ -69,7 +77,12 @@ if (isset($_GET['name']) && $_GET['name'] != "") {
       <h1 class="text-5xl font-bold mb-4"><?php echo $item_name; ?></h1>
       <div class="flex items-center gap-2 mb-4">
         <div class="bg-green-600 text-white px-3 py-1 rounded-lg text-lg font-semibold flex items-center gap-1">
-          <span class="text-xl">&#9733;</span> 4.67 <span class="text-sm">out of 5</span>
+          <span class="text-xl">&#9733;</span> <?php
+// Generate a random floating-point number between 2 and 5, rounded to 2 decimal places
+$randomFloat = round(2 + mt_rand() / mt_getrandmax() * (5 - 2), 2);
+
+echo $randomFloat;
+?> <span class="text-sm">out of 5</span>
         </div>
         <span class="text-gray-300 text-sm">(11363 ratings on 9 services)</span>
       </div>

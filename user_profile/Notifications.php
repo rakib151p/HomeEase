@@ -7,6 +7,19 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: ../login.php');
     exit();
 }
+$user_id = $_SESSION['user_id'];
+
+// Fetch notifications for the provider
+$sql = "SELECT * FROM notifications_by_admin WHERE user_id = ? ORDER BY date_time DESC";
+$stmt = $con->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+$notifications = [];
+while ($row = $result->fetch_assoc()) {
+    $notifications[] = $row;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -199,35 +212,24 @@ if (!isset($_SESSION['user_id'])) {
             }
             ?>
         </div>
-
-
-            <h3 class="box_title">My Notification</h3>
-            <div class="box1">
-                <div class="bg-blue-100 border border-blue-400 text-blue-700 my-5 px-4 py-3 rounded relative w-4000"
-                    role="alert">
-                    <h4 class="font-bold text-lg">Welcome to HomeEase</h4>
-                    <p class="mt-2">Thank you for joining HomeEase! We’re excited to have you here.</p>
-                    <p class="mb-0">Admin, HomeEase</p>
-                    <span class="absolute bottom-0 right-0 mb-2 mr-2 text-sm text-gray-500">2025-01-21 10:00 AM</span>
-                </div>
-
-                <div class="bg-blue-100 border border-blue-400 text-blue-700 my-5 px-4 py-3 rounded relative w-4000"
-                    role="alert">
-                    <h4 class="font-bold text-lg">Special Offer: 20% Off on Services</h4>
-                    <p class="mt-2">Enjoy a 20% discount on all services booked this month.</p>
-                    <p class="mb-0">Admin, HomeEase</p>
-                    <span class="absolute bottom-0 right-0 mb-2 mr-2 text-sm text-gray-500">2025-01-22 02:00 PM</span>
-                </div>
-
-                <div class="bg-blue-100 border border-blue-400 text-blue-700 my-5 px-4 py-3 rounded relative w-4000"
-                    role="alert">
-                    <h4 class="font-bold text-lg">System Maintenance Notification</h4>
-                    <p class="mt-2">Our system will undergo maintenance on Saturday at 10:00 PM. Expect downtime for about 2 hours.</p>
-                    <p class="mb-0">Admin, HomeEase</p>
-                    <span class="absolute bottom-0 right-0 mb-2 mr-2 text-sm text-gray-500">2025-01-22 08:00 AM</span>
-                </div>
+        <main class="flex-1 p-6">
+            <div class="main-content p-4 flex-1">
+                <h2 class="text-xl font-bold mb-4">Notifications</h2>
+                <?php if (count($notifications) > 0): ?>
+                    <?php foreach ($notifications as $notification): ?>
+                        <div class="bg-blue-100 border border-blue-400 text-green-700 my-5 px-4 py-3 rounded relative" role="alert">
+                            <h4 class="font-bold text-lg"><?php echo htmlspecialchars($notification['subject']); ?></h4>
+                            <p class="mt-2"><?php echo htmlspecialchars($notification['message']); ?></p>
+                            <span class="text-sm text-gray-500"><?php echo htmlspecialchars($notification['date_time']); ?></span>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p class="text-gray-600">You have no notifications.</p>
+                <?php endif; ?>
             </div>
-        </section>
+        </main>
+
+    </section>
         <?php
         include "footer.php";
         ?>

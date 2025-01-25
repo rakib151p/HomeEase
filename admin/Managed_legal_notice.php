@@ -273,8 +273,6 @@ if (isset($_POST['delete'])) {
                     <h3 class="text-base font-bold">Admin</h3>
                 </div>
             </div>
-
-
             <!-- Search Form -->
             <form class="search-form mb-4" method="GET" action="">
                 <input type="text" name="email" placeholder="Search by Shop ID"
