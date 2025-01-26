@@ -189,7 +189,8 @@ $report_result = mysqli_query($con, $report_sql);
                 <div class="hover:bg-pink-500 p-3 transition-colors duration-300 rounded-lg"><a
                         href="Managed_legal_notice.php" style="color:white;font-size:20px;">Managed legal notice</a>
                 </div>
-
+                <div class="hover:bg-pink-500 p-3 transition-colors duration-300 rounded-lg"><a href="../login.php"
+                        style="color:white;font-size:20px;">Logout</a></div>
             </ul>
         </div>
 

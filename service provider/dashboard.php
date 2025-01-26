@@ -116,9 +116,8 @@ echo $_SESSION['provider_name'];
                 <div class="col-span-12 md:col-span-8 bg-white shadow-md rounded-md p-6">
                     <h2 class="font-semibold text-lg">Notice Board</h2>
                     <p class="text-gray-600 mt-2">Dear service provider, to get the job of your choice, keep your profile 100% complete. So fill your profile information correctly from our "Edit Profile" section.</p>
-                    <p class="text-sm text-gray-400 mt-4">06th December 2024</p>
+                    <p class="text-sm text-gray-400 mt-4">26th January 2025</p>
                 </div>
-
                 <!-- Member Since -->
                 <div class="col-span-12 md:col-span-4 bg-blue-100 shadow-md rounded-md p-6 flex flex-col items-center">
                     <h2 class="text-lg font-semibold">Member Since</h2>

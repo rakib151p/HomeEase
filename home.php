@@ -133,7 +133,7 @@ if (isset($_GET['check'])) {
           <input
             id="search"
             class="input bg-transparent outline-none border-none pl-6 pr-10 py-5 w-full text-base sm:text-lg font-semibold"
-            placeholder="Hover on Submit"
+            placeholder="Search for a service"
             name="text"
             type="text" />
 

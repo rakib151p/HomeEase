@@ -305,6 +305,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         style="color:white;font-size:20px;">Check Reports</a></div>
                 <div class="hover:bg-pink-500 p-3 transition-colors duration-300 rounded-lg"><a href="Managed_legal_notice.php"
                         style="color:white;font-size:20px;">Managed legal notice</a></div>
+
+                <div class="hover:bg-pink-500 p-3 transition-colors duration-300 rounded-lg"><a href="../login.php"
+                        style="color:white;font-size:20px;">Logout</a></div>
             </ul>
         </div>
         <div class="main-content p-4 flex-1">
@@ -562,6 +565,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
+                    // Get the modal and close button
+                    var modal = document.getElementById('shopModal');
+                    var closeBtn = document.getElementsByClassName('close')[0];
+
+                    // Add event listener to close button
+                    closeBtn.onclick = function() {
+                        modal.style.display = 'none';
+                    }
+
+                    // Close the modal if clicked outside of it
+                    window.onclick = function(event) {
+                            if (event.target == modal) {
+                                modal.style.display = 'none';
+                            }
+                        } <
+                        script >
+                        document.addEventListener('DOMContentLoaded', function() {
                             // Get the modal and close button
                             var modal = document.getElementById('shopModal');
                             var closeBtn = document.getElementsByClassName('close')[0];
@@ -573,61 +593,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                             // Close the modal if clicked outside of it
                             window.onclick = function(event) {
-                                    if (event.target == modal) {
-                                        modal.style.display = 'none';
-                                    }
-                                } <
-                                script >
-                                document.addEventListener('DOMContentLoaded', function() {
-                                    // Get the modal and close button
-                                    var modal = document.getElementById('shopModal');
-                                    var closeBtn = document.getElementsByClassName('close')[0];
-
-                                    // Add event listener to close button
-                                    closeBtn.onclick = function() {
-                                        modal.style.display = 'none';
-                                    }
-
-                                    // Close the modal if clicked outside of it
-                                    window.onclick = function(event) {
-                                        if (event.target == modal) {
-                                            modal.style.display = 'none';
-                                        }
-                                    }
-
-                                    // Listen for clicks on "View" buttons and show the modal
-                                    document.querySelectorAll('.view-btn').forEach(function(button) {
-                                        button.addEventListener('click', function() {
-                                            // Get provider data from the button's data attributes
-                                            var providerName = button.getAttribute('data-name');
-                                            var providerEmail = button.getAttribute('data-email');
-                                            var providerAbout = button.getAttribute('data-about');
-                                            var providerRating = button.getAttribute('data-rating');
-                                            var providerPhone = button.getAttribute('data-phone');
-                                            var providerExperience = button.getAttribute('data-experience');
-                                            var providerGender = button.getAttribute('data-gender');
-                                            var providerAvailability = button.getAttribute('data-availability');
-                                            var providerStatus = button.getAttribute('data-status');
-
-                                            // Populate the modal with provider data
-                                            document.getElementById('provider_name').textContent = providerName;
-                                            document.getElementById('provider_email').textContent = providerEmail;
-                                            document.getElementById('provider_about').textContent = providerAbout;
-                                            document.getElementById('provider_rating').textContent = providerRating;
-                                            document.getElementById('provider_phone').textContent = providerPhone;
-                                            document.getElementById('provider_experience').textContent = providerExperience;
-                                            document.getElementById('provider_gender').textContent = providerGender;
-                                            document.getElementById('provider_availability').textContent = providerAvailability;
-                                            document.getElementById('p_status').textContent = providerStatus == 1 ? 'Active' : 'Inactive';
-
-                                            // Show the modal
-                                            modal.style.display = 'block';
-                                        });
-                                    });
-                                });
+                                if (event.target == modal) {
+                                    modal.style.display = 'none';
+                                }
                             }
-                        )
-                
+
+                            // Listen for clicks on "View" buttons and show the modal
+                            document.querySelectorAll('.view-btn').forEach(function(button) {
+                                button.addEventListener('click', function() {
+                                    // Get provider data from the button's data attributes
+                                    var providerName = button.getAttribute('data-name');
+                                    var providerEmail = button.getAttribute('data-email');
+                                    var providerAbout = button.getAttribute('data-about');
+                                    var providerRating = button.getAttribute('data-rating');
+                                    var providerPhone = button.getAttribute('data-phone');
+                                    var providerExperience = button.getAttribute('data-experience');
+                                    var providerGender = button.getAttribute('data-gender');
+                                    var providerAvailability = button.getAttribute('data-availability');
+                                    var providerStatus = button.getAttribute('data-status');
+
+                                    // Populate the modal with provider data
+                                    document.getElementById('provider_name').textContent = providerName;
+                                    document.getElementById('provider_email').textContent = providerEmail;
+                                    document.getElementById('provider_about').textContent = providerAbout;
+                                    document.getElementById('provider_rating').textContent = providerRating;
+                                    document.getElementById('provider_phone').textContent = providerPhone;
+                                    document.getElementById('provider_experience').textContent = providerExperience;
+                                    document.getElementById('provider_gender').textContent = providerGender;
+                                    document.getElementById('provider_availability').textContent = providerAvailability;
+                                    document.getElementById('p_status').textContent = providerStatus == 1 ? 'Active' : 'Inactive';
+
+                                    // Show the modal
+                                    modal.style.display = 'block';
+                                });
+                            });
+                        });
+                })
             </script>
 
 
@@ -650,8 +651,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <?php endif; ?>
             </div>
         </div>
-        </div>
-      
+    </div>
+
 </body>
 
 </html>

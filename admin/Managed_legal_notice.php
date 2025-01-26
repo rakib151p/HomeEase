@@ -8,9 +8,9 @@ $limit = 50;  // Maximum records per page
 $offset = ($page - 1) * $limit;  // Calculate offset
 
 // Prepare SQL query to search both by email (using LIKE) or by customer_id (using exact match)
-if(strlen($searchEmail)>0){
+if (strlen($searchEmail) > 0) {
     $sql = "SELECT * FROM `notifications_by_admin` WHERE `provider_id`='$searchEmail' LIMIT $limit OFFSET $offset";
-}else{
+} else {
     $sql = "SELECT * FROM `notifications_by_admin` LIMIT $limit OFFSET $offset";
 }
 
@@ -262,6 +262,8 @@ if (isset($_POST['delete'])) {
                         style="color:white;font-size:20px;">Check Reports</a></div>
                 <div class="hover:bg-pink-500 p-3 transition-colors duration-300 rounded-lg"><a href="Managed_legal_notice.php"
                         style="color:white;font-size:20px;">Manage legal notice</a></div>
+                <div class="hover:bg-pink-500 p-3 transition-colors duration-300 rounded-lg"><a href="../login.php"
+                        style="color:white;font-size:20px;">Logout</a></div>
             </ul>
         </div>
         <div class="main-content p-4 flex-1">

@@ -240,7 +240,7 @@ $result = $stmt->get_result();
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <style>
+     <style>
         body {
             background-color: #F4F4F4;
             font-family: 'Inter', sans-serif;
@@ -387,7 +387,7 @@ $result = $stmt->get_result();
         #name {
             margin: 0 0 0 670px;
         }
-    </style>
+    </style> 
 </head>
 
 <body class="bg-gradient-to-bl from-blue-50 via-white via-blue-50 to-slate-300 h-screen">

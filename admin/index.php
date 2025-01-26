@@ -368,6 +368,8 @@ include "../config.php";
                         style="color:white;font-size:20px;">Check Reports</a></div>
                 <div class="hover:bg-pink-500 p-3 transition-colors duration-300 rounded-lg"><a href="Managed_legal_notice.php"
                         style="color:white;font-size:20px;">Managed legal notice</a></div>
+                <div class="hover:bg-pink-500 p-3 transition-colors duration-300 rounded-lg"><a href="../login.php"
+                        style="color:white;font-size:20px;">Logout</a></div>
             </ul>
         </div>
 
@@ -901,149 +903,156 @@ FROM booking";
                     echo "No reviews found.";
                 }
                 ?>
-                
+
                 <p style="font-size:20px;font-weight:700;">Review:</p>
-<div class="carousel-container">
-    <div class="carousel-inner">
-        <?php
-        // Check if there are reviews to display
-        if (!empty($reviews)) {
-            foreach ($reviews as $review) {
-                // Extract review details
-                $user_name = $review['user_name'];
-                $review_rating = $review['review_rating'];
-                $review_text = $review['review_text'];
+                <div class="carousel-container">
+                    <div class="carousel-inner">
+                        <?php
+                        // Check if there are reviews to display
+                        if (!empty($reviews)) {
+                            foreach ($reviews as $review) {
+                                // Extract review details
+                                $user_name = $review['user_name'];
+                                $review_rating = $review['review_rating'];
+                                $review_text = $review['review_text'];
 
-                // Generate rating stars
-                $rating_stars = str_repeat('★', $review_rating) . str_repeat('☆', 5 - $review_rating);
-        ?>
+                                // Generate rating stars
+                                $rating_stars = str_repeat('★', $review_rating) . str_repeat('☆', 5 - $review_rating);
+                        ?>
 
-                <div class="cards">
-                    <h3 style="color:white"><?php echo $user_name; ?></h3>
-                    <div class="rating"><?php echo $rating_stars; ?></div>
-                    <p style="color:white"><?php echo $review_text; ?></p>
+                                <div class="cards">
+                                    <h3 style="color:white"><?php echo $user_name; ?></h3>
+                                    <div class="rating"><?php echo $rating_stars; ?></div>
+                                    <p style="color:white"><?php echo $review_text; ?></p>
+                                </div>
+
+                            <?php } ?>
+                        <?php } else { ?>
+                            <p style="color:white">No reviews available at the moment.</p>
+                        <?php } ?>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <button class="prev-btn">❮</button>
+                    <button class="next-btn">❯</button>
                 </div>
 
-        <?php } ?>
-        <?php } else { ?>
-            <p style="color:white">No reviews available at the moment.</p>
-        <?php } ?>
-    </div>
+                <style>
+                    .carousel-container {
+                        position: relative;
+                        width: 100%;
+                        max-width: 400px;
 
-    <!-- Navigation Buttons -->
-    <button class="prev-btn">❮</button>
-    <button class="next-btn">❯</button>
-</div>
+                    }
 
-<style>
-    .carousel-container {
-        position: relative;
-        width: 100%;
-        max-width: 400px;
-        
-    }
+                    .carousel-inner {
+                        transition: transform 0.5s ease-in-out;
+                        width: 100%;
+                    }
 
-    .carousel-inner {
-        transition: transform 0.5s ease-in-out;
-        width: 100%;
-    }
+                    .cards {
+                        min-width: 100%;
+                        box-sizing: border-box;
+                        padding: 20px;
+                        background-color: green;
+                        border-radius: 10px;
+                        text-align: center;
+                    }
 
-    .cards {
-        min-width: 100%;
-        box-sizing: border-box;
-        padding: 20px;
-        background-color:green;
-        border-radius: 10px;
-        text-align: center;
-    }
+                    .rating {
+                        font-size: 24px;
+                        margin: 10px 0;
+                    }
 
-    .rating {
-        font-size: 24px;
-        margin: 10px 0;
-    }
+                    .prev-btn,
+                    .next-btn {
+                        position: absolute;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        background-color: rgba(0, 0, 0, 0.5);
+                        color: white;
+                        cursor: pointer;
+                        border-radius: 50%;
+                    }
 
-    .prev-btn, .next-btn {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        background-color: rgba(0, 0, 0, 0.5);
-        color: white;
-        cursor: pointer;
-        border-radius: 50%;
-    }
+                    .prev-btn {
+                        left: 10px;
+                    }
 
-    .prev-btn { left: 10px; }
-    .next-btn { right: 10px; }
+                    .next-btn {
+                        right: 10px;
+                    }
 
-    .prev-btn:hover, .next-btn:hover {
-        background-color: rgba(0, 0, 0, 0.8);
-    }
-</style>
+                    .prev-btn:hover,
+                    .next-btn:hover {
+                        background-color: rgba(0, 0, 0, 0.8);
+                    }
+                </style>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const carouselInner = document.querySelector(".carousel-inner");
-        const cards = document.querySelectorAll(".cards");
-        let currentIndex = 0;
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        const carouselInner = document.querySelector(".carousel-inner");
+                        const cards = document.querySelectorAll(".cards");
+                        let currentIndex = 0;
 
-        function updateCarousel() {
-            const offset = currentIndex * -100;
-            carouselInner.style.transform = `translateX(${offset}%)`;
-        }
+                        function updateCarousel() {
+                            const offset = currentIndex * -100;
+                            carouselInner.style.transform = `translateX(${offset}%)`;
+                        }
 
-        document.querySelector(".prev-btn").addEventListener("click", () => {
-            if (currentIndex > 0) {
-                currentIndex--;
-                updateCarousel();
-            }
-        });
+                        document.querySelector(".prev-btn").addEventListener("click", () => {
+                            if (currentIndex > 0) {
+                                currentIndex--;
+                                updateCarousel();
+                            }
+                        });
 
-        document.querySelector(".next-btn").addEventListener("click", () => {
-            if (currentIndex < cards.length - 1) {
-                currentIndex++;
-                updateCarousel();
-            }
-        });
-    });
-</script>
+                        document.querySelector(".next-btn").addEventListener("click", () => {
+                            if (currentIndex < cards.length - 1) {
+                                currentIndex++;
+                                updateCarousel();
+                            }
+                        });
+                    });
+                </script>
 
 
-<?php
+                <?php
 
-// Fetch average rating
-$avg_rating_query = "SELECT ROUND(SUM(review_rating) / COUNT(*), 1) AS average_rating FROM review_platform";
-$avg_rating_result = $con->query($avg_rating_query);
-$avg_rating = ($avg_rating_result->num_rows > 0) ? $avg_rating_result->fetch_assoc()['average_rating'] : 'N/A';
+                // Fetch average rating
+                $avg_rating_query = "SELECT ROUND(SUM(review_rating) / COUNT(*), 1) AS average_rating FROM review_platform";
+                $avg_rating_result = $con->query($avg_rating_query);
+                $avg_rating = ($avg_rating_result->num_rows > 0) ? $avg_rating_result->fetch_assoc()['average_rating'] : 'N/A';
 
-// Fetch happy customers
-$happy_customers_query = "SELECT COUNT(*) AS happy_customers FROM review_platform WHERE review_rating > 3.5";
-$happy_customers_result = $con->query($happy_customers_query);
-$happy_customers = ($happy_customers_result->num_rows > 0) ? $happy_customers_result->fetch_assoc()['happy_customers'] : '0';
+                // Fetch happy customers
+                $happy_customers_query = "SELECT COUNT(*) AS happy_customers FROM review_platform WHERE review_rating > 3.5";
+                $happy_customers_result = $con->query($happy_customers_query);
+                $happy_customers = ($happy_customers_result->num_rows > 0) ? $happy_customers_result->fetch_assoc()['happy_customers'] : '0';
 
-// Fetch unhappy customers
-$unhappy_customers_query = "SELECT COUNT(*) AS unhappy_customers FROM review_platform WHERE review_rating <= 3.5";
-$unhappy_customers_result = $con->query($unhappy_customers_query);
-$unhappy_customers = ($unhappy_customers_result->num_rows > 0) ? $unhappy_customers_result->fetch_assoc()['unhappy_customers'] : '0';
+                // Fetch unhappy customers
+                $unhappy_customers_query = "SELECT COUNT(*) AS unhappy_customers FROM review_platform WHERE review_rating <= 3.5";
+                $unhappy_customers_result = $con->query($unhappy_customers_query);
+                $unhappy_customers = ($unhappy_customers_result->num_rows > 0) ? $unhappy_customers_result->fetch_assoc()['unhappy_customers'] : '0';
 
-?>
+                ?>
 
-<div class="card bg-white rounded-lg p-4 w-full mb-4 shadow-md flex justify-between">
-    <div class="metrics flex flex-col items-center justify-center p-4 border border-gray-300 rounded-lg w-1/3 mr-2"
-        style="background-color:#F95B77;color:white;">
-        <h3 class="text-sm font-bold mb-2">Average Ratings</h3>
-        <div class="rating text-xl font-bold"><?php echo $avg_rating; ?></div>
-    </div>
-    <div class="metrics flex flex-col items-center justify-center p-4 border border-gray-300 rounded-lg w-1/3 mr-2"
-        style="background-color:#48CEEE;color:white;">
-        <h3 class="text-sm font-bold mb-2">Happy Customers</h3>
-        <div class="number text-lg font-bold"><?php echo $happy_customers; ?></div>
-    </div>
-    <div class="metrics flex flex-col items-center justify-center p-4 border border-gray-300 rounded-lg w-1/3"
-        style="background-color:#963FF0;color:white;">
-        <h3 class="text-sm font-bold mb-2">Unhappy Customers</h3>
-        <div class="number text-lg font-bold"><?php echo $unhappy_customers; ?></div>
-    </div>
-</div>
+                <div class="card bg-white rounded-lg p-4 w-full mb-4 shadow-md flex justify-between">
+                    <div class="metrics flex flex-col items-center justify-center p-4 border border-gray-300 rounded-lg w-1/3 mr-2"
+                        style="background-color:#F95B77;color:white;">
+                        <h3 class="text-sm font-bold mb-2">Average Ratings</h3>
+                        <div class="rating text-xl font-bold"><?php echo $avg_rating; ?></div>
+                    </div>
+                    <div class="metrics flex flex-col items-center justify-center p-4 border border-gray-300 rounded-lg w-1/3 mr-2"
+                        style="background-color:#48CEEE;color:white;">
+                        <h3 class="text-sm font-bold mb-2">Happy Customers</h3>
+                        <div class="number text-lg font-bold"><?php echo $happy_customers; ?></div>
+                    </div>
+                    <div class="metrics flex flex-col items-center justify-center p-4 border border-gray-300 rounded-lg w-1/3"
+                        style="background-color:#963FF0;color:white;">
+                        <h3 class="text-sm font-bold mb-2">Unhappy Customers</h3>
+                        <div class="number text-lg font-bold"><?php echo $unhappy_customers; ?></div>
+                    </div>
+                </div>
 
 
 
