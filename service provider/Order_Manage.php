@@ -243,7 +243,8 @@ if (isset($_POST['cancel'])) {
                             $booking_id = $booking['booking_id'];
                             $booking_date = $booking['booking_date'];
                             $customer_name = $booking['user_name'];
-                            $customer_address = $booking['user_district'] . ',' . $booking['user_upazila'] . ',' . $booking['user_area'] . ',' . $booking['user_street_address'] . ',' . $booking['user_unit_apt'];
+                            // $customer_address = $booking['user_district'] . ',' . $booking['user_upazila'] . ',' . $booking['user_area'] . ',' . $booking['user_street_address'] . ',' . $booking['user_unit_apt'];
+                            $customer_address = $booking['user_district'] . ',' . $booking['user_upazila']  . $booking['user_unit_apt'];
                             $service_item = $booking['item_name'];
                             $task_details = $booking['task_details'];
                             $appointment_time = $booking['booking_time'];
@@ -260,7 +261,7 @@ if (isset($_POST['cancel'])) {
                                 echo '<div class="text-2xl text-center font-bold bg-gradient-to-br from-blue-50 via-white to-blue-100 border-2 border-slate-300  shadow-lg rounded-lg p-6 flex flex-col justify-between transform hover:scale-105 transition duration-300">
                                         Slot-1
                                       </div>';
-                            } else if ($appointment_time == '12:00 AM') {
+                            } else if ($appointment_time == '12:00 PM') {
                                 echo '<div class="text-2xl text-center font-bold bg-gradient-to-br from-blue-50 via-white to-blue-100 border-2 border-slate-300  shadow-lg rounded-lg p-6 flex flex-col justify-between transform hover:scale-105 transition duration-300">
                                         Slot-2
                                       </div>';

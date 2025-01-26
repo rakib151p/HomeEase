@@ -223,7 +223,6 @@ if (isset($_GET['check'])) {
               }
             }
           }
-
           // Initialize the Trie and insert words
           const trie = new Trie();
           words.forEach(word => trie.insert(word));

@@ -53,7 +53,7 @@ if (isset($_POST['confirm'])) {
     }
     // echo $_POST['booking_id'];
 }
-
+// echo "<br><br><br><br><br><br><br><br>";
 if (isset($_POST['cancel'])) {
     $date = $time = '';
     // echo $_POST['booking_id'];
@@ -106,7 +106,9 @@ if (isset($_POST['cancel'])) {
         // $hours_difference = ($interval->days * 24) + $interval->h;
         // echo $hours_difference;
         // Check if the booking is more than 24 hours away
-        if ($interval->days >= 1 && $interval->h >= 4) {
+        // echo 'interval: days: '.$interval->days.'hour:'.$interval->h.'<br>';
+        // echo ($interval->days ==1&&$interval->h > 4);
+        if ($interval->days > 1||($interval->days==1&&$interval->h > 4)) {
             // echo 'yes';
             // Allow cancellation if more than 24 hours ahead
             $sql_delete = "UPDATE booking set `booking_status`=-1 WHERE booking_id='$booking_id'";
@@ -124,6 +126,7 @@ if (isset($_POST['cancel'])) {
                 echo "Error cancelling the booking.";
             }
         } else {
+            echo 'check';
             echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>"' . "<script>
                     Swal.fire({
                         icon: 'warning',
@@ -235,11 +238,11 @@ $result = $stmt->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My bookings</title>
+    <!-- <script src="https://unpkg.com/@tailwindcss/browser@4"></script> -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
      <style>
         body {
             background-color: #F4F4F4;

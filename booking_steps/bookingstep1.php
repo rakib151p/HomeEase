@@ -107,13 +107,13 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_SESSION['email']) && $_SESSI
     </div>
     <div id="location-form" class="max-w-4xl mx-auto mt-10 p-6 bg-white shadow rounded-lg bg-gradient-to-bl from-blue-100 via-white to-blue-50 shadow-xl">
 
-        <h2 class="text-2xl font-semibold text-gray-800 mb-4"><button
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4">
                 <a
                 href="../service_details.php?item_name=<?php echo urlencode($item_name); ?>"
                 class="h-10 w-20 bg-blue-100 shadow-lg rounded-lg hover:bg-blue-200 flex items-center justify-center text-center">
                 Back
                 </a>
-            </button> <?php echo $item_name; ?></h2>
+             <?php echo $item_name; ?></h2>
         <h5 class="text-2xl font-semibold text-gray-800 mb-4">
             Item details:<?php echo $item_details; ?>
         </h5>
